@@ -1,0 +1,2627 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap');
+
+/* SF Pro (self-hosted)
+   You provided OTF files in the project root under `fonts/`.
+   We register them here so the site uses SF Pro for all visitors.
+   If you later convert to .woff/.woff2, you can add those formats for smaller files.
+*/
+
+@font-face {
+  font-family: 'SF Pro';
+  src: url('fonts/SFPRODISPLAYREGULAR.OTF') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SF Pro';
+  src: url('fonts/SFPRODISPLAYTHINITALIC.OTF') format('opentype');
+  font-weight: 100;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SF Pro';
+  src: url('fonts/SFPRODISPLAYLIGHTITALIC.OTF') format('opentype');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+
+:root {
+    /* largura lateral do caderno overlay (quanto MENOR o gap, MAIS largo o caderno)
+      ajustado para ampliar área útil */
+    --notebook-side-gap: 320px;
+  /* back button colors */
+  --back-circle: #ffffff;
+  --back-circle-hover: #ffffff;
+  --back-text: #4a4f6a;
+  --back-arrow: #3b82f6; /* restored original blue arrow */
+  /* padrão visual de borda e sombra usado em cards e cadernos (original) */
+  --card-border: 1px solid rgba(0,0,0,0.06); /* borda cinza bem clarinha e fina */
+  --card-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  /* Prática: variáveis que controlam o tamanho do card (fácil de editar) */
+  /* --pratica-card-width aceita valores como '1200px', '80%', 'calc(100vw - 160px)' */
+  /* Igualar à largura do caderno (notebook-full overlay): viewport menos duas margens laterais */
+  --pratica-card-width: calc(100vw - (var(--notebook-side-gap) * 2));
+  /* --pratica-card-height aceita valores em px, ex: '610px' */
+  /* Altura igual à do caderno em TEORIA para harmonizar dimensões visuais */
+  --pratica-card-height: calc(100vh - 144px);
+  /* margem lateral aplicada ao card quando usar largura em calc(100vw - X) */
+  /* Sem margem lateral para alinhar exatamente com o caderno */
+  --pratica-side-margin: 0px;
+  /* largura do painel direito (notebook) dentro do layout de prática */
+  --pratica-right-panel: 280px;
+  /* altura do rodapé fixo */
+  --footer-height: 64px;
+  /* tamanho da fonte do rodapé (ajuste aqui para mudar facilmente) */
+  --footer-font-size: 0.75rem;
+
+  /* Kodama: controle fino do enquadramento (mais perto = maior scale) */
+  --kodama-scale: 1.09;
+  --kodama-shift-x: 0px;
+  --kodama-shift-y: 0px;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  height: 100vh;
+  overflow-y: auto; /* permitir rolagem normal */
+  font-family: 'SF Pro', -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  margin: 0;
+  color: #1f2d3d;
+  background: #05070b;
+  /* removido padding-bottom para eliminar espaço em branco quando o rodapé é fixo */
+}
+
+html {
+  height: 100%;
+  overflow-y: auto; /* permitir rolagem normal */
+  background: #05070b;
+}
+
+/* Fundo interativo (canvas) — fica atrás de todo o conteúdo */
+#interactive-bg {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #05070b;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Fundo Kodama (SVG) — compatível com o JS enviado */
+#header {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: auto;
+  overflow: hidden;
+}
+
+#kodama-graphic {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: auto;
+}
+
+#kodama-graphic svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: auto;
+  transform: translate(var(--kodama-shift-x), var(--kodama-shift-y)) scale(var(--kodama-scale));
+  transform-origin: center;
+}
+
+/* Remove os "bonecos" (Kodamas) da cena */
+#kodama-graphic [data-kodama="kodamas"],
+#kodama-graphic [data-kodama="heads"],
+#kodama-graphic [data-kodama="kodamaGlows"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Remove o texto/título "MIY..." do SVG (mantém o resto da cena) */
+#kodama-graphic [data-kodama="texts"],
+#kodama-graphic [data-kodama="textsMobile"],
+#kodama-graphic #h1,
+#kodama-graphic #h2,
+#kodama-graphic #mobile-title,
+#kodama-graphic #Miyasaki,
+#kodama-graphic #Miyasaki-Copy,
+#kodama-graphic #Miyasaki-Copy-2,
+#kodama-graphic #A-tribute-to {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Garante que o conteúdo fique acima do canvas */
+.container {
+  position: relative;
+  z-index: 1;
+}
+
+/* Na página de Prova Prática, não permitir rolagem da janela */
+body.mode-pratica,
+html.mode-pratica {
+  overflow: hidden !important;
+}
+
+/* Reset seguro: padroniza box-sizing e ajuda responsividade */
+*, *::before, *::after { box-sizing: border-box; }
+
+.container {
+  width: 92%;
+  max-width: 1200px;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* permitir que conteúdo se empilhe e a página role */
+  /* rodapé agora fixo, container pode ocupar toda a altura */
+  min-height: 100vh;
+  margin: 0 auto;
+  box-sizing: border-box;
+  position: relative; /* permite posicionamento absoluto de .top-nav */
+  padding-bottom: 16px; /* espaço básico quando o rodapé flui */
+}
+
+/* Na tela inicial (nenhum modo ativo), centralizar o conteúdo verticalmente e
+   evitar rolagem excessiva — conserva rolagem quando houver conteúdo maior. */
+body:not(.mode-pratica):not(.mode-teorica) .container {
+  justify-content: center;
+  padding-top: 28px;
+}
+
+/* Tela inicial: mostrar apenas o CTA centralizado */
+#menuScreen {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: var(--footer-height);
+}
+
+.start-game {
+  appearance: none;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: clamp(18px, 5vh, 140px) 0 0;
+  cursor: pointer;
+  display: inline-block;
+  position: static;
+
+  /* Mesma “vibe” do texto brilhante do SVG (cores já presentes nos gradientes do Kodama) */
+  color: #C1E9EC;
+  font-family: 'SF Pro', -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 800;
+  font-style: italic;
+  text-transform: none;
+  letter-spacing: 0.06em;
+  text-align: center;
+  white-space: normal;
+
+  /* tamanho confortável para CTA central */
+  font-size: clamp(28px, 4vw, 56px);
+  line-height: 1.05;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+
+  /* brilho */
+  text-shadow:
+    0 0 6px rgba(193, 233, 236, 0.65),
+    0 0 16px rgba(15, 184, 208, 0.45),
+    0 0 30px rgba(38, 138, 171, 0.30);
+  transition: text-shadow 180ms ease, transform 180ms ease;
+}
+
+.start-game:focus-visible {
+  outline: 2px solid rgba(193, 233, 236, 0.35);
+  outline-offset: 8px;
+}
+
+.start-game:hover {
+  text-shadow:
+    0 0 8px rgba(193, 233, 236, 0.80),
+    0 0 20px rgba(15, 184, 208, 0.55),
+    0 0 36px rgba(38, 138, 171, 0.38);
+  transform: translateY(-1px);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 0rem;
+  margin-top: 0;
+}
+
+#headerImage {
+  width: 100%;
+  max-width: 750px;
+  height: auto;
+  display: block;
+  margin: 0 auto 0rem auto;
+  object-fit: contain;
+  image-rendering: auto;
+}
+
+/* Remover (visual) o título em formato de imagem sem mexer no layout.
+   Isso mantém o mesmo espaço e evita deslocar o botão da Prova Prática. */
+#menuScreen #headerImage {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.back:hover .back-btn-text {
+  padding-bottom: 16px; /* espaçamento básico quando o rodapé flui */
+  transform: translateY(-35px);
+}
+
+.menu-card {
+  background: white;
+  border-radius: 20px;
+  padding: 0;
+  border: var(--card-border);
+  box-shadow: var(--card-shadow);
+  cursor: pointer;
+  transition: all 0.3s;
+  overflow: hidden;
+  width: 220px; 
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0; 
+  position: relative;
+}
+
+/* Card do menu (microscópio): sem borda/sombra, só o 3D */
+.menu-card--microscope {
+  border: none;
+  box-shadow: none;
+  background: transparent;
+}
+
+.menu-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-color: #cacfff;
+}
+
+.menu-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  image-rendering: auto;
+  transform: translateZ(0);
+}
+
+/* Menu: permitir que o conteúdo (microscópio) ocupe o card inteiro */
+.menu-card-content {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Menu (novo): palco grande do microscópio na tela inicial */
+.menu-microscope-stage {
+  width: min(980px, 92vw);
+  height: 610px;
+  margin: 18px auto 0 auto;
+  position: relative;
+  background: transparent;
+}
+
+@media (max-width: 700px) {
+  .menu-microscope-stage {
+    width: 92vw;
+    height: 60vh;
+    min-height: 380px;
+  }
+}
+
+.menu-microscope-host {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Fallback (imagem) some quando o microscópio estiver pronto */
+.menu-card--microscope .menu-microscope-fallback {
+  transition: opacity 200ms ease;
+}
+
+.menu-card--microscope.microscope-ready .menu-microscope-fallback {
+  opacity: 0;
+}
+
+/* Microscope 3D (menu e card) */
+.microscope-host {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.microscope-wrap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+}
+
+.microscope-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+}
+
+.microscope-canvas canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  background: transparent !important;
+}
+
+.microscope-eyepiece-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.95) 85%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s;
+  z-index: 5;
+}
+
+.microscope-status {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  color: rgba(255,255,255,0.6);
+  font-size: 12px;
+  pointer-events: none;
+  z-index: 6;
+  display: none;
+}
+
+.microscope-ui {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 220px;
+  padding: 12px;
+  border-radius: 10px;
+  color: rgba(255,255,255,0.92);
+  background: rgba(0,0,0,0.65);
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: var(--card-shadow);
+  z-index: 7;
+  backdrop-filter: blur(8px);
+}
+
+.microscope-ui-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+
+.microscope-control { margin-bottom: 10px; }
+
+.microscope-label {
+  display: block;
+  font-size: 11px;
+  margin-bottom: 6px;
+  color: rgba(255,255,255,0.75);
+  font-weight: 600;
+}
+
+.microscope-range {
+  width: 100%;
+}
+
+.microscope-btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.microscope-btn-primary {
+  background: rgba(255,255,255,0.92);
+  color: #000;
+}
+
+.microscope-btn-toggle {
+  background: rgba(0,0,0,0.35);
+  color: rgba(255,255,255,0.85);
+}
+
+.microscope-btn-toggle.active {
+  background: rgba(255,255,255,0.15);
+}
+
+/* Menu container: display menu cards side-by-side with wrapping */
+.menu-container {
+  display: flex;
+  flex-direction: row;
+  gap: 1.5rem;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 0.75rem; /* ligeiramente menor para subir os cards */
+}
+
+/* Tornar os cards claramente clicáveis */
+.menu-card { cursor: pointer; }
+
+@media (max-width: 700px) {
+  .menu-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+/* Na tela inicial, garantir distância segura do rodapé fixo */
+body:not(.mode-pratica):not(.mode-teorica) .menu-container {
+  margin-bottom: calc(var(--footer-height) + 32px);
+}
+
+.menu-card-label {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  background: rgba(255,255,255,0.9);
+  color: #2c3e50;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  font-family: 'SF Pro', -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.menu-card-title, .menu-card-description { display: none; }
+
+/* --- CARD CONTAINER --- */
+.card-container {
+  perspective: 1000px;
+  /* Margem inferior para evitar sobreposição do rodapé */
+  margin-bottom: calc(var(--footer-height) + 32px); 
+  /* Margem superior maior para evitar sobreposição do botão voltar */
+  margin-top: 80px;
+  position: relative;
+  /* Importante: Card fica acima dos botões */
+  z-index: 10; 
+}
+
+.card {
+  width: 100%;
+  height: 610px; 
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+  cursor: pointer;
+}
+
+.card.flipped {
+  transform: rotateY(180deg);
+}
+
+/* --- ESTILO DO CARD (Borda Verde e Fundo Branco) --- */
+.card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  
+  /* Borda alterada para #8793ff */
+  border: 1px solid #b6bdff; 
+  background: white;
+  
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Quando o assistente estiver dentro do card, o próprio card vira o “recorte” */
+.card-face.assistente-card-clip {
+  overflow: hidden;
+}
+
+.card-back {
+  background: #566356;
+  transform: rotateY(180deg);
+  padding: 2rem;
+  /* Opcional: borda no verso também */
+  border: 1px solid #8793ff;
+}
+
+.card-image {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden; /* padrão: esconder excessos em modos normais */
+  border-radius: 10px;
+}
+
+/* No modo prática (jogo), permitir que o botão abaixo da imagem apareça sem ser cortado */
+.mode-pratica .card-image { overflow: visible; }
+/* Ajustes específicos para empilhar imagem + botão sem cortar nada dentro do card da prática */
+.mode-pratica .game-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  box-sizing: border-box;
+  height: 100%;
+}
+.mode-pratica .game-left img { max-height: calc(100% - 120px); }
+/* Botão avançar: no card inicial (canto inferior direito) */
+.advance-toolbar {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  z-index: 100;
+}
+/* Botão adicionar: abaixo do caderno (lista de opções) */
+.mode-pratica .game-right {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.mode-pratica .game-right .notebook-toolbar {
+  position: static;
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+  padding: 0 24px;
+}
+/* Posicionar Avançar no canto inferior direito do CARD, não do painel */
+.mode-pratica .card-face .advance-toolbar {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  justify-content: flex-end;
+  z-index: 100;
+}
+.advance-btn.shimmer-btn { min-width: 190px; }
+
+.card-front-text {
+  display: none;
+  margin-top: 1rem;
+  text-align: center;
+  color: #333;
+  font-size: 1rem;
+  padding: 0 1rem;
+}
+
+.card-image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.card-answer {
+  text-align: center;
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Bradley Hand', cursive;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 1px;
+  padding: 1rem;
+}
+
+/* --- CONTROLES / BOTÕES --- */
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: calc(var(--footer-height) + 48px); /* estado anterior: folga moderada acima do rodapé */
+  margin-top: 1rem;
+  width: 100%;
+  position: relative;
+  z-index: 10;
+}
+
+.control-btn {
+  cursor: pointer;
+  transition: transform 0.2s;
+  
+  /* Tamanho responsivo: reduz em telas pequenas e limita em grandes */
+  height: clamp(56px, 12vw, 120px); /* estado anterior restaurado */
+  
+  width: auto;
+  object-fit: contain;
+  display: block;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.control-btn:hover { transform: scale(1.1); }
+
+.shuffle { height: clamp(36px, 8vw, 64px); width: auto; }
+
+.zoom-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  transition: all 0.3s;
+  z-index: 10;
+}
+
+.zoom-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  overflow: hidden;
+  cursor: grab;
+}
+.zoom-overlay.active { display: flex; }
+.zoom-overlay img {
+  max-width: 95%;
+  max-height: 95%;
+  object-fit: contain;
+  box-shadow: 0 0 30px rgba(255,255,255,0.3);
+}
+.zoom-close {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  color: white;
+  font-size: 3rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* --- SETA DE VOLTAR --- */
+.top-nav {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  z-index: 1400; /* higher than notebook overlay */
+  padding: 0;
+}
+
+.back-btn-img {
+  width: 40px;   
+  height: 40px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1)); 
+}
+.back-btn-img:hover { transform: scale(1.1); }
+
+/* Back button standardized style used across pages */
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  font-family: 'SF Pro', -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+}
+.back-btn:focus { outline: 2px solid rgba(0,0,0,0.08); }
+.back-btn:hover { background: rgba(0,0,0,0.03); }
+.back-btn .back-btn-text {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Animated back button design (original) */
+.back {
+  position: relative;
+  display: inline-block;
+  width: 30px; /* igual ao círculo interno */
+  height: 30px;
+  padding: 0; /* remove espaço que gerava retângulo */
+  cursor: pointer;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  appearance: none;
+  -webkit-appearance: none;
+  line-height: 1;
+}
+
+.back h4,
+.back span {
+  display: none !important;
+}
+
+.back div {
+  top: 0; /* Ajustado para alinhar melhor */
+  left: 0;
+  content: '';
+  width: 30px;
+  height: 30px;
+  display: block;
+  overflow: hidden;
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(1);
+  background-color: #E9E7F2;
+  transition: transform 400ms 0s cubic-bezier(0.2, 0, 0, 1.6);
+}
+
+.back div::after {
+  top: 0;
+  left: 0;
+  content: '';
+  width: 60px;
+  height: 30px;
+  position: absolute;
+  background-position: 0 0;
+  background-image: url('https://s3-eu-west-1.amazonaws.com/thomascullen-codepen/back.svg');
+  transition: transform 400ms 0s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.back:hover h4,
+.back:active h4,
+.back:focus-within h4,
+.back.active h4 {
+  color: #171922;
+  opacity: 1;
+  transform: translateY(-5px); /* vertically align with the circle */
+}
+
+.back:hover span {
+  opacity: 1;
+  transform: translateY(-35px);
+}
+
+.back:hover div {
+  transform: scale(1.1);
+  background-color: white;
+  box-shadow: 0 2px 10px 0 rgba(185,182,198,0.00), 0 1px 3px 0 rgba(175,172,189,0.25);
+}
+
+.back:focus {
+  outline: 2px solid rgba(0,0,0,0.08);
+  outline-offset: 2px;
+}
+
+/* Garantir que h4/span ocultos não criem caixa residual */
+.back h4,
+.back span { display: none !important; margin: 0 !important; padding: 0 !important; }
+
+.back:hover div::after {
+  transform: translateX(-30px);
+}
+
+.hidden { display: none !important; }
+
+/* Fixar o botão de voltar nas páginas de Prática e Teoria, independente de estilos herdados */
+.mode-pratica .back,
+.mode-teorica .back {
+  position: fixed !important;
+  top: 24px !important;
+  left: 320px !important;
+  z-index: 2000 !important;
+}
+.feedback-modal {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: #ffffff;
+  color: #1f2d3d;
+  border: 1px solid rgba(0,0,0,0.1);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+  border-radius: 12px;
+  z-index: 99999;
+  min-width: 280px;
+  max-width: 90vw;
+}
+.feedback-content {
+  padding: 14px 16px;
+  font-family: 'SF Pro', -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 1rem;
+}
+.feedback-content.success { color: #2e7d32; }
+.feedback-content.error { color: #c62828; }
+.feedback-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  padding: 10px 12px 12px;
+}
+.feedback-actions .btn {
+  padding: 8px 12px;
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: #fff;
+  cursor: pointer;
+}
+
+/* Resultado: overlay do tamanho do card (modo prática) */
+#cardImage.result-overlay-open > .game-layout,
+#cardImage.result-overlay-open .advance-toolbar {
+  display: none !important;
+}
+
+#cardImage .result-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  border-radius: 20px;
+  overflow: hidden;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+}
+
+#cardImage .result-overlay .feedback-actions {
+  margin-top: auto;
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  padding: 0;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+#cardImage .result-overlay .feedback-actions .shimmer-btn {
+  width: auto;
+  min-width: 140px;
+}
+
+/* Robô + balão no resumo final */
+@keyframes final-hover-speech {
+  0% { transform: translateX(-50%) translateY(4px); }
+  50% { transform: translateX(-50%) translateY(0px); }
+  100% { transform: translateX(-50%) translateY(4px); }
+}
+
+@keyframes final-hover {
+  0% { top: 200px; }
+  50% { top: 190px; }
+  100% { top: 200px; }
+}
+
+@keyframes final-shadow {
+  0% { filter: blur(5px); opacity: 0.35; }
+  50% { filter: blur(10px); opacity: 0.22; }
+  100% { filter: blur(5px); opacity: 0.35; }
+}
+
+.final-summary-modal {
+  min-width: 320px;
+}
+
+.final-summary-modal .final-summary-content {
+  padding: 16px 16px 6px;
+  position: relative;
+  height: 100%;
+}
+
+.final-summary-modal .final-summary-title {
+  font-family: 'SF Pro', -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 700;
+  font-size: 2.0rem;
+  color: #111827;
+  text-align: center;
+  margin: 2px 0 10px;
+  position: relative;
+  z-index: 5;
+}
+
+.final-summary-modal .final-summary-stage {
+  position: relative;
+  width: min(340px, 86vw);
+  height: 360px;
+  margin: 0 auto 8px;
+  left: 0;
+  top: 0;
+  will-change: contents;
+  /* Necessário para drag com dedo (Pointer Events) sem scroll/gestos do navegador */
+  touch-action: none;
+}
+
+.final-summary-modal .speech {
+  position: absolute;
+  width: min(520px, 92%);
+  height: auto;
+  min-height: 112px;
+  left: 50%;
+  top: 8px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.15;
+  background-color: #fff;
+  border: 2px solid rgba(53, 53, 53, 0.55);
+  border-radius: 24px;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.14);
+  animation: final-hover-speech 1s infinite;
+  will-change: transform;
+  font-weight: 800;
+  color: #111827;
+  isolation: isolate;
+  padding: 14px 18px;
+  gap: 8px;
+  z-index: 12000;
+  pointer-events: none;
+}
+
+/* Segundo balão (mensagem em preto) — aparece ao coletar a estrela */
+.final-summary-modal .speech.speech-secondary {
+  width: fit-content;
+  max-width: min(520px, 92%);
+  height: auto;
+  padding: var(--anadix-balloon-padding);
+  font-family: var(--anadix-balloon-font-family);
+  font-size: var(--anadix-balloon-font-size);
+  line-height: var(--anadix-balloon-line-height);
+  font-weight: 400;
+  color: var(--anadix-balloon-color);
+  background: var(--anadix-balloon-bg);
+  border: var(--anadix-balloon-border);
+  border-radius: var(--anadix-balloon-radius);
+  box-shadow: var(--anadix-balloon-shadow);
+  animation: none;
+  transition: none;
+}
+
+.final-summary-modal .is-hidden {
+  display: none !important;
+}
+
+/* Estrela coletável */
+.final-summary-modal .collectible-star {
+  position: absolute;
+  left: 180px;
+  top: 220px;
+  width: 52px;
+  height: 52px;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  filter: none;
+  z-index: 12000;
+  pointer-events: none;
+
+  /* Como agora é <img>, usa a própria imagem */
+  object-fit: contain;
+  display: block;
+}
+
+.final-summary-modal .speech-line {
+  display: block;
+  width: 100%;
+}
+
+.final-summary-modal .speech-hint {
+  margin-top: 6px;
+  font-weight: 600;
+  font-size: 0.78rem;
+  color: rgba(17, 24, 39, 0.45);
+}
+
+/* Linha 1: mesma identidade visual do botão Reiniciar (gradiente do .shimmer-btn) */
+.final-summary-modal .speech-line-1 {
+  font-weight: 900;
+  font-size: 1.5rem;
+  background-image: linear-gradient(315deg, #6672b4 -10%, rgb(176, 201, 255) 0%, #8793ff 110%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Linha 2: verde se acima da média, vermelho se abaixo */
+.final-summary-modal .speech-line-2 {
+  font-weight: 800;
+  font-size: 1.5rem;
+}
+.final-summary-modal .speech-line-2.is-passed { color: #2e7d32; }
+.final-summary-modal .speech-line-2.is-failed { color: #c62828; }
+
+/* Olhos do robô (loop): 5s mood + 2s neutro (7s total) */
+@keyframes eyes-neutral-loop {
+  0%, 71.4% { opacity: 0; }
+  71.5%, 100% { opacity: 1; }
+}
+
+@keyframes eyes-mood-loop {
+  0%, 71.4% { opacity: 1; }
+  71.5%, 100% { opacity: 0; }
+}
+
+.final-summary-modal .eve .head .face .eyes {
+  position: absolute;
+  inset: 0;
+  display: block;
+  pointer-events: none;
+  z-index: 1;
+  will-change: opacity;
+}
+
+.final-summary-modal .eve .head .face .eyes-neutral { opacity: 1; }
+.final-summary-modal .eve .head .face .eyes-mood { opacity: 0; }
+
+.final-summary-modal.is-passed .eve .head .face .eyes-neutral,
+.final-summary-modal.is-failed .eve .head .face .eyes-neutral {
+  animation: eyes-neutral-loop 7s steps(1, end) infinite;
+}
+
+.final-summary-modal.is-passed .eve .head .face .eyes-mood,
+.final-summary-modal.is-failed .eve .head .face .eyes-mood {
+  animation: eyes-mood-loop 7s steps(1, end) infinite;
+}
+.final-summary-modal .speech::after {
+  content: none;
+  display: none;
+}
+
+.final-summary-modal .perso {
+  position: absolute;
+  width: 90px;
+  height: 270px;
+  left: 0;
+  top: 120px;
+  transform: scale(0.75);
+  transform-origin: top center;
+  transition: left 220ms ease, top 220ms ease;
+  will-change: left, top;
+  z-index: 14000;
+  pointer-events: none;
+}
+
+/* Anadix dentro do Resultado: fica abaixo do robô */
+.final-summary-modal #assistente-fixo {
+  z-index: 13000;
+}
+
+.final-summary-modal .eve {
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: 200px;
+  width: 70px;
+  margin-left: -35px;
+  animation: final-hover 1s infinite;
+}
+
+.final-summary-modal .eve .body,
+.final-summary-modal .eve .head {
+  position: absolute;
+  left: 0;
+  background-color: #fff;
+}
+
+.final-summary-modal .eve .body {
+  bottom: 0;
+  width: 100%;
+  height: 105px;
+  z-index: 1;
+  border-radius: 50% 50% 50% 50%/20% 20% 70% 70%;
+  box-shadow: inset -1px 0 1px 1px rgba(255,255,255,0.5), inset -3px -3px 15px 1px rgba(0,0,0,0.2);
+}
+
+.final-summary-modal .eve .body::before,
+.final-summary-modal .eve .body::after {
+  content: "";
+  position: absolute;
+  height: 63px;
+  background-color: #fff;
+  width: 18%;
+  top: 15%;
+  z-index: 9;
+}
+
+.final-summary-modal .eve .body::before {
+  left: -8%;
+  border-radius: 100% 0 32% 69%/20% 20% 70% 70%;
+  transform: rotate(-4deg);
+  box-shadow: inset 3px 0 5px 1px rgba(0,0,0,0.2);
+}
+
+.final-summary-modal .eve .body::after {
+  right: -8%;
+  border-radius: 32% 69% 100% 0/20% 20% 70% 70%;
+  transform: rotate(4deg);
+  box-shadow: inset -3px 0 5px 1px rgba(0,0,0,0.2);
+}
+
+.final-summary-modal .eve .body .headshadow {
+  width: 100%;
+  position: absolute;
+  top: 6%;
+  height: 21px;
+  left: 50%;
+  margin-left: -50%;
+  background-color: #fff;
+  border-radius: 100%;
+  border-bottom: 1px solid #fff;
+  box-shadow: inset 0 0 1px 1px rgba(255,255,255,0.5), inset 0 5px 10px 3px #bbb, 0 1px 0px 1px rgba(255,255,255,0.7);
+}
+
+.final-summary-modal .eve .head {
+  bottom: 88px;
+  height: 49px;
+  width: 100%;
+  z-index: 2;
+  border-radius: 50% 50% 50% 50%/70% 70% 25% 25%;
+  box-shadow: inset -1px 0 1px 1px rgba(255,255,255,0.5), inset -2px -3px 15px 1px rgba(0,0,0,0.2);
+}
+
+.final-summary-modal .eve .head .face {
+  position: absolute;
+  bottom: 16%;
+  left: 50%;
+  margin-left: -35%;
+  width: 70%;
+  height: 28px;
+  background-color: #000;
+  border-radius: 50% 50% 50% 50%/70% 70% 40% 40%;
+  isolation: isolate;
+}
+
+/* Olhos neutros (original) */
+.final-summary-modal .eve .head .face .eyes-neutral::before,
+.final-summary-modal .eve .head .face .eyes-neutral::after {
+  content: "";
+  background-color: #137abd;
+  border-radius: 100%;
+  width: 12.6px;
+  height: 9.1px;
+  position: absolute;
+  top: 40%;
+  filter: blur(1px);
+}
+
+.final-summary-modal .eve .head .face .eyes-neutral::before { left: 18%; }
+.final-summary-modal .eve .head .face .eyes-neutral::after { right: 18%; }
+
+/* Olhos mood: apaixonado (passou) */
+.final-summary-modal.is-passed .eve .head .face .eyes-mood::before,
+.final-summary-modal.is-passed .eve .head .face .eyes-mood::after {
+  content: "♥";
+  position: absolute;
+  display: block;
+  background: transparent;
+  color: #ff4d8d;
+  width: auto;
+  height: auto;
+  top: 24%;
+  filter: none;
+  font-size: 14px;
+  line-height: 1;
+}
+.final-summary-modal.is-passed .eve .head .face .eyes-mood::before { left: 20%; transform: rotate(-10deg); }
+.final-summary-modal.is-passed .eve .head .face .eyes-mood::after { right: 20%; transform: rotate(10deg); }
+
+/* Olhos mood: demoníaco/bravo (falhou) */
+.final-summary-modal.is-failed .eve .head .face .eyes-mood::before,
+.final-summary-modal.is-failed .eve .head .face .eyes-mood::after {
+  content: "";
+  position: absolute;
+  display: block;
+  background-color: #ff2d2d;
+  filter: none;
+  width: 13px;
+  height: 9px;
+  top: 42%;
+  border-radius: 60% 60% 40% 40%;
+  box-shadow: 0 0 6px rgba(255, 45, 45, 0.55);
+}
+.final-summary-modal.is-failed .eve .head .face .eyes-mood::before { left: 18%; transform: rotate(-18deg); }
+.final-summary-modal.is-failed .eve .head .face .eyes-mood::after { right: 18%; transform: rotate(18deg); }
+
+.final-summary-modal .shadow {
+  position: absolute;
+  width: 70px;
+  height: 20px;
+  background-color: rgba(0,0,0,0.3);
+  left: 50%;
+  margin-left: -35px;
+  top: 210px;
+  border-radius: 100%;
+  animation: final-shadow 1s infinite;
+}
+
+/* Controle direcional (somente no modal final) */
+.final-summary-modal .control {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  right: auto;
+  width: 220px;
+  height: 90px;
+  pointer-events: auto;
+  transform: scale(0.85);
+  transform-origin: left bottom;
+  z-index: 10000;
+}
+
+.final-summary-modal .bt {
+  appearance: none;
+  border: 1px solid #c14b45;
+  background: #c14b45;
+  color: #fff;
+  font-family: Lato, Helvetica, Arial, sans-serif;
+  text-decoration: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  position: relative;
+  font-size: 34px;
+  width: 35px;
+  height: 35px;
+  padding: 25px 10px;
+  z-index: 999999;
+  border-radius: 6px;
+  box-sizing: content-box;
+  box-shadow: 0 4px 0 0 #6b2824;
+  transition: background .4s;
+  display: inline-block;
+  line-height: 35px;
+  user-select: none;
+}
+
+.final-summary-modal .bt:hover {
+  background: #d45548;
+}
+
+.final-summary-modal .bt_right:active,
+.final-summary-modal .bt_left:active {
+  top: 4px;
+  box-shadow: none;
+}
+
+.final-summary-modal .bt_top:active,
+.final-summary-modal .bt_bottom:active {
+  box-shadow: none !important;
+}
+
+.final-summary-modal .bt_top:active {
+  bottom: 46px;
+}
+
+.final-summary-modal .bt_bottom:active {
+  bottom: -17px;
+}
+
+.final-summary-modal .bt:focus-visible {
+  outline: 2px solid rgba(59, 130, 246, 0.45);
+  outline-offset: 2px;
+}
+
+.final-summary-modal .bt_right { float: right; }
+.final-summary-modal .bt_left { float: left; }
+
+.final-summary-modal .bt_top,
+.final-summary-modal .bt_bottom {
+  position: absolute;
+  box-shadow: 4px 0px 0px 0px #6b2824 !important;
+  transform: rotate(90deg);
+}
+
+.final-summary-modal .bt_bottom {
+  bottom: -13px;
+  right: 80px;
+}
+
+.final-summary-modal .bt_top {
+  bottom: 50px;
+  right: 80px;
+}
+
+.footer {
+  position: fixed; /* fixo no final da viewport */
+  bottom: -10px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  height: var(--footer-height);
+  padding: 0 0 0 40px;
+  z-index: 2000; /* acima do conteúdo para ficar sempre visível */
+  background: transparent; /* manter transparente conforme pedido */
+  pointer-events: none; /* não intercepta cliques */
+}
+
+/* -------------------------------------------------------------------------- */
+/* Assistente (Melissa) — overlay central (escopado para não afetar outros SVGs) */
+/* -------------------------------------------------------------------------- */
+
+/* Tokens do balão (Anadix) — usados também nos balões das estrelas do Resultado */
+:root {
+  --anadix-balloon-bg: #fff;
+  --anadix-balloon-color: #333;
+  --anadix-balloon-radius: 15px;
+  --anadix-balloon-shadow: 0 5px 15px rgba(0,0,0,0.15);
+  --anadix-balloon-padding: 15px;
+  --anadix-balloon-font-family: 'SF Pro', -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --anadix-balloon-font-size: 14px;
+  --anadix-balloon-line-height: 1.4;
+  --anadix-balloon-border: none;
+}
+
+/* --- POSIÇÃO DO WIDGET --- */
+#assistente-fixo {
+  position: fixed;
+  bottom: -88px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 940px;
+  height: 580px;
+  z-index: 9999;
+  pointer-events: none;
+  cursor: default;
+  overflow: visible;
+  transition: opacity 320ms ease, transform 320ms ease;
+  will-change: opacity, transform;
+}
+
+/* Transição de saída/entrada (usada ao trocar para a tela de cards) */
+#assistente-fixo.assistente-hidden {
+  opacity: 0;
+  transform: translateX(-50%) translateY(18px);
+}
+
+/* Quando está dentro do card, deixa de ser fixed e passa a ser recortado pelo card */
+#assistente-fixo.assistente-in-card {
+  position: absolute;
+  bottom: -88px;
+  left: calc(50% - 480px);
+  transform: translateX(-50%);
+  width: min(940px, 100%);
+  z-index: 80;
+}
+
+/* A partir do 2º card: Anadix à direita (usa o espaço em branco do card) */
+#assistente-fixo.assistente-in-card.anadix-right-cards {
+  left: auto;
+  right: -110px;
+  transform: none;
+}
+
+/* Quando o overlay de Resultado abre, a Anadix precisa ficar acima dele e um pouco mais alta */
+#assistente-fixo.anadix-result-open.assistente-in-card {
+  z-index: 12050;
+}
+
+/* Garantir que o modal de Resultado continue totalmente clicável */
+#assistente-fixo.anadix-result-open,
+#assistente-fixo.anadix-result-open * {
+  pointer-events: none !important;
+}
+
+/* Só o avatar/balão deve ser interativo (não bloquear o resto da UI) */
+#assistente-fixo .avatar_help_avatar,
+#assistente-fixo .bracos_frente_content,
+#assistente-fixo #balao-fala {
+  pointer-events: auto;
+}
+
+#assistente-fixo .avatar_help_avatar { cursor: pointer; }
+
+#assistente-fixo:focus-visible {
+  outline: 2px solid rgba(193, 233, 236, 0.35);
+  outline-offset: 6px;
+  border-radius: 16px;
+}
+
+/* --- BALÃO DE FALA --- */
+#assistente-fixo #balao-fala {
+  position: absolute;
+  bottom: 295px;
+  left: calc(50% + 180px);
+  transform: translateX(-50%);
+  width: max-content;
+  min-width: 220px;
+  max-width: min(460px, 92vw);
+  background: var(--anadix-balloon-bg);
+  padding: var(--anadix-balloon-padding);
+  border-radius: var(--anadix-balloon-radius);
+  box-shadow: var(--anadix-balloon-shadow);
+  border: var(--anadix-balloon-border);
+  text-align: center;
+  color: var(--anadix-balloon-color);
+  font-family: var(--anadix-balloon-font-family);
+  font-size: var(--anadix-balloon-font-size);
+  line-height: var(--anadix-balloon-line-height);
+  z-index: 99999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, transform 0.3s, visibility 0.3s;
+  pointer-events: auto;
+}
+
+/* Balão no topo direito quando Anadix está à direita */
+#assistente-fixo.assistente-in-card.anadix-right-cards #balao-fala {
+  left: auto;
+  right: 120px;
+  bottom: 370px;
+  transform: none;
+}
+
+/* Preservar a animação de entrada do balão (sem translateX) */
+#assistente-fixo.assistente-in-card.anadix-right-cards #balao-fala.visivel {
+  transform: translateY(-10px);
+}
+
+/* Rabinho do balão apontando para a direita */
+#assistente-fixo.assistente-in-card.anadix-right-cards #balao-fala::after {
+  left: auto;
+  right: 28px;
+}
+
+/* Apenas na página inicial (menu): empurrar o balão mais para a direita */
+body:not(.mode-pratica):not(.mode-teorica) #assistente-fixo:not(.assistente-in-card) #balao-fala {
+  left: calc(50% + 240px);
+}
+
+/* Apenas no 1º card (microscópio): subir o balão acima da cabeça */
+#assistente-fixo.anadix-microscope-card #balao-fala {
+  bottom: 355px;
+}
+
+#assistente-fixo #balao-fala.visivel {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-10px);
+}
+
+#assistente-fixo #balao-fala::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 28px;
+  border-width: 8px;
+  border-style: solid;
+  border-color: #fff transparent transparent transparent;
+}
+
+/* Microscópio: ao observar pela ocular, não exibir balão do assistente */
+body.microscope-eyepiece-mode #assistente-fixo #balao-fala {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* --- SELEÇÃO DO PERSONAGEM (MELISSA) --- */
+#assistente-fixo .avatar_gerente,
+#assistente-fixo .avatar_tutora,
+#assistente-fixo .avatar_estudante {
+  display: none !important;
+}
+
+#assistente-fixo .avatar_conteudista {
+  display: block !important;
+}
+
+/* --- CORES BASE E STYLES SVG (ESCOPADOS) --- */
+#assistente-fixo .help_avatar_capsule .st0{fill:#35322f !important;}
+#assistente-fixo .help_avatar_capsule .st1{fill:#927a5b !important;}
+#assistente-fixo .help_avatar_capsule .st2{fill:#020101 !important;}
+#assistente-fixo .help_avatar_capsule .st3{fill:#4e7391 !important;}
+#assistente-fixo .help_avatar_capsule .st5{fill:#7eb3d6 !important;}
+#assistente-fixo .help_avatar_capsule .st6{fill:#ffffff !important;}
+#assistente-fixo .help_avatar_capsule .st7{fill:#E3A98C !important;}
+#assistente-fixo .help_avatar_capsule .st9{fill:#F7CCB6 !important;}
+#assistente-fixo .help_avatar_capsule .st12{fill:#D0E9EE !important;}
+#assistente-fixo .help_avatar_capsule .st13{fill:#ffc3ac !important;}
+#assistente-fixo .help_avatar_capsule .st15{fill:#ffc3ac !important;}
+#assistente-fixo .help_avatar_capsule .st16{fill:#F0F0EF !important;}
+#assistente-fixo .help_avatar_capsule .st17{fill:#CAE6E6 !important;}
+#assistente-fixo .help_avatar_capsule .st18{fill:#28434A !important;}
+#assistente-fixo .help_avatar_capsule .st19{fill:#1F393D !important;}
+#assistente-fixo .help_avatar_capsule .st20{fill:#ffa59d !important;}
+#assistente-fixo .help_avatar_capsule .st21{fill:#7eb3d6 !important;}
+#assistente-fixo .help_avatar_capsule .st22{fill:#009091 !important;}
+#assistente-fixo .help_avatar_capsule .st23{fill:#18A6A7 !important;}
+#assistente-fixo .help_avatar_capsule .st24{fill:#007475 !important;}
+#assistente-fixo .help_avatar_capsule .st25{fill:#00A7C5 !important;}
+#assistente-fixo .help_avatar_capsule .st26{fill:#005A93 !important;}
+#assistente-fixo .help_avatar_capsule .st28{fill:#390A06 !important;}
+#assistente-fixo .help_avatar_capsule .st29{fill:#F09A5D !important;}
+#assistente-fixo .help_avatar_capsule .st30{fill:#EF9978 !important;}
+#assistente-fixo .help_avatar_capsule .st31{fill:#F7CBB6 !important;}
+#assistente-fixo .help_avatar_capsule .st33{fill:#9E9F9F !important;}
+#assistente-fixo .help_avatar_capsule .st34{fill:#F6C8B8 !important;}
+#assistente-fixo .help_avatar_capsule .st35{fill:#180608 !important;}
+#assistente-fixo .help_avatar_capsule .st36{fill:#EEA28A !important;}
+#assistente-fixo .help_avatar_capsule .st37{fill:#FFFFFF !important;}
+#assistente-fixo .help_avatar_capsule .st57{fill:#F6C9B8 !important;}
+#assistente-fixo .help_avatar_capsule .st58{fill:#EDF7F9 !important;}
+#assistente-fixo .help_avatar_capsule .st59{fill:#BCBCBC !important;}
+
+#assistente-fixo .help_avatar_capsule .st27{opacity:0.24;fill:#FFFFFF !important;}
+
+#assistente-fixo .help_avatar_capsule .st14{fill:none;stroke:#F09A78 !important;stroke-width:23;stroke-linecap:round;stroke-miterlimit:10;}
+#assistente-fixo .help_avatar_capsule .st10{fill:none;stroke:#F7CCB6 !important;stroke-width:7;stroke-linecap:round;stroke-miterlimit:10;}
+#assistente-fixo .help_avatar_capsule .st11{fill:none;stroke:#F1A182 !important;stroke-width:20;stroke-linecap:round;stroke-miterlimit:10;}
+#assistente-fixo .help_avatar_capsule .st8{fill:none;stroke:#1e1e10 !important;stroke-width:26;stroke-linecap:round;stroke-miterlimit:10;}
+#assistente-fixo .help_avatar_capsule .st4{fill:none;stroke:#DDA689 !important;stroke-width:16;stroke-linecap:round;stroke-miterlimit:10;}
+#assistente-fixo .help_avatar_capsule .st32{fill:none;stroke:#ffb7a1 !important;stroke-linecap:round;stroke-miterlimit:10;}
+
+#assistente-fixo .help_avatar_capsule .st38{fill:none;stroke:#000000 !important;stroke-width:4.75;stroke-linecap:round;stroke-miterlimit:10;}
+#assistente-fixo .help_avatar_capsule .st39{display:none !important;}
+#assistente-fixo .help_avatar_capsule .st40{display:inline !important;fill:none;stroke:#000000 !important;stroke-width:1.88;stroke-miterlimit:10;}
+#assistente-fixo .help_avatar_capsule .st41{display:inline !important;fill:#030202 !important;}
+#assistente-fixo .help_avatar_capsule .st42{fill:none;stroke:#000000 !important;stroke-width:4.2;stroke-linecap:round;stroke-miterlimit:10;}
+#assistente-fixo .help_avatar_capsule .st43{display:inline !important;fill:none;stroke:#000000 !important;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;}
+#assistente-fixo .help_avatar_capsule .st44{fill:none;stroke:#622A12 !important;stroke-linecap:round;stroke-miterlimit:10;}
+#assistente-fixo .help_avatar_capsule #sobrancelhas .st38{stroke:#927a5b !important;}
+#assistente-fixo .help_avatar_capsule #sobrancelhas .st40{stroke:#927a5b !important;}
+#assistente-fixo .help_avatar_capsule #sobrancelhas .st41{fill:#927a5b !important;}
+#assistente-fixo .help_avatar_capsule .st45{fill:#461507 !important;}
+#assistente-fixo .help_avatar_capsule .st46{margin-top:-10px;fill:#020101 !important;}
+#assistente-fixo .help_avatar_capsule .st47{fill:none;stroke:#ffaea1 !important;stroke-width:6;stroke-linecap:round;stroke-miterlimit:10;}
+#assistente-fixo .help_avatar_capsule .st48{fill:none;stroke:#ffaea1 !important;stroke-width:4.5;stroke-linecap:round;stroke-miterlimit:10;}
+#assistente-fixo .help_avatar_capsule .st49{fill:none;stroke:#ffaea1 !important;stroke-width:2;stroke-linejoin:round;}
+
+#assistente-fixo .help_avatar_capsule .st50{fill:none;stroke:#345258 !important;stroke-width:26;stroke-linecap:round;stroke-miterlimit:10;}
+#assistente-fixo .help_avatar_capsule .st51{fill:none;stroke:#FFFFFF !important;stroke-linecap:round;stroke-miterlimit:10;}
+#assistente-fixo .help_avatar_capsule .st52{fill:#121D1F !important;}
+#assistente-fixo .help_avatar_capsule .st53{fill:none;stroke:#ffb293 !important;stroke-width:16;stroke-linecap:round;stroke-miterlimit:10;}
+#assistente-fixo .help_avatar_capsule .st54{fill:none;stroke:#F6C9B8 !important;stroke-width:6;stroke-linecap:round;stroke-miterlimit:10;}
+#assistente-fixo .help_avatar_capsule .st55{fill:#003737 !important;}
+#assistente-fixo .help_avatar_capsule .st56{fill:none;stroke:#F6C9B8 !important;stroke-width:10;stroke-linecap:round;stroke-miterlimit:10;}
+#assistente-fixo .help_avatar_capsule .st60{fill:none;stroke:#F6C8B8 !important;stroke-width:23;stroke-linecap:round;stroke-miterlimit:10;}
+
+/* --- ESTRUTURA E ANIMAÇÃO DO AVATAR (ESCOPADO) --- */
+#assistente-fixo .help_avatar {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 41;
+  transition: all 0.3s ease;
+}
+
+#assistente-fixo .help_avatar:hover .avatar_help_avatar { bottom: -150px; }
+#assistente-fixo .help_avatar:hover .animate_arm_front { animation: anima_arm_front 1.2s; }
+#assistente-fixo .help_avatar:hover .animate_arm_back { animation: anima_arm_back 1s; }
+#assistente-fixo .help_avatar:active .avatar_help_avatar { bottom: -145px; }
+
+#assistente-fixo .circle {
+  width: 200px;
+  height: 200px;
+  position: absolute;
+  right: 0px;
+  bottom: -60px;
+  border-radius: 200px;
+  transition: all 0.3s ease;
+}
+
+#assistente-fixo .help_avatar_capsule {
+  position: absolute;
+  inset: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+#assistente-fixo .avatar_help_avatar {
+  width: 594px;
+  position: absolute;
+  left: 50%;
+  margin-left: -297px;
+  right: auto;
+  bottom: -170px;
+  z-index: 42;
+  transition: all 0.3s ease;
+  transform-origin: bottom right;
+  animation: anima_start 3s infinite;
+  pointer-events: auto;
+}
+
+#assistente-fixo .avatar_help_avatar svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+#assistente-fixo .bracos_frente_content {
+  position: absolute;
+  bottom: 171px;
+  right: 216px;
+  pointer-events: auto;
+}
+
+#assistente-fixo .bracos_frente_content svg {
+  width: 90px;
+  height: 198px;
+}
+
+@keyframes anima_start { 0% {transform: scaleY(1);} 50% {transform: scaleY(0.98);} 100% {transform: scaleY(1);} }
+@keyframes anima_face { 0% {transform: translate(0px, 0px);} 50% {transform: translate(0px, 6px);} 100% {transform: translate(0px, 0px);} }
+@keyframes anima_eyes1 { 0%, 45%, 55%, 85%, 95%, 100% {opacity: 1;} 50%, 90% {opacity: 0;} }
+@keyframes anima_mouth { 0%, 30%, 78%, 100% {opacity: 1;} 33%, 75% {opacity: 0;} }
+@keyframes anima_mouth2 { 0%, 30%, 78%, 100% {opacity: 0;} 33%, 75% {opacity: 1;} }
+@keyframes anima_arm_front { 0% {transform: rotate(0deg) translate(3px, -10px);} 33% {transform: rotate(35deg) translate(1px, 1px);} 100% {transform: rotate(0deg) translate(3px, -10px);} }
+@keyframes anima_arm_back { 0% {transform: rotate(0deg) translate(1px, 1px);} 33% {transform: rotate(20deg) translate(115px, 100px);} 100% {transform: rotate(0deg) translate(1px, 1px);} }
+
+#assistente-fixo .animate_face { animation: anima_face 3s infinite; }
+#assistente-fixo .animate_eyes1 { animation: anima_eyes1 4s infinite; }
+#assistente-fixo .animate_mouth { animation: anima_mouth 3s infinite; }
+#assistente-fixo .animate_mouth2 { animation: anima_mouth2 3s infinite; }
+#assistente-fixo .animate_arm_front { transform-origin: top right; transform: rotate(0deg) translate(3px, -10px); transition: all 0.3s ease; }
+#assistente-fixo .animate_arm_back { transform-origin: top right; transform: rotate(0deg) translate(1px, 1px); transition: all 0.3s ease; }
+
+#assistente-fixo .ballon_avatar_help {
+  position: fixed;
+  bottom: 135px;
+  right: 10px;
+  width: 70px;
+  height: 70px;
+  background-color: #ccc;
+  border-radius: 200px;
+  opacity: 0;
+  z-index: 41;
+  pointer-events: none;
+}
+
+/* (sem personalização de cores aqui — manter paleta original do avatar) */
+
+.footer, .footer p, .footer a {
+  color: rgba(193, 233, 236, 0.5);
+  /* Fonte do rodapé usando var para fácil ajuste */
+  font-family: 'SF Pro', -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 100;
+  font-style: italic;
+  font-size: var(--footer-font-size);
+  letter-spacing: 0.06em;
+}
+
+.footer a {
+  text-decoration: none;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: none;
+}
+
+.footer a:hover,
+.footer a:visited,
+.footer a:active,
+.footer a:focus,
+.footer a:focus-visible {
+  color: rgba(193, 233, 236, 0.5);
+}
+.separator { margin: 0 5px; color: inherit; }
+
+/* --- Game (Hotspots) layout (novas classes) --- */
+.game-layout {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  width: 100%;
+  box-sizing: border-box;
+}
+.game-left {
+  flex: 1 1 60%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.game-left img {
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+  display: block;
+}
+.image-wrap .hotspot {
+  /* garantir que hotspots dentro do wrapper fiquem posicionados corretamente */
+  position: absolute;
+}
+.game-right {
+  flex: 0 0 340px;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+/* When in practice mode, make the card wider and the image area larger */
+.mode-pratica .card {
+  /* controlado por variáveis no :root para facilitar ajustes */
+  max-width: none;
+  width: var(--pratica-card-width);
+  height: var(--pratica-card-height);
+  margin: 0 var(--pratica-side-margin);
+}
+
+.mode-pratica .card-image {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative; /* ancora botão absoluto */
+}
+
+/* garantir que a imagem cresça para preencher o espaço disponível */
+.mode-pratica .card-image img {
+  max-width: 98%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  display: block;
+}
+
+/* reduzir padding interno do card para dar mais espaço à imagem horizontalmente */
+.mode-pratica .card-face {
+  padding: 8px;
+  position: relative; /* ancora elementos absolutos dentro do card */
+}
+
+/* Em modo TEORIA, esconder o card principal (o cartão flip que aparece em frente ao caderno) */
+.mode-teorica .card {
+  display: none !important;
+}
+
+/* Give more space to the image/hotspot column and reduce the notebook column */
+.mode-pratica .game-left {
+  flex: 1 1 78%;
+}
+.mode-pratica .game-right {
+  flex: 0 0 var(--pratica-right-panel);
+  max-width: var(--pratica-right-panel);
+}
+
+@media (max-width: 900px) {
+  .mode-pratica .card { height: auto; max-width: 100%; }
+  .mode-pratica .game-left { flex: 1 1 100%; }
+  .mode-pratica .game-right { display: none; }
+}
+.ref-item {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(0,0,0,0.05);
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+.ref-item.selected {
+  outline: 2px solid rgba(0,0,0,0.08);
+  background: rgba(255,255,255,0.03);
+}
+/* Hotspot (design pulsante) — mantém o elemento `.hotspot` para não quebrar JS */
+@keyframes hotspot-pulsate {
+  0% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+  45% { transform: translate(-50%, -50%) scale(1.75); opacity: 0; }
+  100% { transform: translate(-50%, -50%) scale(1.75); opacity: 0; }
+}
+
+@keyframes hotspot-stop-pulsate {
+  from { opacity: 0.4; }
+  to { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+}
+
+.hotspot {
+  /* cores do hotspot (padrão) */
+  --hotspot-color: #ff9dce;
+  --hotspot-text: #000000;
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+
+  /* a “bolinha” será desenhada no ::after; aqui fica o container/click target */
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  z-index: 20;
+  color: var(--hotspot-text);
+  font-size: 11px;
+  line-height: 20px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* círculo (clickable appearance) */
+.hotspot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--hotspot-color);
+  opacity: 0.9;
+  transform-origin: 50% 50%;
+  transition: opacity 0.2s ease-in, transform 0.1s ease-out;
+}
+
+/* ring pulsante */
+.hotspot::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 28px;
+  height: 28px;
+  transform: translate(-50%, -50%) scale(1);
+  border-radius: 50%;
+  border: 1px solid var(--hotspot-color);
+  opacity: 0;
+  transform-origin: 50% 50%;
+  animation: hotspot-pulsate 3s ease-out infinite;
+  pointer-events: none;
+}
+
+/* o número precisa ficar acima do círculo */
+.hotspot {
+  isolation: isolate;
+  text-align: center;
+  font-weight: 800;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35), 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+.hotspot > * { position: relative; z-index: 2; }
+.hotspot::after { z-index: -1; }
+.hotspot::before { z-index: -2; }
+
+@media (max-width: 700px) {
+  /* Em touch, mantém um alvo um pouco maior */
+  .hotspot {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+    line-height: 24px;
+  }
+  .hotspot::before {
+    width: 34px;
+    height: 34px;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.hotspot:hover::after { opacity: 0.8; }
+.hotspot:hover::before { animation: none; }
+.hotspot:active::after { transform: scale(0.875); }
+.hotspot:active::before { animation: hotspot-stop-pulsate 0.3s; }
+
+
+.hotspot.selected {
+  --hotspot-color: hsl(253, 100%, 78%);
+  --hotspot-text: #ffffff;
+}
+
+/* Correto: verde */
+.hotspot.correct {
+  --hotspot-color: #c6ff8e;
+  --hotspot-text: #ffffff;
+}
+
+/* incorreto: permanece como .selected (amarelo), sem classe extra */
+
+/* `data-numbered` continua existindo só para indicar que há número (sem mudar cor) */
+
+@media (prefers-reduced-motion: reduce) {
+  .hotspot::before { animation: none !important; }
+  .hotspot::after { transition: none !important; }
+}
+/* Menu flutuante de atribuição dos hotspots */
+.hotspot-menu {
+  position: absolute;
+  width: 220px;
+  background: rgba(158, 192, 255, 0.78);
+  border: 1px solid rgba(220, 131, 255, 0.1);
+  box-shadow: 0 14px 40px rgba(255, 255, 255, 0.22);
+  padding: 10px;
+  border-radius: 14px;
+  z-index: 9999; /* garantir que fique acima da imagem */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(6px);
+  font-family: 'SF Pro', -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 500;
+  font-style: normal;
+  letter-spacing: 0.01em;
+  color: #7692cc;
+  pointer-events: auto;
+}
+.hotspot-menu {
+  user-select: none;
+}
+.hotspot-menu::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.55);
+  pointer-events: none;
+}
+.hotspot-menu-clear {
+  display: block;
+  width: 100%;
+  background: rgba(15, 23, 42, 0.04);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  text-align: left;
+  padding: 10px 10px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: rgba(15, 23, 42, 0.86);
+  border-radius: 10px;
+  transition: background 140ms ease, border-color 140ms ease;
+}
+.hotspot-menu-clear:hover {
+  background: rgba(59, 130, 246, 0.10);
+  border-color: rgba(59, 130, 246, 0.22);
+}
+.hotspot-menu-clear:focus-visible {
+  outline: 2px solid rgba(59, 130, 246, 0.45);
+  outline-offset: 2px;
+}
+
+.hotspot-menu-btn {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: 1px solid transparent;
+  text-align: left;
+  padding: 10px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  font: inherit;
+  color: rgba(15, 23, 42, 0.92);
+  transition: background 140ms ease, border-color 140ms ease, transform 80ms ease;
+}
+.hotspot-menu-btn:hover {
+  background: rgba(15, 23, 42, 0.04);
+  border-color: rgba(15, 23, 42, 0.08);
+}
+.hotspot-menu-btn[data-selected="1"],
+.hotspot-menu-btn[aria-current="true"] {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: rgba(59, 130, 246, 0.28);
+  color: rgba(15, 23, 42, 0.96);
+}
+.hotspot-menu-btn:active {
+  transform: scale(0.99);
+}
+.hotspot-menu-btn:focus-visible {
+  outline: 2px solid rgba(59, 130, 246, 0.45);
+  outline-offset: 2px;
+}
+
+@media (max-width: 700px) {
+  .hotspot-menu {
+    width: min(260px, calc(100vw - 24px));
+  }
+}
+
+.ref-item.assigned {
+  opacity: 0.95;
+  /* aplicar somente cores/contraste ao item; riscado será na .ref-label */
+  color: rgba(0,0,0,0.88);
+  background: transparent;
+  border-radius: 0;
+}
+
+.ref-item.assigned .ref-label {
+  /* riscar somente a palavra (label), não o número) */
+  text-decoration: line-through;
+  text-decoration-thickness: 1.4px;
+  /* linha de riscado um pouco mais escura */
+  text-decoration-color: rgba(0,0,0,0.35);
+}
+.check-btn {
+  margin-top: 0.5rem;
+  /* As propriedades de fundo e borda foram removidas para não conflitarem com .shimmer-btn */
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* --- Notebook (Caderno de Anotações) --- */
+.notebook-panel {
+  background: white;
+  /* linhas azuis estilo caderno (pauta) - fina e alinhada ao centro de cada linha */
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(52,152,219,0.12) 0px,
+    rgba(52,152,219,0.12) 1px,
+    transparent 1px,
+    transparent 28px
+  );
+  background-size: 100% 28px; /* espaçamento entre linhas */
+  /* posiciona a grade de forma que o traço fique centralizado na linha de cada item */
+  background-position: 0 20px; /* notebook padding-top (8px) + item center (14px) - ajustado */
+  padding: 8px 10px;
+  border-radius: 12px;
+  position: relative;
+  font-family: 'SF Pro', -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  color: #2c3e50;
+  /* usar as variáveis originais para borda e sombra (mesma aparência do caderno original) */
+  border: var(--card-border);
+  box-shadow: var(--card-shadow);
+}
+
+/* Forçar a fonte SF Pro nas listas de opções dos jogos (notebook/game refs)
+   Remove a fonte cursiva usada no caderno apenas para a lista de referências. */
+.notebook-list,
+.notebook-list .ref-item,
+.notebook-list .ref-label,
+.notebook-list .ref-index,
+.game-right,
+.hotspot-menu,
+.hotspot-menu-btn {
+  font-family: 'SF Pro', -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  color: inherit;
+}
+.notebook-panel::before {
+  content: '';
+  position: absolute;
+  left: 28px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #e74c3c;
+  opacity: 0.35;
+  border-radius: 2px;
+}
+.hotspot-menu-btn {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 8px 6px;
+  cursor: pointer;
+  /* inherit from .hotspot-menu which now uses SF Pro Thin Italic */
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: #fff;
+  /* sombra preta para legibilidade sobre fundos variados */
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+}
+.hotspot-menu-btn:hover {
+  /* escurecer levemente o fundo no hover para contraste com texto branco */
+  background: rgba(0,0,0,0.12);
+}
+.notebook-title {
+  text-align: center;
+  font-size: 1.6rem;
+  color: #436c3a;
+  text-decoration: underline;
+  transform: rotate(-1deg);
+  margin-bottom: 8px;
+}
+.notebook-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0; /* cada item ocupará exatamente uma linha */
+  margin-top: 0;
+  /* empurra os itens para a direita para não ficarem em cima da margem vermelha */
+  /* aproxima a lista da margem vermelha, sem ficar por baixo dela */
+  padding-left: 12px;
+  /* permitir rolagem interna quando o conteúdo exceder o painel */
+  overflow-y: auto;
+  flex: 1 1 auto;
+  padding-right: 6px;
+}
+.notebook-list .ref-item {
+  background: transparent;
+  border: none;
+  height: 28px; /* fixa a altura do item para alinhar com cada linha */
+  line-height: 28px; /* garante que o texto fique centralizado verticalmente sobre a linha */
+  padding: 0 2px 0 4px; /* padding direito menor para aproximar texto */
+  cursor: pointer;
+  font-size: 1.05rem;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 2px; /* gap ainda menor entre índice e label */
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  box-sizing: border-box;
+}
+.notebook-list .ref-item::before { display: none; }
+.notebook-list .ref-item.selected { background: rgba(142,68,173,0.05); outline: 2px dashed rgba(142,68,173,0.12); }
+.notebook-list .ref-item.assigned {
+  opacity: 0.95;
+  color: rgba(0,0,0,0.88);
+  background: transparent;
+  border-radius: 0;
+}
+
+.notebook-list .ref-item.assigned .ref-label {
+  text-decoration: line-through;
+  text-decoration-thickness: 1.4px;
+  text-decoration-color: rgba(0,0,0,0.35);
+}
+.notebook-list .ref-item.locked { color: #2c3e50; opacity: 0.9; cursor: default; }
+
+/* layout interno do item: índice e label */
+.ref-index {
+  display: inline-block;
+  /* usar SF Pro na lista do caderno (substituído Kalam) para manter consistência */
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 400;
+  color: inherit;
+  width: 28px; /* espaço para o número + traço */
+  /* alinhar o traço à direita do box para ficar colado ao número */
+  text-align: right;
+  /* empurra os números mais para a direita (afastando da linha vermelha) */
+  margin-left: 4px;
+  /* margem direita zerada para aproximar ao máximo o texto do traço */
+  margin-right: 0px;
+}
+.ref-label {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.add-point-btn {
+  margin-top: 8px;
+  font-weight: 400;
+  font-size: 0.92rem;
+  color: rgba(17, 24, 39, 0.38);
+  white-space: nowrap;
+  background: linear-gradient(180deg,#fff,#f7f7f7);
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  font-family: 'SF Pro', -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  color: #2c3e50;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Ajuste responsivo para o painel do jogo */
+@media (max-width: 700px) {
+  .game-right { display: none; }
+  .game-layout { flex-direction: column; }
+}
+
+/* toolbar do notebook (botões Verificar / Adicionar) */
+.notebook-toolbar {
+  display: flex;
+  flex-direction: column; /* empilhar um abaixo do outro */
+  align-items: stretch; /* esticar para mesma largura */
+  gap: 10px; /* espaço vertical entre os botões */
+  margin-top: 8px;
+  /* Empurra o conteúdo para a direita para centralizar entre a margem vermelha e a borda direita */
+  padding-left: 24px;
+}
+
+/* Garantir que ambos os botões tenham exatamente o mesmo tamanho */
+.notebook-toolbar .shimmer-btn,
+.notebook-toolbar .check-btn,
+.notebook-toolbar .add-point-btn {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.8rem 1rem; /* padding consistente */
+  border-radius: 0.66em; /* igual ao .shimmer-btn (Avançar) */
+}
+.notebook-toolbar .check-btn, .notebook-toolbar .add-point-btn {
+  flex: 0 0 auto;
+}
+
+/* Os estilos específicos de .notebook-toolbar foram removidos para não conflitarem com .shimmer-btn */
+
+/* Shimmer button style (reusable) */
+:root {
+    --glow-hue: 222deg;
+    --shadow-hue: 180deg;
+    --spring-easing: linear(
+    0, 0.002, 0.01 0.9%, 0.038 1.8%, 0.156, 0.312 5.8%, 0.789 11.1%, 1.015 14.2%,
+    1.096, 1.157, 1.199, 1.224 20.3%, 1.231, 1.231, 1.226, 1.214 24.6%,
+    1.176 26.9%, 1.057 32.6%, 1.007 35.5%, 0.984, 0.968, 0.956, 0.949 42%,
+    0.946 44.1%, 0.95 46.5%, 0.998 57.2%, 1.007, 1.011 63.3%, 1.012 68.3%,
+    0.998 84%, 1
+  );
+    --spring-duration: 1.33s;
+}
+
+@property --shimmer {
+    syntax: "<angle>";
+    inherits: false;
+    initial-value: 33deg;
+}
+
+@keyframes shimmer {
+    0% {
+        --shimmer: 0deg;
+    }
+    100% {
+        --shimmer: 360deg;
+    }
+}
+
+@keyframes shine {
+    0% {
+        opacity: 0;
+    }
+    15% {
+        opacity: 1;
+    }
+    55% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes text {
+    0% {
+        background-position: 100% center;
+    }    
+    100% {
+        background-position: -100% center;
+    }    
+}
+
+.shimmer-btn {
+    --inset: 40px;
+    color: var(--bg);
+    font-weight: 600;
+    background-image: linear-gradient(
+        315deg,
+        #6672b4 -10%,
+        rgb(176, 201, 255) 0%,
+        #8793ff 110%
+    );
+    padding: .8em 1.4em;
+    position: relative;
+    isolation: isolate;
+    /* Remover brilho azul: usar sombra neutra */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15), inset 0 -8px 16px -10px rgba(0,0,0,0.08);
+    border-radius: 0.66em;
+    border: none;
+    cursor: pointer;
+    scale: 1;
+    transition: all var(--spring-duration) var(--spring-easing);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.shimmer-btn:hover:not(:active),
+.shimmer-btn.active {
+  transition-duration: calc(var(--spring-duration)*0.5);
+  scale: 1.2;
+  /* Sombra neutra no hover */
+  box-shadow: 0 6px 14px -4px rgba(0,0,0,0.2), inset 0 0 0 transparent;
+}
+
+.shimmer-btn:active {
+    scale: 1.1;
+    transition-duration: calc(var(--spring-duration)*0.5);
+}
+
+.shimmer-btn .shimmer {
+    position: absolute;
+    inset: calc(var(--inset) * -1);
+    border-radius: inherit;
+    pointer-events: none;
+    mask-image: conic-gradient(
+        from var(--shimmer, 0deg),
+        transparent 0%,
+        transparent 20%,
+        black 36%,
+        black 45%,
+        transparent 50%,
+        transparent 70%,
+        black 85%,
+        black 95%,
+        transparent 100%
+    );
+    mask-size: cover;
+    /* Evitar coloração azul de fundo */
+    mix-blend-mode: normal;
+    animation: shimmer 1s linear infinite both;
+}
+
+.shimmer-btn:hover .shimmer::before,
+.shimmer-btn:hover .shimmer::after,
+.shimmer-btn.active .shimmer::before,
+.shimmer-btn.active .shimmer::after {
+    opacity: 1;
+    animation: shine 1.2s ease-in 1 forwards;
+}
+
+.shimmer-btn .shimmer::before,
+.shimmer-btn .shimmer::after {
+    transition: all 0.5s ease;
+    opacity: 0;
+    content: "";
+    border-radius: inherit;
+    position: absolute;
+    mix-blend-mode: color;
+    inset: var(--inset);
+    pointer-events: none;
+}
+
+.shimmer-btn .shimmer::before {
+  /* Sombra interna neutra (sem matiz azul) */
+  box-shadow: 0 0 calc(var(--inset) * 0.08) 2px rgba(255,255,255,0.8),
+    0 0 calc(var(--inset) * 0.18) 4px rgba(255,255,255,0.5),
+    0 0 calc(var(--inset) * 0.33) 4px rgba(255,255,255,0.4);
+  z-index: -1;
+}
+
+.shimmer-btn .shimmer::after {
+  /* Borda interna neutra */
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.8),
+    inset 0 0 2px 1px rgba(255,255,255,0.6);
+  z-index: 2;
+}
+
+.shimmer-btn .text {
+    color: #2c3e50;
+    background-clip: text;
+    -webkit-background-clip: text;
+    background-color: var(--bg);
+    background-image: linear-gradient(120deg, transparent, hsla(var(--glow-hue),100%,80%,0.66) 40%, hsla(var(--glow-hue),100%,90%,.9) 50%, transparent 52%);
+    background-repeat: no-repeat;
+    background-size: 300% 300%;
+    background-position: center 200%;
+}
+
+.shimmer-btn:hover .text,
+.shimmer-btn.active .text {
+    animation: text .66s ease-in 1 both;
+}
+
+
+/* Full-page notebook variant for TEORIA (use SF Pro here) */
+.notebook-full {
+  width: calc(100% - 64px);
+  max-width: none;
+  height: calc(100vh - 120px);
+  border-radius: 12px;
+  padding: 32px 28px;
+  box-sizing: border-box;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(52,152,219,0.12) 0px,
+    rgba(52,152,219,0.12) 1px,
+    transparent 1px,
+    transparent 36px
+  );
+  background-size: 100% 36px;
+  background-position: 0 28px;
+  font-family: 'SF Pro', -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  color: #1f2d3d;
+  /* usar mesma borda e sombra que o caderno (cards) */
+  border: 1px solid #436c3a;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  margin: 64px auto 40px; /* espaço para o topo e footer */
+}
+
+/* Quando a página TEORIA estiver ativa, expandir o container para ocupar mais largura */
+.container.notebook-expanded {
+  max-width: none;
+  width: 98%;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+/* Overlay expansion: quando o container estiver em modo TEORIA, transformar
+   o painel `.notebook-full` em um overlay fixo, ocupando quase toda a largura
+   e altura da janela para dar mais espaço ao caderno. */
+.container.notebook-expanded .notebook-full {
+  position: fixed;
+  left: var(--notebook-side-gap);
+  right: var(--notebook-side-gap);
+  top: 72px;
+  height: calc(100vh - 144px);
+  width: auto;
+  margin: 0;
+  z-index: 120;
+  background-color: #ffffff;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(52,152,219,0.12) 0px,
+    rgba(52,152,219,0.12) 1px,
+    transparent 1px,
+    transparent 36px
+  );
+  background-size: 100% 36px;
+  background-position: 0 28px;
+  box-shadow: var(--card-shadow);
+  border-radius: 12px;
+  overflow: hidden;
+  border: var(--card-border);
+}
+
+.container.notebook-expanded .notebook-list {
+  max-height: calc(100% - 80px);
+  overflow-y: auto;
+}
+
+/* Também suportar quando o caderno for anexado diretamente ao body como overlay */
+.notebook-full.overlay {
+  position: fixed;
+  left: var(--notebook-side-gap);
+  right: var(--notebook-side-gap);
+  top: 72px;
+  height: calc(100vh - 144px);
+  width: auto;
+  margin: 0;
+  z-index: 120;
+  background-color: #ffffff;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(52,152,219,0.12) 0px,
+    rgba(52,152,219,0.12) 1px,
+    transparent 1px,
+    transparent 36px
+  );
+  background-size: 100% 36px;
+  background-position: 0 28px;
+  box-shadow: var(--card-shadow);
+  border-radius: 12px;
+  overflow: hidden;
+  border: var(--card-border);
+}
+
+.notebook-full.overlay .notebook-list {
+  max-height: calc(100% - 80px);
+  overflow-y: auto;
+}
+
+@media (max-width: 900px) {
+  .notebook-full {
+    width: calc(100% - 32px);
+    height: calc(100vh - 140px);
+    margin: 56px 16px 40px;
+    padding: 20px;
+  }
+}
+
+/* Flashcard toggle button inside the notebook */
+.flashcard-toggle {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: linear-gradient(180deg,#fff,#f7f7f7);
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+  cursor: pointer;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  font-family: 'SF Pro', -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.notebook-full .notebook-list .ref-item { height: 36px; line-height: 36px; }
+
+/* Ensure the card area becomes full height when using notebook-full */
+.card-face.notebook-view { padding: 0; background: transparent; border: none; box-shadow: none; }
+.card-image.notebook-image { width: 100%; height: 100%; display: flex; }
+
+/* Ajustes para a vista TEORIA: permitir que o caderno ocupe mais espaço
+   sem ser cortado pelo overflow dos containers do flashcard. */
+.card-face.notebook-view {
+  position: static;
+  width: 100%;
+  height: auto;
+  display: block;
+  padding: 0;
+  background: transparent;
+  border: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  left: 0;
+  top: 0;
+  will-change: contents;
+  justify-content: center;
+  align-items: flex-start;
+  overflow: visible; /* permitir que o notebook ocupe mais espaço */
+}
+
+.card-container { z-index: 10; }
+
+.card {
+  /* quando a face for notebook, permitir altura automática para comportar o painel full-page */
+  min-height: 420px;
+}
+
+/* Aumentar tamanho dos hotspots em telas pequenas para facilitar o toque */
+@media (max-width: 700px) {
+  .hotspot {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+}
+
+/* Respeitar usuários com movimento reduzido: desabilitar animações de shimmer/scale */
+@media (prefers-reduced-motion: reduce) {
+  .shimmer-btn,
+  .shimmer-btn:hover,
+  .shimmer-btn:active,
+  .shimmer-btn.active {
+    transition: none !important;
+    animation: none !important;
+    scale: 1 !important;
+  }
+  .shimmer-btn .shimmer,
+  .shimmer-btn .text {
+    animation: none !important;
+  }
+}
+

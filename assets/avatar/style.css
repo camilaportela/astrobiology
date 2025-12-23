@@ -1,0 +1,574 @@
+@charset "UTF-8";
+.help_avatar {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 40;
+  pointer-events: none;
+}
+
+/* Seleção do avatar (2 = tutora) */
+.help_avatar .avatar_conteudista,
+.help_avatar .avatar_gerente,
+.help_avatar .avatar_estudante {
+  display: none !important;
+}
+
+.help_avatar .avatar_tutora {
+  display: inline !important;
+}
+
+.help_avatar .help_avatar_capsule {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.help_avatar .avatar_help_avatar {
+  position: fixed;
+  pointer-events: auto;
+}
+
+.help_avatar .avatar_help_avatar svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.ballon_avatar_help {
+  pointer-events: none;
+}
+.help_avatar .help_avatar_capsule .st0 {
+  fill: #2F3435;
+}
+.help_avatar .help_avatar_capsule .st1 {
+  fill: #100D2E;
+}
+.help_avatar .help_avatar_capsule .st2 {
+  fill: #020101;
+}
+.help_avatar .help_avatar_capsule .st3 {
+  fill: #580C34;
+}
+.help_avatar .help_avatar_capsule .st5 {
+  fill: #751245;
+}
+.help_avatar .help_avatar_capsule .st6 {
+  fill: #C11B70;
+}
+.help_avatar .help_avatar_capsule .st7 {
+  fill: #E3A98C;
+}
+.help_avatar .help_avatar_capsule .st9 {
+  fill: #F7CCB6;
+}
+.help_avatar .help_avatar_capsule .st12 {
+  fill: #D0E9EE;
+}
+.help_avatar .help_avatar_capsule .st13 {
+  fill: #F1A182;
+}
+.help_avatar .help_avatar_capsule .st15 {
+  fill: #F09A78;
+}
+.help_avatar .help_avatar_capsule .st16 {
+  fill: #F0F0EF;
+}
+.help_avatar .help_avatar_capsule .st17 {
+  fill: #CAE6E6;
+}
+.help_avatar .help_avatar_capsule .st18 {
+  fill: #28434A;
+}
+.help_avatar .help_avatar_capsule .st19 {
+  fill: #1F393D;
+}
+.help_avatar .help_avatar_capsule .st20 {
+  fill: #B83F35;
+}
+.help_avatar .help_avatar_capsule .st21 {
+  fill: #ECEBEB;
+}
+.help_avatar .help_avatar_capsule .st22 {
+  fill: #009091;
+}
+.help_avatar .help_avatar_capsule .st23 {
+  fill: #18A6A7;
+}
+.help_avatar .help_avatar_capsule .st24 {
+  fill: #007475;
+}
+.help_avatar .help_avatar_capsule .st25 {
+  fill: #00A7C5;
+}
+.help_avatar .help_avatar_capsule .st26 {
+  fill: #005A93;
+}
+.help_avatar .help_avatar_capsule .st28 {
+  fill: #390A06;
+}
+.help_avatar .help_avatar_capsule .st29 {
+  fill: #F09A5D;
+}
+.help_avatar .help_avatar_capsule .st30 {
+  fill: #EF9978;
+}
+.help_avatar .help_avatar_capsule .st31 {
+  fill: #F7CBB6;
+}
+.help_avatar .help_avatar_capsule .st33 {
+  fill: #9E9F9F;
+}
+.help_avatar .help_avatar_capsule .st34 {
+  fill: #F6C8B8;
+}
+.help_avatar .help_avatar_capsule .st35 {
+  fill: #180608;
+}
+.help_avatar .help_avatar_capsule .st36 {
+  fill: #EEA28A;
+}
+.help_avatar .help_avatar_capsule .st37 {
+  fill: #FFFFFF;
+}
+.help_avatar .help_avatar_capsule .st57 {
+  fill: #F6C9B8;
+}
+.help_avatar .help_avatar_capsule .st58 {
+  fill: #EDF7F9;
+}
+.help_avatar .help_avatar_capsule .st59 {
+  fill: #BCBCBC;
+}
+.help_avatar .help_avatar_capsule .st27 {
+  opacity: 0.24;
+  fill: #FFFFFF;
+}
+.help_avatar .help_avatar_capsule .st14 {
+  fill: none;
+  stroke: #F09A78;
+  stroke-width: 23;
+  stroke-linecap: round;
+  stroke-miterlimit: 10;
+}
+.help_avatar .help_avatar_capsule .st10 {
+  fill: none;
+  stroke: #F7CCB6;
+  stroke-width: 7;
+  stroke-linecap: round;
+  stroke-miterlimit: 10;
+}
+.help_avatar .help_avatar_capsule .st11 {
+  fill: none;
+  stroke: #F1A182;
+  stroke-width: 20;
+  stroke-linecap: round;
+  stroke-miterlimit: 10;
+}
+.help_avatar .help_avatar_capsule .st8 {
+  fill: none;
+  stroke: #101B1E;
+  stroke-width: 26;
+  stroke-linecap: round;
+  stroke-miterlimit: 10;
+}
+.help_avatar .help_avatar_capsule .st4 {
+  fill: none;
+  stroke: #DDA689;
+  stroke-width: 16;
+  stroke-linecap: round;
+  stroke-miterlimit: 10;
+}
+.help_avatar .help_avatar_capsule .st32 {
+  fill: none;
+  stroke: #B46D57;
+  stroke-linecap: round;
+  stroke-miterlimit: 10;
+}
+.help_avatar .help_avatar_capsule .st38 {
+  fill: none;
+  stroke: #000000;
+  stroke-width: 4.75;
+  stroke-linecap: round;
+  stroke-miterlimit: 10;
+}
+.help_avatar .help_avatar_capsule .st39 {
+  display: none;
+}
+.help_avatar .help_avatar_capsule .st40 {
+  display: inline;
+  fill: none;
+  stroke: #000000;
+  stroke-width: 1.88;
+  stroke-miterlimit: 10;
+}
+.help_avatar .help_avatar_capsule .st41 {
+  display: inline;
+  fill: #030202;
+}
+.help_avatar .help_avatar_capsule .st42 {
+  fill: none;
+  stroke: #000000;
+  stroke-width: 4.2;
+  stroke-linecap: round;
+  stroke-miterlimit: 10;
+}
+.help_avatar .help_avatar_capsule .st43 {
+  display: inline;
+  fill: none;
+  stroke: #000000;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-miterlimit: 10;
+}
+.help_avatar .help_avatar_capsule .st44 {
+  fill: none;
+  stroke: #622A12;
+  stroke-linecap: round;
+  stroke-miterlimit: 10;
+}
+.help_avatar .help_avatar_capsule .st45 {
+  fill: #461507;
+}
+.help_avatar .help_avatar_capsule .st46 {
+  margin-top: -10px;
+  fill: #020101;
+}
+.help_avatar .help_avatar_capsule .st47 {
+  fill: none;
+  stroke: #C5422D;
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-miterlimit: 10;
+}
+.help_avatar .help_avatar_capsule .st48 {
+  fill: none;
+  stroke: #DB654F;
+  stroke-width: 4.5;
+  stroke-linecap: round;
+  stroke-miterlimit: 10;
+}
+.help_avatar .help_avatar_capsule .st49 {
+  fill: none;
+  stroke: #D53334;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.help_avatar .help_avatar_capsule .st50 {
+  fill: none;
+  stroke: #345258;
+  stroke-width: 26;
+  stroke-linecap: round;
+  stroke-miterlimit: 10;
+}
+.help_avatar .help_avatar_capsule .st51 {
+  fill: none;
+  stroke: #FFFFFF;
+  stroke-linecap: round;
+  stroke-miterlimit: 10;
+}
+.help_avatar .help_avatar_capsule .st52 {
+  fill: #121D1F;
+}
+.help_avatar .help_avatar_capsule .st53 {
+  fill: none;
+  stroke: #F1A182;
+  stroke-width: 16;
+  stroke-linecap: round;
+  stroke-miterlimit: 10;
+}
+.help_avatar .help_avatar_capsule .st54 {
+  fill: none;
+  stroke: #F6C9B8;
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-miterlimit: 10;
+}
+.help_avatar .help_avatar_capsule .st55 {
+  fill: #003737;
+}
+.help_avatar .help_avatar_capsule .st56 {
+  fill: none;
+  stroke: #F6C9B8;
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-miterlimit: 10;
+}
+.help_avatar .help_avatar_capsule .st60 {
+  fill: none;
+  stroke: #F6C8B8;
+  stroke-width: 23;
+  stroke-linecap: round;
+  stroke-miterlimit: 10;
+}
+.help_avatar .help_avatar_capsule .cls-3 {
+  fill: #121d1f;
+}
+.help_avatar .avatar_help_avatar {
+  width: 495px;
+  right: auto;
+  left: 50%;
+  margin-left: -248px;
+  bottom: -170px;
+  z-index: 42;
+  cursor: pointer;
+  -webkit-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  -ms-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+  transform-origin: bottom right;
+  animation: anima_start 3s infinite;
+}
+.help_avatar .avatar_help_avatar:hover {
+  bottom: -150px;
+}
+.help_avatar .avatar_help_avatar:hover .animate_arm_front {
+  animation: anima_arm_front 1.2s;
+  cursor: pointer;
+  -webkit-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  -ms-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+.help_avatar .avatar_help_avatar.is-interacting .animate_arm_front {
+  animation: anima_arm_front 1.2s;
+}
+.help_avatar .avatar_help_avatar:hover .animate_arm_back {
+  animation: anima_arm_back 1s;
+}
+
+.help_avatar .avatar_help_avatar.is-interacting .animate_arm_back {
+  animation: anima_arm_back 1s;
+}
+.help_avatar .avatar_help_avatar:active {
+  bottom: -145px;
+}
+
+.bracos_frente_content {
+  position: absolute;
+  /* Ajustado para acompanhar o avatar ~50% maior (330px -> 495px) */
+  bottom: 143px;
+  right: 180px;
+}
+
+.bracos_frente_content,
+.bracos_frente_content svg {
+  pointer-events: auto;
+}
+.bracos_frente_content svg {
+  width: 75px;
+  height: 165px;
+}
+
+.animate_face {
+  animation: anima_face 3s infinite;
+}
+
+.animate_head {
+  animation: anima_head 3s infinite;
+}
+
+.animate_eyes1 {
+  animation: anima_eyes1 4s infinite;
+}
+
+.animate_mouth {
+  animation: anima_mouth 3s infinite;
+}
+
+.animate_mouth2 {
+  animation: anima_mouth2 3s infinite;
+}
+
+.animate_arm_front {
+  transform-box: fill-box;
+  transform-origin: top right;
+  transform: rotate(0deg) translate(3px, -10px);
+  cursor: pointer;
+  -webkit-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  -ms-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+.animate_arm_back {
+  transform-box: fill-box;
+  transform-origin: top right;
+  transform: rotate(0deg) translate(1px, 1px);
+  cursor: pointer;
+  -webkit-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  -ms-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+.ballon_avatar_help {
+  position: fixed;
+  bottom: 135px;
+  right: 10px;
+  width: 70px;
+  height: 70px;
+  background-color: #ccc;
+  border-radius: 200px;
+  opacity: 0;
+  z-index: 41;
+  pointer-events: none;
+}
+.ballon_avatar_help:before {
+  position: absolute;
+  top: 42px;
+  left: 20px;
+  display: block;
+  content: "";
+  background-color: #eee;
+  width: 30px;
+  height: 30px;
+  transform: rotate(45deg);
+}
+.ballon_avatar_help .icon_question:before {
+  position: absolute;
+  display: block;
+  left: 15px;
+  top: 8px;
+  font-family: "Font Awesome 5 Free";
+  content: "";
+  color: #fff;
+  font-size: 40px;
+  text-shadow: 2px 2px 4px rgba(39, 52, 79, 0.1);
+}
+
+/* Standard syntax */
+@keyframes anima_start {
+  0% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.98);
+  }
+  100% {
+    transform: scaleY(1);
+  }
+}
+@keyframes anima_face {
+  0% {
+    transform: translate(0px, 0px);
+  }
+  50% {
+    transform: translate(0px, 6px);
+  }
+  100% {
+    transform: translate(0px, 0px);
+  }
+}
+@keyframes anima_head {
+  0% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.99);
+  }
+  100% {
+    transform: scaleY(1);
+  }
+}
+@keyframes anima_eyes1 {
+  0% {
+    opacity: 1;
+  }
+  45% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  55% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 0;
+  }
+  90% {
+    opacity: 1;
+  }
+  95% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes anima_mouth {
+  0% {
+    opacity: 1;
+  }
+  30% {
+    opacity: 1;
+  }
+  33% {
+    opacity: 0;
+  }
+  75% {
+    opacity: 0;
+  }
+  78% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes anima_mouth2 {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 0;
+  }
+  33% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  78% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes anima_arm_front {
+  0% {
+    transform: rotate(0deg) translate(3px, -10px);
+  }
+  33% {
+    transform: rotate(35deg) translate(1px, 1px);
+  }
+  100% {
+    transform: rotate(0deg) translate(3px, -10px);
+  }
+}
+@keyframes anima_arm_back {
+  0% {
+    transform: rotate(0deg) translate(1px, 1px);
+  }
+  33% {
+    transform: rotate(20deg) translate(115px, 100px);
+  }
+  100% {
+    transform: rotate(0deg) translate(1px, 1px);
+  }
+}

@@ -1,0 +1,3831 @@
+﻿(function () {
+  'use strict';
+
+  function hasThree() {
+    return typeof window !== 'undefined' && window.THREE && typeof window.THREE.Scene === 'function';
+  }
+
+  function clamp(n, min, max) {
+    return Math.max(min, Math.min(max, n));
+  }
+
+  function createEl(tag, className, attrs) {
+    const el = document.createElement(tag);
+    if (className) el.className = className;
+    if (attrs) {
+      Object.keys(attrs).forEach((k) => {
+        if (k === 'text') el.textContent = String(attrs[k]);
+        else el.setAttribute(k, String(attrs[k]));
+      });
+    }
+    return el;
+  }
+
+  class MicroscopeInstance {
+    constructor(host, options) {
+      this.host = host;
+      this.options = options || {};
+      this._raf = 0;
+      this._ro = null;
+      this._disposed = false;
+
+      this._ui = null;
+      this._uiEls = null;
+
+      this._init();
+    }
+
+    _init() {
+      if (!hasThree()) throw new Error('THREE nÃ£o disponÃ­vel');
+      const THREE = window.THREE;
+
+      // Orbit simples (sem OrbitControls) para nÃ£o depender de arquivos externos.
+      const orbit = {
+        enabled: true,
+        target: new THREE.Vector3(0, 2.5, 0),
+        radius: 8.0,
+        minRadius: 3.5,
+        maxRadius: 18.0,
+        // AngulaÃ§Ã£o inicial (pode ser sobrescrita via options)
+        theta: (typeof this.options.initialTheta === 'number') ? this.options.initialTheta : (Math.PI * 0.75), // around Y
+        phi: (typeof this.options.initialPhi === 'number') ? this.options.initialPhi : (Math.PI * 0.35),       // from top
+        dragging: false,
+        panning: false,
+        lastX: 0,
+        lastY: 0,
+      };
+
+      // Tap/click detection (para menu: permitir drag para girar e tap para iniciar)
+      const tap = {
+        active: false,
+        startX: 0,
+        startY: 0,
+        moved: false,
+        pointerId: null,
+      };
+
+      // host styling hooks
+      this.host.classList.add('microscope-host');
+
+      // DOM structure
+      const wrap = createEl('div', 'microscope-wrap');
+      const canvasWrap = createEl('div', 'microscope-canvas');
+      wrap.appendChild(canvasWrap);
+
+      let overlay = null;
+      let statusText = null;
+      let uiPanel = null;
+
+      if (this.options.showUI) {
+        overlay = createEl('div', 'microscope-eyepiece-overlay', { 'aria-hidden': 'true' });
+        statusText = createEl('div', 'microscope-status', { id: '', text: 'View: Orbit Mode' });
+        uiPanel = this._buildUIPanel();
+        wrap.appendChild(overlay);
+        wrap.appendChild(statusText);
+        wrap.appendChild(uiPanel);
+      }
+
+      // Clear host and attach
+      while (this.host.firstChild) this.host.removeChild(this.host.firstChild);
+      this.host.appendChild(wrap);
+
+      // --- Three.js setup ---
+      const scene = new THREE.Scene();
+      // Sem fundo: canvas transparente para aparecer apenas o objeto 3D.
+      scene.background = null;
+
+      const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+      const orbitPos = new THREE.Vector3(4, 5, 6);
+      camera.position.copy(orbitPos);
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      try { renderer.setClearColor(0x000000, 0); } catch (e) {}
+      // Evita scroll/gestos do navegador durante a interaÃ§Ã£o.
+      try { renderer.domElement.style.touchAction = 'none'; } catch (e) {}
+      canvasWrap.appendChild(renderer.domElement);
+
+      // Orbit inicial aproximado do original
+      orbit.radius = orbitPos.distanceTo(orbit.target);
+      // Se o usuÃ¡rio nÃ£o forneceu Ã¢ngulos, derivar do orbitPos.
+      if (!(typeof this.options.initialTheta === 'number')) {
+        orbit.theta = Math.atan2((orbitPos.x - orbit.target.x), (orbitPos.z - orbit.target.z));
+      }
+      if (!(typeof this.options.initialPhi === 'number')) {
+        const dy = orbitPos.y - orbit.target.y;
+        orbit.phi = Math.acos(clamp(dy / orbit.radius, -1, 1));
+      }
+
+      function applyOrbitToCamera() {
+        const sinPhi = Math.sin(orbit.phi);
+        const x = orbit.target.x + orbit.radius * sinPhi * Math.sin(orbit.theta);
+        const z = orbit.target.z + orbit.radius * sinPhi * Math.cos(orbit.theta);
+        const y = orbit.target.y + orbit.radius * Math.cos(orbit.phi);
+        camera.position.set(x, y, z);
+        camera.lookAt(orbit.target);
+      }
+      applyOrbitToCamera();
+
+      function setOrbitRadius(nextRadius) {
+        orbit.radius = clamp(nextRadius, orbit.minRadius, orbit.maxRadius);
+        applyOrbitToCamera();
+      }
+
+      // InteraÃ§Ã£o de Ã³rbita (drag) â€” apenas em modo orbit
+      const onPointerDown = (ev) => {
+        if (this._disposed) return;
+        if (!orbit.enabled) return;
+
+        // Pan: Shift+arrastar (ou botÃ£o direito/middle). RotaÃ§Ã£o: arrastar normal.
+        const isPanGesture = !!ev.shiftKey || ev.button === 2 || ev.button === 1 || ev.buttons === 2 || ev.buttons === 4;
+        orbit.panning = isPanGesture;
+
+        tap.active = !orbit.panning;
+        tap.pointerId = tap.active ? ev.pointerId : null;
+        tap.startX = ev.clientX;
+        tap.startY = ev.clientY;
+        tap.moved = false;
+
+        orbit.dragging = true;
+        orbit.lastX = ev.clientX;
+        orbit.lastY = ev.clientY;
+        try { renderer.domElement.setPointerCapture(ev.pointerId); } catch (e) {}
+      };
+      const onPointerMove = (ev) => {
+        if (this._disposed) return;
+        if (!orbit.enabled || !orbit.dragging) return;
+        const dx = ev.clientX - orbit.lastX;
+        const dy2 = ev.clientY - orbit.lastY;
+        orbit.lastX = ev.clientX;
+        orbit.lastY = ev.clientY;
+
+        if (tap.active && tap.pointerId === ev.pointerId) {
+          const mdx = ev.clientX - tap.startX;
+          const mdy = ev.clientY - tap.startY;
+          if (!tap.moved && (Math.abs(mdx) > 6 || Math.abs(mdy) > 6)) tap.moved = true;
+        }
+
+        if (orbit.panning) {
+          // Pan no plano da cÃ¢mera (move o target) â€” permite â€œsubir/descerâ€ o objeto no viewport.
+          const panSpeed = orbit.radius * 0.002;
+          const right = new THREE.Vector3();
+          const up = new THREE.Vector3();
+          camera.getWorldDirection(up); // forward
+          right.crossVectors(up, camera.up).normalize();
+          up.copy(camera.up).normalize();
+          orbit.target.addScaledVector(right, -dx * panSpeed);
+          orbit.target.addScaledVector(up, dy2 * panSpeed);
+          applyOrbitToCamera();
+        } else {
+          orbit.theta -= dx * 0.006;
+          orbit.phi = clamp(orbit.phi + dy2 * 0.006, 0.05, Math.PI - 0.05);
+          applyOrbitToCamera();
+        }
+      };
+      const onPointerUp = (ev) => {
+        if (this._disposed) return;
+        orbit.dragging = false;
+        orbit.panning = false;
+
+        if (tap.active && tap.pointerId === ev.pointerId) {
+          const shouldTap = !tap.moved;
+          tap.active = false;
+          tap.pointerId = null;
+          if (shouldTap && typeof this.options.onTap === 'function') {
+            try { this.options.onTap(); } catch (e) {}
+          }
+        }
+
+        try { renderer.domElement.releasePointerCapture(ev.pointerId); } catch (e) {}
+      };
+
+      renderer.domElement.addEventListener('pointerdown', onPointerDown, { passive: true });
+      renderer.domElement.addEventListener('pointermove', onPointerMove, { passive: true });
+      renderer.domElement.addEventListener('pointerup', onPointerUp, { passive: true });
+      renderer.domElement.addEventListener('pointercancel', onPointerUp, { passive: true });
+
+      // Permite botÃ£o direito para pan sem abrir menu do navegador.
+      const onContextMenu = (ev) => {
+        try { ev.preventDefault(); } catch (e) {}
+      };
+      renderer.domElement.addEventListener('contextmenu', onContextMenu, { passive: false });
+
+      // Zoom (mouse wheel). Em touch, o usuÃ¡rio ainda pode girar; zoom fica opcional.
+      const onWheel = (ev) => {
+        if (this._disposed) return;
+        if (!orbit.enabled) return;
+        // deltaY > 0: zoom out
+        const delta = clamp(ev.deltaY, -120, 120);
+        const factor = 1 + (delta / 600);
+        setOrbitRadius(orbit.radius * factor);
+      };
+      renderer.domElement.addEventListener('wheel', onWheel, { passive: true });
+
+      // --- Materials ---
+      const matBody = new THREE.MeshStandardMaterial({ color: 0x202020, roughness: 0.4, metalness: 0.5 });
+      const matChrome = new THREE.MeshStandardMaterial({ color: 0xe0e0e0, roughness: 0.1, metalness: 0.95 });
+      const matStage = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.8 });
+      const matSlide = new THREE.MeshPhysicalMaterial({ color: 0xddeeff, transmission: 0.9, transparent: true, opacity: 0.4, roughness: 0.05 });
+      const matSpecimen = new THREE.MeshStandardMaterial({ color: 0xff3333, roughness: 0.8, emissive: 0x330000, emissiveIntensity: 0.2 });
+
+      const microscope = new THREE.Group();
+      scene.add(microscope);
+
+      // --- Base & Lower Arm ---
+      const base = new THREE.Mesh(new THREE.BoxGeometry(3, 0.4, 4), matBody);
+      base.position.y = 0.2;
+      base.receiveShadow = true;
+      base.castShadow = true;
+      microscope.add(base);
+
+      const armGroup = new THREE.Group();
+      microscope.add(armGroup);
+
+      const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.6, 3.0, 16), matBody);
+      pillar.position.set(0, 1.7, -1.2);
+      pillar.rotation.x = -0.1;
+      armGroup.add(pillar);
+
+      const upperArmGeo = new THREE.BoxGeometry(0.8, 2.5, 1.0);
+      const upperArm = new THREE.Mesh(upperArmGeo, matBody);
+      upperArm.position.set(0, 3.2, -0.8);
+      upperArm.rotation.x = 0.4;
+      upperArm.castShadow = true;
+      armGroup.add(upperArm);
+
+      const connectorGeo = new THREE.BoxGeometry(0.7, 0.6, 1.5);
+      const connector = new THREE.Mesh(connectorGeo, matBody);
+      connector.position.set(0, 4.2, 0.1);
+      connector.rotation.x = 0.1;
+      armGroup.add(connector);
+
+      // --- Head assembly ---
+      const opticsGroup = new THREE.Group();
+      microscope.add(opticsGroup);
+
+      const bodyBlock = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.0, 0.8), matBody);
+      bodyBlock.position.set(0, 4.0, 0.8);
+      bodyBlock.rotation.x = 0.1;
+      opticsGroup.add(bodyBlock);
+
+      const turret = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 0.3, 16), matChrome);
+      turret.position.set(0, 3.4, 0.8);
+      turret.castShadow = true;
+      opticsGroup.add(turret);
+
+      const objGeo = new THREE.CylinderGeometry(0.12, 0.1, 0.5, 16);
+      const obj1 = new THREE.Mesh(objGeo, matChrome);
+      obj1.position.set(0, -0.35, 0.25);
+      obj1.rotation.x = 0.1;
+      turret.add(obj1);
+
+      const obj2 = new THREE.Mesh(objGeo, matChrome);
+      obj2.position.set(0.25, -0.35, -0.2);
+      obj2.rotation.x = -0.1;
+      obj2.rotation.z = -0.2;
+      turret.add(obj2);
+
+      const obj3 = new THREE.Mesh(objGeo, matChrome);
+      obj3.position.set(-0.25, -0.35, -0.2);
+      obj3.rotation.x = -0.1;
+      obj3.rotation.z = 0.2;
+      turret.add(obj3);
+
+      const eyepieceBase = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.4, 0.6), matBody);
+      eyepieceBase.position.set(0, 4.6, 0.9);
+      eyepieceBase.rotation.x = -0.5;
+      opticsGroup.add(eyepieceBase);
+
+      const eyeL = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 1.0, 16), matBody);
+      eyeL.position.set(-0.18, 0.5, 0);
+      eyepieceBase.add(eyeL);
+      eyeL.add(new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.1, 16), matChrome).translateY(0.5));
+
+      const eyeR = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 1.0, 16), matBody);
+      eyeR.position.set(0.18, 0.5, 0);
+      eyepieceBase.add(eyeR);
+      eyeR.add(new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.1, 16), matChrome).translateY(0.5));
+
+      // --- Stage & mechanics ---
+      const stageGroup = new THREE.Group();
+      stageGroup.position.set(0, 1.9, 0.8);
+      microscope.add(stageGroup);
+
+      const stagePlate = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.15, 2.4), matStage);
+      stagePlate.receiveShadow = true;
+      stageGroup.add(stagePlate);
+
+      const knobL = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.7, 0.5, 32), matChrome);
+      knobL.rotation.z = Math.PI / 2;
+      knobL.position.set(-0.6, 2.0, -1.2);
+      armGroup.add(knobL);
+
+      const knobR = knobL.clone();
+      knobR.position.set(0.6, 2.0, -1.2);
+      armGroup.add(knobR);
+
+      const slideGroup = new THREE.Group();
+      stageGroup.add(slideGroup);
+
+      const slideGlass = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.02, 0.6), matSlide);
+      slideGlass.position.y = 0.085;
+      slideGlass.castShadow = true;
+      slideGroup.add(slideGlass);
+
+      const specimen = new THREE.Mesh(new THREE.TorusKnotGeometry(0.12, 0.04, 100, 16), matSpecimen);
+      specimen.rotation.x = Math.PI / 2;
+      specimen.position.y = 0.11;
+      slideGroup.add(specimen);
+
+      // --- Environment ---
+      // Removido: chÃ£o/mesa. Mantemos apenas o microscÃ³pio na cena.
+
+      // Auto-enquadramento: evita cortar topo/base em telas com aspect ratio diferente.
+      // Calcula um target e um raio que garantem que o objeto caiba no viewport.
+      const frameToObject = () => {
+        if (this._disposed) return;
+        try {
+          const box = new THREE.Box3().setFromObject(microscope);
+          const size = new THREE.Vector3();
+          const center = new THREE.Vector3();
+          box.getSize(size);
+          box.getCenter(center);
+
+          if (!isFinite(size.x) || size.x <= 0) return;
+
+          const basePadding = (typeof this.options.framePadding === 'number') ? this.options.framePadding : 1.25;
+          const centerBiasY = (typeof this.options.centerBiasY === 'number') ? this.options.centerBiasY : 0;
+
+          // Quando deslocamos o "centro" (bias), aumenta o risco de cortar uma das bordas.
+          // EntÃ£o aumentamos o padding efetivo proporcionalmente ao bias.
+          const biasPad = 1 + Math.min(0.75, Math.abs(centerBiasY) * 1.2);
+          const padding = basePadding * biasPad;
+
+          // â€œCentro visualâ€: muitos modelos parecem baixos se usarmos o centro geomÃ©trico.
+          // centerBiasY Ã© proporcional Ã  altura do objeto.
+          orbit.target.set(center.x, center.y + (size.y * centerBiasY), center.z);
+
+          const halfFovY = THREE.Math.degToRad(camera.fov * 0.5);
+          const fitHeightDistance = (size.y * 0.5) / Math.tan(halfFovY);
+          const fitWidthDistance = (size.x * 0.5) / (Math.tan(halfFovY) * camera.aspect);
+          const distance = Math.max(fitHeightDistance, fitWidthDistance);
+
+          // padding para sobrar espaÃ§o e nÃ£o cortar nas bordas
+          const padded = distance * padding;
+          orbit.minRadius = Math.max(2.5, padded * 0.5);
+          orbit.maxRadius = Math.max(orbit.minRadius + 1, padded * 3.0);
+          setOrbitRadius(padded);
+
+          camera.near = Math.max(0.05, padded / 100);
+          camera.far = Math.max(80, padded * 10);
+          camera.updateProjectionMatrix();
+        } catch (e) {}
+      };
+
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+      scene.add(ambientLight);
+
+      const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+      dirLight.position.set(5, 10, 5);
+      dirLight.castShadow = true;
+      scene.add(dirLight);
+
+      const lamp = new THREE.SpotLight(0xffaa55, 8);
+      lamp.position.set(0, 0.4, 0.8);
+      lamp.target = stagePlate;
+      lamp.angle = 0.6;
+      lamp.penumbra = 0.4;
+      lamp.castShadow = true;
+      scene.add(lamp);
+
+      // --- State ---
+      const state = {
+        orbitPos,
+        isEyepieceMode: false,
+        lightOn: true,
+      };
+
+      // UI bindings
+      if (this.options.showUI) {
+        this._uiEls.statusText = statusText;
+        this._uiEls.statusText.textContent = 'View: Orbit Mode';
+        this._uiEls.btnView.addEventListener('click', (e) => {
+          e.preventDefault();
+          this._toggleEyepiece({ camera, orbit, applyOrbitToCamera, opticsGroup, armGroup, overlay, state });
+        });
+
+        this._uiEls.btnLight.addEventListener('click', (e) => {
+          e.preventDefault();
+          state.lightOn = !state.lightOn;
+          lamp.intensity = state.lightOn ? 8 : 0;
+          this._uiEls.btnLight.classList.toggle('active', state.lightOn);
+          this._uiEls.btnLight.textContent = state.lightOn ? 'Light: ON' : 'Light: OFF';
+        });
+      }
+
+      // Resize observer
+      const resize = () => {
+        if (this._disposed) return;
+        const rect = this.host.getBoundingClientRect();
+        const w = Math.max(1, Math.floor(rect.width));
+        const h = Math.max(1, Math.floor(rect.height));
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setPixelRatio(clamp(window.devicePixelRatio || 1, 1, 2));
+        renderer.setSize(w, h, false);
+
+        // Re-enquadrar quando o viewport muda.
+        if (!state.isEyepieceMode) frameToObject();
+      };
+
+      try {
+        this._ro = new ResizeObserver(() => resize());
+        this._ro.observe(this.host);
+      } catch (e) {
+        window.addEventListener('resize', resize, { passive: true });
+        this._fallbackResizeHandler = resize;
+      }
+
+      resize();
+
+      // Mark ready (hide fallback image if any)
+      try {
+        this.host.classList.add('microscope-ready');
+        const card = this.host.closest('.menu-card');
+        if (card) card.classList.add('microscope-ready');
+      } catch (e) {}
+
+      const animate = () => {
+        if (this._disposed) return;
+        this._raf = requestAnimationFrame(animate);
+
+        // Apply UI-driven transforms
+        let focusVal = 0.5;
+        let xVal = 0;
+        let yVal = 0;
+        if (this.options.showUI) {
+          focusVal = parseFloat(this._uiEls.focus.value);
+          xVal = parseFloat(this._uiEls.x.value);
+          yVal = parseFloat(this._uiEls.y.value);
+        }
+
+        stageGroup.position.y = 1.9 + (focusVal * 0.1);
+        slideGroup.position.x = xVal;
+        slideGroup.position.z = yVal;
+
+        if (state.isEyepieceMode) {
+          const dist = Math.abs(focusVal);
+          renderer.domElement.style.filter = 'blur(' + (dist * 10) + 'px)';
+        } else {
+          renderer.domElement.style.filter = '';
+          // cÃ¢mera jÃ¡ Ã© atualizada no drag; garantir lookAt em frames sem drag
+          applyOrbitToCamera();
+        }
+
+        renderer.render(scene, camera);
+      };
+
+      animate();
+
+      // Store references for dispose
+      this._three = { THREE, scene, camera, renderer, lamp };
+      this._orbitCleanup = () => {
+        try { renderer.domElement.removeEventListener('pointerdown', onPointerDown); } catch (e) {}
+        try { renderer.domElement.removeEventListener('pointermove', onPointerMove); } catch (e) {}
+        try { renderer.domElement.removeEventListener('pointerup', onPointerUp); } catch (e) {}
+        try { renderer.domElement.removeEventListener('pointercancel', onPointerUp); } catch (e) {}
+        try { renderer.domElement.removeEventListener('wheel', onWheel); } catch (e) {}
+        try { renderer.domElement.removeEventListener('contextmenu', onContextMenu); } catch (e) {}
+      };
+      this._groups = { opticsGroup, armGroup };
+      this._state = state;
+    }
+
+    _buildUIPanel() {
+      const panel = createEl('div', 'microscope-ui');
+
+      const title = createEl('div', 'microscope-ui-title', { text: 'Microscope Controls' });
+      panel.appendChild(title);
+
+      const btnView = createEl('button', 'microscope-btn microscope-btn-primary', { type: 'button' });
+      btnView.textContent = 'Look Through Lens';
+      panel.appendChild(btnView);
+
+      const focusGroup = createEl('div', 'microscope-control');
+      focusGroup.appendChild(createEl('label', 'microscope-label', { text: 'Focus' }));
+      const focus = createEl('input', 'microscope-range', { type: 'range', min: '-2', max: '2', step: '0.01', value: '0.5' });
+      focusGroup.appendChild(focus);
+      panel.appendChild(focusGroup);
+
+      const xGroup = createEl('div', 'microscope-control');
+      xGroup.appendChild(createEl('label', 'microscope-label', { text: 'Stage X' }));
+      const x = createEl('input', 'microscope-range', { type: 'range', min: '-0.4', max: '0.4', step: '0.001', value: '0' });
+      xGroup.appendChild(x);
+      panel.appendChild(xGroup);
+
+      const yGroup = createEl('div', 'microscope-control');
+      yGroup.appendChild(createEl('label', 'microscope-label', { text: 'Stage Y' }));
+      const y = createEl('input', 'microscope-range', { type: 'range', min: '-0.4', max: '0.4', step: '0.001', value: '0' });
+      yGroup.appendChild(y);
+      panel.appendChild(yGroup);
+
+      const btnLight = createEl('button', 'microscope-btn microscope-btn-toggle active', { type: 'button' });
+      btnLight.textContent = 'Light: ON';
+      panel.appendChild(btnLight);
+
+      this._uiEls = {
+        btnView,
+        focus,
+        x,
+        y,
+        btnLight,
+        statusText: null,
+      };
+
+      return panel;
+    }
+
+    _toggleEyepiece(ctx) {
+      const { camera, orbit, applyOrbitToCamera, opticsGroup, armGroup, overlay, state } = ctx;
+
+      state.isEyepieceMode = !state.isEyepieceMode;
+
+      if (state.isEyepieceMode) {
+        camera.position.set(0, 4.5, 0.8);
+        camera.lookAt(0, 0, 0.8);
+        camera.fov = 15;
+        camera.updateProjectionMatrix();
+
+        if (orbit) orbit.enabled = false;
+        opticsGroup.visible = false;
+        armGroup.visible = false;
+
+        this._uiEls.btnView.textContent = 'Exit Lens View';
+        this._uiEls.btnView.classList.add('active');
+
+        if (overlay) overlay.style.opacity = '1';
+        const status = this.host.querySelector('.microscope-status');
+        if (status) status.textContent = 'View: Through Eyepiece (Magnified)';
+      } else {
+        camera.fov = 45;
+        camera.updateProjectionMatrix();
+        // volta para Ã³rbita
+        if (orbit) orbit.enabled = true;
+        try { applyOrbitToCamera(); } catch (e) {}
+        opticsGroup.visible = true;
+        armGroup.visible = true;
+
+        this._uiEls.btnView.textContent = 'Look Through Lens';
+        this._uiEls.btnView.classList.remove('active');
+
+        if (overlay) overlay.style.opacity = '0';
+        const status = this.host.querySelector('.microscope-status');
+        if (status) status.textContent = 'View: Orbit Mode';
+      }
+    }
+
+    dispose() {
+      if (this._disposed) return;
+      this._disposed = true;
+      try { cancelAnimationFrame(this._raf); } catch (e) {}
+      try { if (this._ro) this._ro.disconnect(); } catch (e) {}
+      try {
+        if (this._fallbackResizeHandler) {
+          window.removeEventListener('resize', this._fallbackResizeHandler);
+        }
+      } catch (e) {}
+
+      try { if (this._orbitCleanup) this._orbitCleanup(); } catch (e) {}
+
+      try {
+        if (this._three && this._three.renderer) {
+          this._three.renderer.dispose();
+          const c = this._three.renderer.domElement;
+          if (c && c.parentNode) c.parentNode.removeChild(c);
+        }
+      } catch (e) {}
+
+      // Leave DOM cleanup to the caller (rendering logic usually replaces it)
+      try { this.host.classList.remove('microscope-ready'); } catch (e) {}
+    }
+  }
+
+  const instances = new Set();
+
+  function mount(host, options) {
+    if (!host) return null;
+    try {
+      if (host.__microscopeInstance) {
+        try { host.__microscopeInstance.dispose(); } catch (e) {}
+        try { instances.delete(host.__microscopeInstance); } catch (e) {}
+        host.__microscopeInstance = null;
+      }
+    } catch (e) {}
+
+    if (!hasThree()) return null;
+
+    const inst = new MicroscopeInstance(host, options || {});
+    host.__microscopeInstance = inst;
+    instances.add(inst);
+    return inst;
+  }
+
+  function disposeAll() {
+    Array.from(instances).forEach((inst) => {
+      try { inst.dispose(); } catch (e) {}
+      try { instances.delete(inst); } catch (e) {}
+    });
+  }
+
+  function initMenuMicroscope() {
+    const host = document.getElementById('menuMicroscopeHost');
+    if (!host) return;
+    if (!hasThree()) return;
+
+    // Menu: arrastar gira; toque/clique sem arrastar inicia a prÃ¡tica.
+    let armed = true;
+    const trigger = () => {
+      if (!armed) return;
+      armed = false;
+      try {
+        if (host.__microscopeInstance) {
+          host.__microscopeInstance.dispose();
+          instances.delete(host.__microscopeInstance);
+          host.__microscopeInstance = null;
+        }
+      } catch (e) {}
+
+      try {
+        if (typeof window.startMode === 'function') {
+          window.startMode('pratica');
+        }
+      } catch (e) {}
+    };
+
+    // Preset para iniciar como no screenshot: menor e mais "embaixo" no viewport.
+    mount(host, {
+      showUI: false,
+      onTap: trigger,
+      framePadding: 3.20,
+      // Valor positivo empurra o objeto para baixo no viewport.
+      // Para subir/centralizar, usamos um bias negativo.
+      centerBiasY: -0.22,
+      initialPhi: 1.25,
+      initialTheta: 2.55,
+    });
+  }
+
+  // Expose API for script.js
+  window.Microscope3D = {
+    mount,
+    disposeAll,
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    try { initMenuMicroscope(); } catch (e) {}
+  });
+})();
+// --- DADOS ---
+
+// Prova PrÃ¡tica (IMAGEM + TEXTO)
+const flashcardsPratica = [
+  // CAPA
+  { id: 0, isWelcome: true, type: 'microscope', title: '', description: '' },
+  
+  // JOGO
+   {
+      id: 1,
+      type: 'game',
+      img: 'https://i.imgur.com/k8D25Bs.jpeg',
+      references: [
+        { id: 1, label: 'Xilema' },
+        { id: 2, label: 'Floema' },
+        { id: 3, label: 'CÃ¢mbio' }
+      ],
+      hotspots: [
+        { id: 'h1', top: '48%', left: '52%', correctRefId: 1 },
+        { id: 'h2', top: '50%', left: '66%', correctRefId: 2 },
+        { id: 'h3', top: '58%', left: '49%', correctRefId: 3 }
+      ]
+    }
+    ,
+    // templates em branco adicionais para adicionar novos jogos
+    {
+      id: 2,
+      type: 'game',
+      img: 'https://i.imgur.com/2O1xi7C.png',
+      references: [
+        { id: 1, label: 'Teste' },
+        { id: 2, label: 'Teste 2' }
+      ],
+      hotspots: []
+    },
+    {
+      id: 3,
+      type: 'game',
+      img: '',
+      references: [],
+      hotspots: []
+    },
+    {
+      id: 4,
+      type: 'game',
+      img: '',
+      references: [],
+      hotspots: []
+    }
+
+
+
+
+
+];
+
+
+
+
+
+
+
+
+
+
+
+
+// --- LÃ“GICA ---
+
+// Debug flag: set to true to enable console logs
+window.DEBUG = window.DEBUG === undefined ? false : window.DEBUG;
+
+function dlog(...args) {
+  try { if (window.DEBUG) console.log(...args); } catch (e) {}
+}
+
+// Fundo interativo (canvas) â€” parallax + vagalumes (original, sem assets externos)
+function initInteractiveBackground() {
+  const canvas = document.getElementById('interactive-bg');
+  if (!canvas) return;
+
+  const ctx = canvas.getContext('2d', { alpha: false });
+  if (!ctx) return;
+
+  const prefersReduced = (() => {
+    try { return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; }
+  })();
+
+  let rafId = 0;
+  let w = 0;
+  let h = 0;
+  let dpr = 1;
+
+  const pointer = { x: 0.5, y: 0.5 };
+  const parallax = { x: 0, y: 0 };
+
+  const rnd = (min, max) => min + Math.random() * (max - min);
+
+  const fireflies = [];
+  const fireflyCount = prefersReduced ? 0 : 46;
+  for (let i = 0; i < fireflyCount; i++) {
+    fireflies.push({
+      x: Math.random(),
+      y: Math.random(),
+      vx: rnd(-0.018, 0.018),
+      vy: rnd(-0.012, 0.012),
+      r: rnd(0.7, 1.9),
+      phase: rnd(0, Math.PI * 2),
+      speed: rnd(0.6, 1.4)
+    });
+  }
+
+  function resize() {
+    dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    w = Math.max(1, Math.floor(window.innerWidth));
+    h = Math.max(1, Math.floor(window.innerHeight));
+    canvas.width = Math.floor(w * dpr);
+    canvas.height = Math.floor(h * dpr);
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function drawBackground() {
+    // Base gradient (noite)
+    const g = ctx.createLinearGradient(0, 0, 0, h);
+    g.addColorStop(0, '#03040a');
+    g.addColorStop(0.55, '#07111a');
+    g.addColorStop(1, '#020308');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+
+    // Vignette
+    const vg = ctx.createRadialGradient(w * 0.5, h * 0.55, Math.min(w, h) * 0.2, w * 0.5, h * 0.55, Math.max(w, h) * 0.75);
+    vg.addColorStop(0, 'rgba(0,0,0,0)');
+    vg.addColorStop(1, 'rgba(0,0,0,0.55)');
+    ctx.fillStyle = vg;
+    ctx.fillRect(0, 0, w, h);
+  }
+
+  function drawParallaxLayers(t) {
+    // Parallax suave baseado no ponteiro
+    const targetX = (pointer.x - 0.5) * 22;
+    const targetY = (pointer.y - 0.5) * 14;
+    parallax.x += (targetX - parallax.x) * 0.06;
+    parallax.y += (targetY - parallax.y) * 0.06;
+
+    // Camadas de silhuetas (formas abstratas) â€” aparÃªncia de floresta sem copiar arte
+    const layers = [
+      { y: 0.72, a: 0.20, c: 'rgba(8,22,24,0.85)', px: 0.30 },
+      { y: 0.78, a: 0.26, c: 'rgba(6,18,20,0.92)', px: 0.55 },
+      { y: 0.84, a: 0.32, c: 'rgba(4,12,14,0.96)', px: 0.85 }
+    ];
+
+    for (const L of layers) {
+      const ox = -parallax.x * L.px;
+      const oy = -parallax.y * (L.px * 0.7);
+      const baseY = h * L.y + oy;
+      const amp = h * L.a;
+
+      ctx.fillStyle = L.c;
+      ctx.beginPath();
+      ctx.moveTo(-40 + ox, h + 40);
+      ctx.lineTo(-40 + ox, baseY);
+
+      const steps = 7;
+      for (let i = 0; i <= steps; i++) {
+        const x = (w / steps) * i + ox;
+        const n = Math.sin((i * 1.7) + t * 0.00035) * 0.45 + Math.sin((i * 0.9) + t * 0.00022) * 0.55;
+        const y = baseY - (0.35 + 0.65 * Math.abs(n)) * amp;
+        ctx.lineTo(x, y);
+      }
+
+      ctx.lineTo(w + 40 + ox, baseY);
+      ctx.lineTo(w + 40 + ox, h + 40);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Brilhos suaves â€œbioluminescentesâ€
+    if (!prefersReduced) {
+      const glowCount = 6;
+      for (let i = 0; i < glowCount; i++) {
+        const gx = w * (0.12 + i * 0.15) + Math.sin(t * 0.0006 + i) * 18 + parallax.x * 0.15;
+        const gy = h * (0.35 + (i % 3) * 0.14) + Math.cos(t * 0.00055 + i * 1.3) * 14 + parallax.y * 0.12;
+        const r = 90 + (i % 2) * 40;
+        const rg = ctx.createRadialGradient(gx, gy, 0, gx, gy, r);
+        rg.addColorStop(0, 'rgba(45, 180, 255, 0.10)');
+        rg.addColorStop(1, 'rgba(45, 180, 255, 0)');
+        ctx.fillStyle = rg;
+        ctx.fillRect(gx - r, gy - r, r * 2, r * 2);
+      }
+    }
+  }
+
+  function drawFireflies(t) {
+    if (prefersReduced) return;
+
+    for (const p of fireflies) {
+      p.phase += 0.035 * p.speed;
+      p.x += p.vx * 0.003;
+      p.y += p.vy * 0.003;
+      if (p.x < -0.05) p.x = 1.05;
+      if (p.x > 1.05) p.x = -0.05;
+      if (p.y < -0.05) p.y = 1.05;
+      if (p.y > 1.05) p.y = -0.05;
+
+      const px = p.x * w + parallax.x * 0.25;
+      const py = p.y * h + parallax.y * 0.18;
+      const pulse = 0.55 + 0.45 * Math.sin(p.phase);
+      const rr = p.r + pulse * 1.4;
+      const g = ctx.createRadialGradient(px, py, 0, px, py, rr * 8);
+      g.addColorStop(0, `rgba(255, 220, 120, ${0.22 * pulse})`);
+      g.addColorStop(0.18, `rgba(255, 220, 120, ${0.10 * pulse})`);
+      g.addColorStop(1, 'rgba(255, 220, 120, 0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(px - rr * 8, py - rr * 8, rr * 16, rr * 16);
+
+      ctx.fillStyle = `rgba(255, 245, 200, ${0.55 * pulse})`;
+      ctx.beginPath();
+      ctx.arc(px, py, Math.max(0.8, rr * 0.9), 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  function frame(t) {
+    drawBackground();
+    drawParallaxLayers(t);
+    drawFireflies(t);
+    rafId = requestAnimationFrame(frame);
+  }
+
+  function onPointerMove(ev) {
+    const cx = (typeof ev.clientX === 'number') ? ev.clientX : (w * 0.5);
+    const cy = (typeof ev.clientY === 'number') ? ev.clientY : (h * 0.5);
+    pointer.x = w ? Math.max(0, Math.min(1, cx / w)) : 0.5;
+    pointer.y = h ? Math.max(0, Math.min(1, cy / h)) : 0.5;
+  }
+
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+  window.addEventListener('pointermove', onPointerMove, { passive: true });
+
+  // Renderiza estÃ¡tico se usuÃ¡rio preferir menos movimento
+  if (prefersReduced) {
+    drawBackground();
+    drawParallaxLayers(0);
+    return;
+  }
+
+  rafId = requestAnimationFrame(frame);
+
+  // Se alguÃ©m remover o canvas do DOM, para a animaÃ§Ã£o
+  const obs = new MutationObserver(() => {
+    if (!document.getElementById('interactive-bg')) {
+      try { cancelAnimationFrame(rafId); } catch (e) {}
+      try { window.removeEventListener('resize', resize); } catch (e) {}
+      try { window.removeEventListener('pointermove', onPointerMove); } catch (e) {}
+      try { obs.disconnect(); } catch (e) {}
+    }
+  });
+  try { obs.observe(document.body, { childList: true, subtree: true }); } catch (e) {}
+}
+
+try {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initInteractiveBackground);
+  } else {
+    initInteractiveBackground();
+  }
+} catch (e) {}
+
+// Fundo "Kodama" (SVG + GSAP/TweenMax) â€” inicializa apenas se o SVG existir.
+// ObservaÃ§Ã£o: o SVG do cenÃ¡rio NÃƒO veio na mensagem; sem ele, este bloco nÃ£o faz nada e o canvas continua como fallback.
+(function initKodamaBackgroundModule() {
+  function ensureKodamaSvgLoaded() {
+    try {
+      // JÃ¡ existe no DOM
+      if (document.querySelector('[data-svg=artwork]')) return Promise.resolve(true);
+
+      const host = document.getElementById('kodama-graphic');
+      if (!host) return Promise.resolve(false);
+
+      // Tenta carregar do arquivo local do projeto.
+      // ObservaÃ§Ã£o: em `file://` alguns browsers bloqueiam fetch; nesse caso, cai no fallback.
+      return fetch('kodama-artwork.svg', { cache: 'force-cache' })
+        .then(function(res) {
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return res.text();
+        })
+        .then(function(svgText) {
+          // Substitui o placeholder pelo SVG inline (necessÃ¡rio para GSAP animar nÃ³s internos).
+          host.innerHTML = svgText;
+          return true;
+        })
+        .catch(function() {
+          return false;
+        });
+    } catch (e) {
+      return Promise.resolve(false);
+    }
+  }
+
+  function hasTouch() {
+    try {
+      return ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function canRunKodama() {
+    try {
+      const svg = document.querySelector('[data-svg=artwork]');
+      if (!svg) return false;
+      if (typeof window.TweenMax !== 'function') return false;
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // Este cÃ³digo Ã© o JS enviado pelo usuÃ¡rio, com proteÃ§Ãµes para evitar crash.
+  var features = {
+    vines: true,
+    shrooms: true,
+    fireflies: true,
+    sunrays: false,
+    filters: true,
+    transparency: true,
+    vinesMotion: true,
+    shroomsMotion: true,
+    textMotion: true,
+    mouseAction: true,
+    shroomTrip: true,
+    init: function() {
+      // Se touch device, switch off all fanciness
+      var isTouchDevice = false;
+      try {
+        isTouchDevice = !!(window.Modernizr && Modernizr.touchevents);
+      } catch (e) {}
+      if (!isTouchDevice) {
+        isTouchDevice = hasTouch();
+      }
+
+      if (isTouchDevice) {
+        this.vines = false;
+        this.shrooms = false;
+        this.fireflies = false;
+        this.sunrays = false;
+        this.filters = false;
+        this.transparency = false;
+        this.vinesMotion = false;
+        this.shroomsMotion = false;
+        this.textMotion = false;
+        this.mouseAction = false;
+        this.shroomTrip = false;
+      }
+    }
+  };
+
+  var o = {
+    init: function() {
+      if (!canRunKodama()) return;
+
+      // Se o Kodama vai rodar, esconde o canvas de fallback.
+      try {
+        const fallback = document.getElementById('interactive-bg');
+        if (fallback) fallback.style.display = 'none';
+      } catch (e) {}
+
+      o.cacheDOM();
+      if (!o.svg) return;
+      o.bindEvents();
+      o.settings();
+      o.resetStart();
+      o.animate();
+    },
+    cacheDOM: function() {
+      o.svg = document.querySelector('[data-svg=artwork]');
+      o.audio = document.querySelector('[data-audio=group]');
+
+      o.elements = [
+        'sunray'
+      ];
+      o.lists = [
+        'layers',
+        'glows',
+        'kodamas',
+        'kodamaGlows',
+        'heads',
+        'fireflyGroups',
+        'fireflies',
+        'vines',
+        'shrooms',
+        'shroomGroups',
+        'texts',
+        'textsMobile'
+      ];
+      o.el = {};
+      o.li = {};
+
+      if (!o.svg) return;
+
+      for (var i = 0; i < o.elements.length; i++) {
+        o.el[o.elements[i]] = o.svg.querySelector('[data-kodama=' + o.elements[i] + ']');
+      }
+      for (var j = 0; j < o.lists.length; j++) {
+        o.li[o.lists[j]] = o.svg.querySelectorAll('[data-kodama=' + o.lists[j] + ']');
+      }
+
+      o.li.offsetLayers = o.svg.querySelectorAll('[data-hax=offsetLayers]');
+      o.li.filters = o.svg.querySelectorAll('[filter]');
+
+      o.muteButton = document.querySelector('[data-btn=mute]');
+      o.replayButton = document.querySelector('[data-btn=replay]');
+
+      if (o.audio) {
+        o.ambientAudio = o.audio.querySelector('[data-audio=ambient]');
+        o.spinAudio1 = o.audio.querySelector('[data-audio=spin1]');
+        o.spinAudio2 = o.audio.querySelector('[data-audio=spin2]');
+        o.spinAudio3 = o.audio.querySelector('[data-audio=spin3]');
+      } else {
+        o.ambientAudio = null;
+        o.spinAudio1 = null;
+        o.spinAudio2 = null;
+        o.spinAudio3 = null;
+      }
+    },
+    settings: function() {
+      features.init();
+      // Parallax settings
+      o.vw = 0;
+      o.vh = 0;
+      o.layerObj = [];
+      o.resize();
+      o.mouse = { x: o.vw / 2, y: o.vh / 2 };
+      o.acceleration = { val: 0 };
+
+      // other stuff
+      o.isMute = false;
+      o.tl = null;
+      try {
+        if (o.li.kodamas && o.li.kodamas[0]) {
+          TweenMax.set(o.li.kodamas[0], { scale: 0.8, transformOrigin: 'bottom center' });
+        }
+      } catch (e) {}
+      o.kodamaTransparency = 0.65;
+
+      // Set transparency of glowy blob things
+      try {
+        var opacity = [0.65, 0.75, 0.75, 0.45, 0.6, 0.65, 0.75, 1];
+        if (o.li.glows) {
+          for (var i = 0; i < o.li.glows.length; i++) {
+            TweenMax.set(o.li.glows[i], { autoAlpha: opacity[i] });
+          }
+        }
+      } catch (e) {}
+    },
+    bindEvents: function() {
+      try { if (o.muteButton) o.muteButton.addEventListener('click', o.toggleAudio); } catch (e) {}
+      try { if (o.replayButton) o.replayButton.addEventListener('click', o.replay); } catch (e) {}
+      try { window.addEventListener('resize', o.resize); } catch (e) {}
+    },
+    resetStart: function() {
+      o.killTls();
+      o.resetStartPosLayers();
+      o.resetExtras();
+    },
+    animate: function() {
+      o.initExtras();
+      o.revealScene();
+      o.playMusic();
+      o.playTimeline();
+    },
+    toggleAudio: function() {
+      if (!o.ambientAudio || !o.spinAudio1 || !o.spinAudio2 || !o.spinAudio3) return;
+      if (o.ambientAudio.volume === 0) {
+        o.ambientAudio.volume = 0.1;
+        o.spinAudio1.volume = 1;
+        o.spinAudio2.volume = 1;
+        o.spinAudio3.volume = 1;
+        o.isMute = false;
+      } else {
+        o.ambientAudio.volume = 0;
+        o.spinAudio1.volume = 0;
+        o.spinAudio2.volume = 0;
+        o.spinAudio3.volume = 0;
+        o.isMute = true;
+      }
+    },
+    replay: function() {
+      o.resetStart();
+      o.animate();
+    },
+    killTls: function() {
+      if (o.tl !== null) {
+        try { o.tl.kill(); } catch (e) {}
+      }
+    },
+    resetStartPosLayers: function() {
+      if (!o.li.layers) return;
+      try {
+        TweenMax.set(o.li.layers[0], { y: -0 });
+        TweenMax.set(o.li.layers[1], { y: -50 });
+        TweenMax.set(o.li.layers[2], { y: -100 });
+        TweenMax.set(o.li.layers[3], { y: -200 });
+        TweenMax.set(o.li.layers[4], { y: -300 });
+        TweenMax.set(o.li.layers[5], { y: -300 });
+        TweenMax.set(o.li.layers[6], { y: -400 });
+        TweenMax.set(o.li.layers[7], { y: -500 });
+
+        TweenMax.set(o.li.offsetLayers, { x: -50 });
+      } catch (e) {}
+    },
+    resetExtras: function() {
+      // Reset acceleration value
+      try { TweenMax.set(o.acceleration, { val: 0 }); } catch (e) {}
+      // Hide elements
+      try { TweenMax.set([o.svg, o.li.kodamas, o.li.texts, o.li.textsMobile, o.el.sunray], { autoAlpha: 0 }); } catch (e) {}
+    },
+    revealScene: function() {
+      try { TweenMax.to(o.svg, 1, { autoAlpha: 1 }); } catch (e) {}
+      // MantÃ©m compatibilidade com o CSS original (inicia invisÃ­vel)
+      try {
+        var host = document.getElementById('kodama-graphic');
+        if (host) host.style.opacity = '1';
+      } catch (e) {}
+    },
+    playTimeline: function() {
+      o.tl = o.getTimeline();
+      try { if (o.tl && o.tl.play) o.tl.play(); } catch (e) {}
+    },
+    playMusic: function() {
+      if (!o.ambientAudio) return;
+      try {
+        if (o.isMute) {
+          o.ambientAudio.volume = 0;
+        } else {
+          o.ambientAudio.volume = 0.1;
+        }
+        o.ambientAudio.currentTime = 0;
+        var p = o.ambientAudio.play();
+        if (p && typeof p.catch === 'function') p.catch(function(){});
+      } catch (e) {}
+    },
+    initExtras: function() {
+      // Call if false
+      if (!features.vines) { o.removeVines(); }
+      if (!features.shrooms) { o.removeShrooms(); }
+      if (!features.fireflies) { o.removeFireflies(); } else { o.playFireflies(); }
+      if (!features.sunrays) { o.removeSunrays(); }
+      if (!features.filters) { o.removeFilters(); }
+      if (!features.transparency) { o.removeTransparency(); }
+
+      // Demo original: sÃ³ toca o intro quando NÃƒO hÃ¡ mouseAction.
+      if (!features.mouseAction) {
+        o.playIntro();
+      }
+
+      // Call if true
+      if (features.vinesMotion) { o.playVines(); }
+      if (features.shroomsMotion) { o.playShrooms(); }
+      if (features.textMotion) { o.playText(); }
+      if (features.mouseAction) { o.bindParallax(); }
+      if (features.shroomTrip) { o.bindShrooms(); }
+    },
+    getTimeline: function() {
+      var tl = new TimelineMax({ paused: true });
+
+      tl
+        .add('revealKodamas')
+        .to(o.li.kodamas[0], 3, { autoAlpha: o.kodamaTransparency, ease: Power3.easeOut }, 7)
+        .to(o.li.kodamas[1], 3, { autoAlpha: o.kodamaTransparency, ease: Power3.easeOut }, 9.5)
+        .to(o.li.kodamas[2], 3, { autoAlpha: o.kodamaTransparency, ease: Power3.easeOut }, 10.5)
+
+        .add('revealTitle')
+        .to(o.li.texts[0], 3, { autoAlpha: 1, ease: Power3.easeOut }, 11.3)
+        .to(o.li.texts[1], 3, { autoAlpha: 0.7, ease: Power3.easeOut }, 12.2)
+        .to(o.el.sunray, 3, { autoAlpha: 0.2 }, 10)
+
+        .add('spinHeads')
+        .add('spin1')
+        .to(o.li.heads[0], 2, { rotation: 90, transformOrigin: 'center center' }, 'spin1')
+        .to(o.li.heads[0], 2, { rotation: 0, ease: Elastic.easeOut.config(1.5, 0.1), transformOrigin: 'center center' }, 'spin1 =+2')
+        .call(o.playSFX, [o.spinAudio1], this, 'spin1')
+        .add('spin2', 'spin1 =+2')
+        .to(o.li.heads[1], 2, { rotation: 90, transformOrigin: 'center center' }, 'spin2')
+        .to(o.li.heads[1], 2, { rotation: 0, ease: Elastic.easeOut.config(1.5, 0.1), transformOrigin: 'center center' }, 'spin2 =+2')
+        .call(o.playSFX, [o.spinAudio2], this, 'spin2')
+        .add('spin3', 'spin1 =+2.3')
+        .to(o.li.heads[2], 2, { rotation: 90, transformOrigin: 'center center' }, 'spin3')
+        .to(o.li.heads[2], 2, { rotation: 0, ease: Elastic.easeOut.config(1.5, 0.1), transformOrigin: 'center center' }, 'spin3 =+2')
+        .call(o.playSFX, [o.spinAudio3], this, 'spin3');
+
+      return tl;
+    },
+    playSFX: function(audio) {
+      if (!audio) return;
+      try {
+        if (o.isMute) {
+          audio.volume = 0;
+        }
+        audio.currentTime = 0;
+        var p = audio.play();
+        if (p && typeof p.catch === 'function') p.catch(function(){});
+      } catch (e) {}
+    },
+    removeVines: function() {
+      if (!o.li.vines || !o.li.shroomGroups || !o.li.shroomGroups[0]) return;
+      if (o.li.shroomGroups[0].parentNode) {
+        for (var i = 0; i < o.li.vines.length; i++) {
+          if (o.li.vines[i] && o.li.vines[i].parentNode) o.li.vines[i].parentNode.removeChild(o.li.vines[i]);
+        }
+      }
+    },
+    playVines: function() {
+      if (!o.li.vines) return;
+      for (var i = 0; i < o.li.vines.length; i++) {
+        o.swingVine(i);
+      }
+    },
+    swingVine: function(i) {
+      if (!o.li.vines || !o.li.vines[i]) return;
+      var duration = random(3, 5);
+      var rotation = random(-5, 5);
+
+      TweenMax.to(o.li.vines[i], duration, {
+        rotation: rotation,
+        transformOrigin: 'top center',
+        ease: Power1.easeInOut,
+        onComplete: o.swingVine,
+        onCompleteParams: [i]
+      });
+    },
+    removeShrooms: function() {
+      if (!o.li.shroomGroups || !o.li.shroomGroups[0]) return;
+      if (o.li.shroomGroups[0].parentNode) {
+        for (var i = 0; i < o.li.shroomGroups.length; i++) {
+          if (o.li.shroomGroups[i] && o.li.shroomGroups[i].parentNode) o.li.shroomGroups[i].parentNode.removeChild(o.li.shroomGroups[i]);
+        }
+      }
+    },
+    playShrooms: function() {
+      if (!o.li.shrooms) return;
+      for (var i = 0; i < o.li.shrooms.length; i++) {
+        o.pulseShroom(i);
+      }
+    },
+    pulseShroom: function(i) {
+      if (!o.li.shrooms || !o.li.shrooms[i]) return;
+      var duration = random(0.5, 1);
+      var scale = random(1.1, 1.3);
+      var delay = random(1, 4);
+
+      TweenMax.to(o.li.shrooms[i], duration, {
+        scale: scale,
+        transformOrigin: 'center center',
+        ease: SlowMo.ease.config(0.1, 0.1, true),
+        delay: delay,
+        onComplete: o.pulseShroom,
+        onCompleteParams: [i]
+      });
+    },
+    bindShrooms: function() {
+      if (!o.li.shroomGroups) return;
+      for (var i = 0; i < o.li.shroomGroups.length; i++) {
+        try { o.li.shroomGroups[i].addEventListener('click', o.eatShroom); } catch (e) {}
+      }
+    },
+    eatShroom: function() {
+      // original: console.log("Trippy colors, unproportional scale, reverse movement");
+    },
+    removeFireflies: function() {
+      if (!o.li.fireflyGroups || !o.li.fireflyGroups[0]) return;
+      if (o.li.fireflyGroups[0].parentNode) {
+        for (var i = 0; i < o.li.fireflyGroups.length; i++) {
+          if (o.li.fireflyGroups[i] && o.li.fireflyGroups[i].parentNode) o.li.fireflyGroups[i].parentNode.removeChild(o.li.fireflyGroups[i]);
+        }
+      }
+    },
+    playFireflies: function() {
+      if (!o.li.fireflyGroups || !o.li.fireflies) return;
+      TweenMax.set(o.li.fireflyGroups, { autoAlpha: 1 });
+      for (var i = 0; i < o.li.fireflyGroups.length; i++) {
+        o.newFireflyGroupPos(i);
+      }
+      for (var j = 0; j < o.li.fireflies.length; j++) {
+        o.newFireflyPos(j);
+      }
+    },
+    newFireflyGroupPos: function(i) {
+      if (!o.li.fireflyGroups || !o.li.fireflyGroups[i]) return;
+      var duration = random(1, 5);
+      var rotation = random(0, 360);
+      var scale = random(0.5, 1);
+      // O demo original usa regiÃµes diferentes para alguns grupos; aqui alternamos por Ã­ndice.
+      var idx = (i % 2);
+      var x = [random(1250, 1350), random(1050, 1150)][idx];
+      var y = [random(25, 100), random(325, 400)][idx];
+
+      TweenMax.to(o.li.fireflyGroups[i], duration, {
+        rotation: rotation,
+        scale: scale,
+        x: x,
+        y: y,
+        ease: Power1.easeInOut,
+        onComplete: o.newFireflyGroupPos,
+        onCompleteParams: [i]
+      });
+    },
+    newFireflyPos: function(i) {
+      if (!o.li.fireflies || !o.li.fireflies[i]) return;
+      var duration = random(5, 7);
+      var x = [random(-45, 45), random(-45, 45), random(-45, 45), random(-45, 45), random(-45, 45)];
+
+      TweenMax.to(o.li.fireflies[i], duration, {
+        bezier: {
+          curviness: 1,
+          values: [
+            { x: x[0], y: x[1] },
+            { x: x[1], y: x[2] },
+            { x: x[2], y: x[3] },
+            { x: x[3], y: x[4] },
+            { x: x[4], y: x[0] }
+          ]
+        },
+        scale: random(0.2, 1.3),
+        autoAlpha: random(0.7, 1),
+        ease: Linear.easeNone,
+        onComplete: o.newFireflyPos,
+        onCompleteParams: [i]
+      });
+    },
+    removeSunrays: function() {
+      if (!o.el.sunray) return;
+      if (o.el.sunray.parentNode) {
+        o.el.sunray.parentNode.removeChild(o.el.sunray);
+      }
+    },
+    removeFilters: function() {
+      if (!o.li.filters || !o.li.filters[0]) return;
+      if (o.li.filters[0].parentNode) {
+        for (var i = 0; i < o.li.filters.length; i++) {
+          if (o.li.filters[i] && o.li.filters[i].parentNode) o.li.filters[i].parentNode.removeChild(o.li.filters[i]);
+        }
+      }
+    },
+    removeTransparency: function() {
+      o.kodamaTransparency = 1;
+    },
+    playText: function() {
+      if (!o.li.texts) return;
+      TweenMax.to(o.li.texts[0], 6, { y: 20, ease: Power1.easeInOut, repeat: -1, yoyo: true });
+      TweenMax.to(o.li.texts[1], 6, { y: 20, ease: Power1.easeInOut, repeat: -1, yoyo: true, delay: 1.8 });
+    },
+    playIntro: function() {
+      if (!o.li.layers) return;
+      TweenMax.to(o.li.layers, 9, { y: 50, ease: Back.easeOut });
+    },
+    resize: function() {
+      o.vw = window.innerWidth;
+      o.vh = window.innerHeight;
+    },
+    bindParallax: function() {
+      if (!o.svg) return;
+      o.svg.addEventListener("mousemove", o.updateMouseObj);
+      o.svg.addEventListener("touchmove", o.updateMouseObj);
+
+      TweenMax.to(o.acceleration, 10, { val: 0.05, ease: Linear.easeNone });
+
+      if (!o.li.layers) return;
+      for (var i = 0; i < o.li.layers.length; i++) {
+        o.linkLayer(i);
+      }
+    },
+    linkLayer: function(i) {
+      if (!o.li.layers || !o.li.layers[i]) return;
+      var offset = 20*i;
+
+      o.layerObj[i] = {
+        pos: o.li.layers[i]._gsTransform,
+        x: 0,
+        xMin: offset,
+        xMax: -offset,
+        y: 0,
+        yMin: offset,
+        yMax: -offset
+      };
+
+      TweenMax.to(o.li.layers[i], 1000, { x: 0, y: 0, repeat: -1, ease: Linear.easeNone,
+        modifiers: {
+          x: function() {
+            o.layerObj[i].x = map(o.mouse.x, 0, o.vw, o.layerObj[i].xMin, o.layerObj[i].xMax);
+            return o.layerObj[i].pos.x + ( o.layerObj[i].x - o.layerObj[i].pos.x ) * o.acceleration.val;
+          },
+          y: function() {
+            // Demo original usa vw aqui (nÃ£o vh). Mantemos para ficar idÃªntico.
+            o.layerObj[i].y = map(o.mouse.y, 0, o.vw, o.layerObj[i].yMin, o.layerObj[i].yMax);
+            return o.layerObj[i].pos.y + ( o.layerObj[i].y - o.layerObj[i].pos.y ) * o.acceleration.val;
+          }
+        }
+      });
+    },
+    updateMouseObj: function(e) {
+      if (e.targetTouches && e.targetTouches[0]) {
+        e.preventDefault();
+        o.mouse.x = e.targetTouches[0].clientX;
+        o.mouse.y = e.targetTouches[0].clientY;
+      } else {
+        o.mouse.x = e.clientX;
+        o.mouse.y = e.clientY;
+      }
+    }
+  };
+
+  function random(min, max) {
+    if (max === null) {
+      max = min;
+      min = 0;
+    }
+    return Math.random() * (max - min) + min;
+  }
+
+  function map(value, sourceMin, sourceMax, destinationMin, destinationMax) {
+    return destinationMin + (destinationMax - destinationMin) * ((value - sourceMin) / (sourceMax - sourceMin)) || 0;
+  }
+
+  try {
+    window.addEventListener('load', function() {
+      try {
+        ensureKodamaSvgLoaded().then(function() {
+          try { o.init(); } catch (e) {}
+        });
+      } catch (e) {
+        try { o.init(); } catch (e2) {}
+      }
+    });
+  } catch (e) {}
+})();
+
+let currentMode = '';
+let currentIndex = 0;
+let cardOrder = [];
+let currentFlashcards = [];
+// contagem de acertos na sessÃ£o atual
+let correctCount = 0;
+let lastVerifySuccess = false;
+// resultados detalhados para revisÃ£o ao final
+let reviewResults = [];
+// (Teoria removida) sem estado extra de overlay
+
+const menuScreen = document.getElementById('menuScreen');
+const flashcardScreen = document.getElementById('flashcardScreen');
+const flashcard = document.getElementById('flashcard');
+const cardImage = document.getElementById('cardImage');
+const cardAnswer = document.getElementById('cardAnswer');
+const cardFrontText = document.getElementById('cardFrontText');
+const zoomBtn = document.getElementById('zoomBtn');
+const zoomOverlay = document.getElementById('zoomOverlay');
+const zoomImage = document.getElementById('zoomImage');
+const zoomClose = document.getElementById('zoomClose');
+
+// id do container interativo (criado dinamicamente)
+const interactiveId = 'interactiveContainer';
+
+let currentImageUrl = '';
+let hasShuffled = false;
+
+// Helper: cria um botÃ£o 'Voltar' padronizado.
+
+// Vincular botÃµes principais do menu, se existirem
+try {
+  const btnPratica = document.getElementById('startPratica') || document.querySelector('[data-action="start-pratica"]');
+  if (btnPratica && !btnPratica._bound) {
+    btnPratica.addEventListener('click', (e) => { e.preventDefault(); startMode('pratica'); });
+    btnPratica._bound = true;
+  } else {
+    const menuCards = Array.from(document.querySelectorAll('.menu-card'));
+    const praticaCard = menuCards.length > 1 ? menuCards[1] : null;
+    if (praticaCard && !praticaCard._bound) {
+      praticaCard.addEventListener('click', (e) => { e.preventDefault(); startMode('pratica'); });
+      praticaCard._bound = true;
+    }
+  }
+} catch (e) { /* ignore */ }
+function createStandardBackButton(options = {}) {
+  const {
+    id = 'menu-back-button',
+    href = '#',
+    title = 'Voltar',
+    subtitle = '',
+    fixed = true,
+    onClick = null,
+    // full CSS expression to use for `left`, e.g. 'calc(var(--notebook-side-gap) - 20px)'
+    leftExpression = '320px',
+    // se true, adiciona uma linha de legend abaixo do tÃ­tulo (por padrÃ£o nÃ£o adiciona)
+    showSubtitle = false
+  } = options;
+
+  // remover existente
+  try { const ex = document.getElementById(id); if (ex) ex.remove(); } catch (e) {}
+
+  const a = document.createElement('button');
+  a.id = id;
+  a.className = 'back';
+  a.type = 'button';
+  // use aria-label for accessibility
+  a.setAttribute('aria-label', title);
+
+  const c = document.createElement('div');
+  const h = document.createElement('h4'); h.textContent = String(title || '').toUpperCase();
+  // a seta serÃ¡ desenhada via CSS pseudo-elemento (.back div::after)
+  // (nÃ£o inserimos <img> aqui para evitar duplicaÃ§Ã£o)
+  a.appendChild(c); a.appendChild(h);
+  if (showSubtitle && subtitle) {
+    const s = document.createElement('span'); s.className = 'back-btn-text'; s.textContent = subtitle;
+    a.appendChild(s);
+  }
+
+// Helper global para testes: dispara confetti manualmente via Console
+// Uso: abra DevTools Console e execute `__test_confetti()`
+try {
+  window.__test_confetti = function() {
+    try {
+      // Reuse the same launcher logic used by _fireConfettiOnce
+      function _createLauncherAndFireTest() {
+        try {
+          if (!window.__confettiLauncher) {
+            const canvas = document.createElement('canvas');
+            canvas.id = '__confetti_canvas';
+            canvas.style.position = 'fixed';
+            canvas.style.inset = '0';
+            canvas.style.left = '0';
+            canvas.style.top = '0';
+            canvas.style.width = '100%';
+            canvas.style.height = '100%';
+            canvas.style.pointerEvents = 'none';
+            canvas.style.zIndex = '9999999';
+            document.body.appendChild(canvas);
+            if (window.confetti && typeof window.confetti.create === 'function') {
+              window.__confettiLauncher = window.confetti.create(canvas, { resize: true });
+            } else {
+              window.__confettiLauncher = function(opts) { try { window.confetti(opts); } catch(e){} };
+            }
+          }
+          try { window.__confettiLauncher({ particleCount: 120, spread: 70, origin: { y: 0.6 } }); } catch(e) { console.error('confetti error', e); }
+        } catch (e) { console.error('Erro criando launcher de confetti (test)', e); }
+      }
+      if (window.confetti && typeof window.confetti.create === 'function') { _createLauncherAndFireTest(); return; }
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js';
+      s.async = true;
+      s.onload = function() { try { _createLauncherAndFireTest(); } catch(e) { console.error('confetti test onload error', e); } };
+      s.onerror = function() { console.warn('Falha ao carregar a lib de confetti'); };
+      document.head.appendChild(s);
+    } catch (e) { console.error('Erro em __test_confetti', e); }
+  };
+} catch (e) {}
+
+  if (fixed) {
+    a.style.position = 'fixed';
+    // posicionamento relativo Ã  variÃ¡vel CSS do gap (pode ser sobrescrito por leftExpression)
+    a.style.left = leftExpression;
+    a.style.top = '24px';
+    a.style.zIndex = '2000';
+  }
+
+  if (typeof onClick === 'function') {
+    a.addEventListener('click', (ev) => { ev.preventDefault(); ev.stopPropagation(); onClick(ev); });
+  }
+
+  return a;
+}
+
+function startMode(mode) {
+  dlog('startMode called', mode);
+  currentMode = mode;
+  // Se houver microscÃ³pio rodando no menu (ou em card anterior), descarte antes de renderizar o modo.
+  try { if (window.Microscope3D && typeof window.Microscope3D.disposeAll === 'function') window.Microscope3D.disposeAll(); } catch (e) {}
+  try { document.body.classList.toggle('mode-pratica', mode === 'pratica'); } catch(e) {}
+  // Teoria removida
+  try { document.body.classList.remove('mode-teorica'); } catch(e) {}
+  hasShuffled = false;
+  // reset de contadores e resultados ao iniciar um novo modo
+  try {
+    correctCount = 0;
+    lastVerifySuccess = false;
+    reviewResults = [];
+  } catch (e) {}
+  
+  if (mode !== 'pratica') {
+    // Teoria removida: qualquer modo desconhecido volta ao menu para evitar estados quebrados
+    goToMenu();
+    return;
+  }
+
+  currentFlashcards = flashcardsPratica;
+  currentIndex = 0; // PrÃ¡tica: Mostra capa
+  
+  cardOrder = [...Array(currentFlashcards.length).keys()];
+  
+  menuScreen.classList.add('hidden');
+  flashcardScreen.classList.remove('hidden');
+  renderCurrentCard();
+  
+  // show fallback back-button if present
+  try {
+    const fb = document.getElementById('global-back-fallback');
+    // only show the global fallback if there isn't an existing back button
+    // injected by the UI (menu-back-button) or a
+    // top-nav child already present. This prevents duplicate back buttons.
+    const hasMenuBack = !!document.getElementById('menu-back-button');
+    const hasTheoryBack = false;
+    const topNav = document.querySelector('.top-nav');
+    const topNavHasChildren = topNav && topNav.children && topNav.children.length > 0;
+    if (fb) {
+      if (hasMenuBack || hasTheoryBack || topNavHasChildren) {
+        fb.style.display = 'none';
+      } else {
+        fb.style.display = '';
+      }
+    }
+  } catch (e) {}
+}
+
+// garantir acesso global para chamadas inline no HTML
+try { window.startMode = startMode; } catch(e) {}
+
+// volta ao menu principal e remove estados temporÃ¡rios da visÃ£o TEORIA
+function goBackToMenu() {
+  dlog('goBackToMenu called', { currentMode: typeof currentMode !== 'undefined' ? currentMode : null, currentIndex: typeof currentIndex !== 'undefined' ? currentIndex : null });
+  // Descartar qualquer instÃ¢ncia do microscÃ³pio para nÃ£o deixar animaÃ§Ã£o rodando em background.
+  try { if (window.Microscope3D && typeof window.Microscope3D.disposeAll === 'function') window.Microscope3D.disposeAll(); } catch (e) {}
+  // Ensure the menu is shown immediately as a fail-safe so the user can always
+  // return to the main screen even if later cleanup throws an error.
+  try {
+    const menuScreenEl = document.getElementById('menuScreen');
+    const flashScreenEl = document.getElementById('flashcardScreen');
+    if (menuScreenEl) {
+      menuScreenEl.classList.remove('hidden');
+      menuScreenEl.style.display = '';
+    }
+    if (flashScreenEl) {
+      flashScreenEl.classList.add('hidden');
+      flashScreenEl.style.display = 'none';
+    }
+  } catch (e) {}
+
+  try {
+    // cleanup: remove interactive containers
+    try {
+      const interactive = document.getElementById(interactiveId);
+      if (interactive) interactive.remove();
+    } catch (e) {}
+
+    // remover possÃ­veis classes de notebook da face do card
+    const frontFace = document.querySelector('.card-face.card-front');
+    if (frontFace) frontFace.classList.remove('notebook-view');
+    const cardImg = document.querySelector('.card-image');
+    if (cardImg) cardImg.classList.remove('notebook-image');
+    // garantir que a Ã¡rea do card nÃ£o contenha o painel do caderno
+    try { if (cardImg) cardImg.innerHTML = ''; } catch (e) {}
+    dlog('goBackToMenu: cleaned overlays and interactive containers');
+    // mostrar menu e esconder tela de flashcards
+    const menuScreenEl = document.getElementById('menuScreen');
+    const flashScreen = document.getElementById('flashcardScreen');
+    if (menuScreenEl) {
+      menuScreenEl.classList.remove('hidden');
+      menuScreenEl.style.display = '';
+    }
+    if (flashScreen) {
+      flashScreen.classList.add('hidden');
+      flashScreen.style.display = 'none';
+    }
+    // restaurar top-nav para seu estado padrÃ£o (botÃ£o de voltar simples)
+    const topNav = document.querySelector('.top-nav');
+    if (topNav) {
+      topNav.innerHTML = '';
+      // inserir botÃ£o de voltar padronizado (nÃ£o fixo) para tela de flashcards
+      const menuBack = createStandardBackButton({
+        id: 'menu-back-button',
+        fixed: false,
+        title: 'Voltar',
+        onClick: () => goBackToMenu()
+      });
+      topNav.appendChild(menuBack);
+      // remover expansÃ£o do notebook se aplicada
+      try {
+        const mainContainer = document.querySelector('.container');
+        if (mainContainer) mainContainer.classList.remove('notebook-expanded');
+      } catch (e) {}
+    }
+  } catch (e) {
+    // fail silently
+  }
+
+  // hide fallback back-button if present
+  try {
+    const fb = document.getElementById('global-back-fallback');
+    if (fb) fb.style.display = 'none';
+    dlog('goBackToMenu: hid global-back-fallback');
+  } catch (e) {}
+
+  // Extra aggressive cleanup: remove any leftover notebook or overlay elements
+  try {
+    // remove by id or class if any remain
+    const maybeOverlays = Array.from(document.querySelectorAll('.notebook-panel, .notebook-full'));
+    maybeOverlays.forEach(el => { try { el.remove(); } catch(e){} });
+    // hide zoom overlay if visible
+    try { const z = document.getElementById('zoomOverlay'); if (z) z.classList.remove('active'); if (z) z.style.display = 'none'; } catch(e) {}
+    // ensure interactive container removed
+    try { const ii = document.getElementById(interactiveId); if (ii) ii.remove(); } catch(e) {}
+    // ensure flashcardScreen is behind and menuScreen is on top
+    try { const menuEl = document.getElementById('menuScreen'); if (menuEl) { menuEl.style.zIndex = '4000'; menuEl.style.position = menuEl.style.position || 'relative'; menuEl.scrollIntoView({behavior: 'smooth'}); } } catch(e) {}
+    try { const flashEl = document.getElementById('flashcardScreen'); if (flashEl) { flashEl.style.zIndex = '0'; } } catch(e) {}
+    dlog('goBackToMenu: performed extra aggressive cleanup');
+  } catch (e) {}
+  try { document.body.classList.remove('mode-pratica'); } catch(e) {}
+  try { document.body.classList.remove('mode-teorica'); } catch(e) {}
+}
+
+// Unified init to attach global delegated listeners once
+function initOnce() {
+  if (window.__appInitialized) return;
+  window.__appInitialized = true;
+
+  // Delegated fallback: clicks on any '.back' trigger goBackToMenu
+  document.addEventListener('click', (ev) => {
+    try {
+      const el = ev.target.closest && ev.target.closest('.back');
+      if (el) {
+        dlog('delegated back click on', el.id || el.className || el);
+        ev.preventDefault();
+        ev.stopPropagation();
+        try { goBackToMenu(); } catch (e) { /* silent */ }
+      }
+    } catch (e) {}
+  }, { capture: true, passive: true });
+
+  // Teoria removida: sem fallback
+
+  // Safety: expose startMode and attach menu-card fallbacks
+  try { window.startMode = startMode; } catch (e) {}
+  try {
+    const cards = document.querySelectorAll('.menu-card');
+    cards.forEach(card => {
+      if (card.dataset.startAttached) return;
+      const onclick = card.getAttribute('onclick') || '';
+      const m = onclick.match(/startMode\(['"](\w+)['"]\)/);
+      if (m) {
+        card.addEventListener('click', (ev) => { ev.preventDefault(); startMode(m[1]); }, { passive: false });
+        card.dataset.startAttached = '1';
+      }
+    });
+  } catch (e) {}
+
+  // Delegated fallback for menu cards (robust)
+  document.addEventListener('click', (ev) => {
+    try {
+      const el = ev.target.closest && ev.target.closest('.menu-card');
+      if (el) {
+        const onclick = el.getAttribute && el.getAttribute('onclick') || '';
+        const m = onclick.match(/startMode\(['"](\w+)['"]\)/);
+        const mode = m ? m[1] : (el.dataset && el.dataset.mode);
+        dlog('delegated menu-card click', { id: el.id, mode });
+        if (mode) {
+          ev.preventDefault(); ev.stopPropagation();
+          try { startMode(mode); } catch(e) {}
+        }
+      }
+    } catch (e) {}
+  }, { capture: true });
+
+  // Fixed fallback back-button
+  try {
+    if (!document.getElementById('global-back-fallback')) {
+      const a = document.createElement('button');
+      a.id = 'global-back-fallback';
+      a.type = 'button';
+      a.setAttribute('aria-label', 'Voltar');
+      a.style.position = 'fixed';
+      a.style.left = '12px';
+      a.style.top = '12px';
+      a.style.width = '36px';
+      a.style.height = '36px';
+      a.style.borderRadius = '50%';
+      a.style.background = '#ffffffff';
+      a.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+      a.style.zIndex = '4000';
+      a.style.display = 'none';
+      a.style.backgroundImage = "url('https://s3-eu-west-1.amazonaws.com/thomascullen-codepen/back.svg')";
+      a.style.backgroundRepeat = 'no-repeat';
+      a.style.backgroundPosition = 'center';
+      a.style.backgroundSize = '18px';
+      a.style.cursor = 'pointer';
+      a.addEventListener('click', (ev) => { ev.preventDefault(); try { goBackToMenu(); } catch(e){} });
+      document.body.appendChild(a);
+    }
+  } catch (e) {}
+}
+
+// Boot init once DOM is ready
+document.addEventListener('DOMContentLoaded', initOnce, { once: true });
+
+function renderCurrentCard() {
+  dlog('renderCurrentCard called', { currentMode: typeof currentMode !== 'undefined' ? currentMode : null, currentIndex: typeof currentIndex !== 'undefined' ? currentIndex : null });
+  // Ensure flashcard screen is visible (force) in case prior cleanups hid it
+  try {
+    const menu = document.getElementById('menuScreen');
+    const flash = document.getElementById('flashcardScreen');
+    if (menu) { menu.classList.add('hidden'); menu.style.display = 'none'; menu.style.zIndex = '0'; }
+    if (flash) { flash.classList.remove('hidden'); flash.style.display = ''; flash.style.zIndex = '2000'; }
+  } catch(e) {}
+  // garantir que nav/top e controles estejam visÃ­veis ao abrir um flashcard
+  try {
+    const topNav = document.querySelector('.top-nav');
+    if (topNav) topNav.style.display = '';
+    const controlsEl = document.querySelector('.controls');
+    // Mostrar controles apenas no modo prÃ¡tica; esconder na visÃ£o TEORIA
+    if (controlsEl) controlsEl.style.display = (currentMode === 'pratica') ? '' : 'none';
+    // garantir que exista um botÃ£o de voltar padronizado na top-nav (modo flashcards/pratica)
+    try {
+      if (topNav && !document.getElementById('menu-back-button')) {
+        topNav.innerHTML = '';
+        try { const ex = document.getElementById('menu-back-button'); if (ex) ex.remove(); } catch(e) {}
+        const menuBack = createStandardBackButton({
+          id: 'menu-back-button',
+          fixed: true,
+          title: 'Voltar',
+          onClick: () => goBackToMenu(),
+          leftExpression: '340px'
+        });
+        document.body.appendChild(menuBack);
+      }
+    } catch (e) {}
+  } catch (e) {}
+  const actualIndex = cardOrder[currentIndex];
+  const card = currentFlashcards[actualIndex];
+  
+  // No modo prÃ¡tica: se for a capa (isWelcome) renderiza apenas a imagem (manual do game).
+  // Somente os demais cards usam o layout interativo.
+  if (currentMode === 'pratica') {
+    if (!card.isWelcome) {
+      renderGame(card);
+      return;
+    } else {
+      // garante que qualquer container interativo seja removido quando for a capa
+      const existing = document.getElementById(interactiveId);
+      if (existing) existing.remove();
+      const inner = cardImage.querySelector('.game-layout');
+      if (inner) inner.remove();
+      const cardContainer = document.querySelector('.card-container');
+      if (cardContainer) cardContainer.style.display = '';
+      // continuarÃ¡ a execuÃ§Ã£o normal abaixo para renderizar a capa (imagem)
+    }
+  } else {
+    // garante que o container interativo seja removido quando nÃ£o for jogo
+    const existing = document.getElementById(interactiveId);
+    if (existing) existing.remove();
+    // remove game layout inside cardImage if present
+    const inner = cardImage.querySelector('.game-layout');
+    if (inner) inner.remove();
+    const cardContainer = document.querySelector('.card-container');
+    if (cardContainer) cardContainer.style.display = '';
+  }
+  
+  cardAnswer.textContent = card.description;
+  cardFrontText.textContent = card.frontText || '';
+  
+  cardImage.innerHTML = '';
+  cardImage.style.display = 'flex';
+  cardFrontText.style.display = 'none';
+  zoomBtn.style.display = 'none';
+
+  if (card.isWelcome) {
+    // LÃ³gica da Capa
+    if (card.type === 'microscope') {
+      // Card inicial: microscÃ³pio 3D totalmente interativo
+      const host = document.createElement('div');
+      host.className = 'microscope-card-host';
+      host.style.width = '100%';
+      host.style.height = '100%';
+      host.style.flex = '1 1 auto';
+      cardImage.appendChild(host);
+      try {
+        if (window.Microscope3D && typeof window.Microscope3D.mount === 'function') {
+          window.Microscope3D.mount(host, { showUI: true, framePadding: 1.35, centerBiasY: 0.08 });
+        }
+      } catch (e) {}
+    } else if(card.img) {
+      const img = document.createElement('img');
+      img.src = card.img;
+      img.style.maxWidth = '100%';
+      img.style.maxHeight = '100%';
+      img.style.objectFit = 'contain';
+      cardImage.appendChild(img);
+    } else {
+      cardImage.style.display = 'none';
+      cardFrontText.textContent = card.title || card.frontText;
+      cardFrontText.style.display = 'flex';
+      cardFrontText.style.alignItems = 'center';
+      cardFrontText.style.justifyContent = 'center';
+    }
+    // BotÃ£o AvanÃ§ar movido para o card inicial (modo prÃ¡tica)
+    if (currentMode === 'pratica') {
+      // ajustar cardImage para empilhar verticalmente e centralizar
+      cardImage.style.flexDirection = 'column';
+      if (card.type === 'microscope') {
+        cardImage.style.justifyContent = 'stretch';
+        cardImage.style.alignItems = 'stretch';
+      } else {
+        cardImage.style.justifyContent = 'center';
+        cardImage.style.alignItems = 'center';
+      }
+      cardImage.style.position = 'relative';
+      
+      const advanceBar = document.createElement('div');
+      advanceBar.className = 'advance-toolbar';
+      
+      const advanceBtn = document.createElement('button');
+      advanceBtn.type = 'button';
+      advanceBtn.className = 'advance-btn shimmer-btn';
+      advanceBtn.innerHTML = '<span class="text">AvanÃ§ar</span><span class="shimmer"></span>';
+      advanceBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (currentIndex < currentFlashcards.length - 1) {
+          currentIndex++;
+          renderCurrentCard();
+        }
+      });
+      advanceBar.appendChild(advanceBtn);
+      cardImage.appendChild(advanceBar);
+    }
+  } else {
+    // LÃ³gica dos Cards Normais
+    if (card.img) {
+      const img = document.createElement('img');
+      img.src = card.img;
+      img.alt = "Imagem do card";
+      img.style.maxWidth = '100%';
+      img.style.maxHeight = '100%';
+      img.style.objectFit = 'contain';
+      
+      currentImageUrl = card.img;
+      zoomBtn.style.display = 'block';
+      
+      cardImage.appendChild(img);
+    } else {
+      cardImage.style.display = 'none';
+      cardFrontText.style.display = 'flex';
+      cardFrontText.style.height = '100%';
+      cardFrontText.style.alignItems = 'center';
+      cardFrontText.style.justifyContent = 'center';
+      cardFrontText.style.fontSize = '1.5rem';
+      cardFrontText.style.fontWeight = 'bold';
+    }
+  }
+  
+  flashcard.classList.remove('flipped');
+  
+  // Controle dos botÃµes (prevBtn, nextBtn e shuffleBtn removidos)
+}
+
+
+
+function shuffleArray(array) {
+  const newArray = [...array];
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+  }
+  return newArray;
+}
+
+// --- FunÃ§Ãµes para o Jogo Interativo (Hotspots) ---
+function createInteractiveContainer() {
+  let existing = document.getElementById(interactiveId);
+  if (existing) return existing;
+
+  const container = document.createElement('div');
+  container.id = interactiveId;
+  container.className = 'game-layout';
+
+  const left = document.createElement('div');
+  left.className = 'game-left';
+  container.appendChild(left);
+
+  const right = document.createElement('div');
+  right.className = 'game-right';
+  container.appendChild(right);
+
+  const flashcardScreenEl = document.getElementById('flashcardScreen');
+  const controls = flashcardScreenEl.querySelector('.controls');
+  flashcardScreenEl.insertBefore(container, controls);
+
+  return container;
+}
+
+function renderGame(card) {
+  // Se o card anterior era o microscÃ³pio, descarte a instÃ¢ncia antes de limpar o DOM.
+  try { if (window.Microscope3D && typeof window.Microscope3D.disposeAll === 'function') window.Microscope3D.disposeAll(); } catch (e) {}
+  // garantir que o flashcard nÃ£o esteja virado e manter o card padrÃ£o visÃ­vel
+  const flashcardEl = document.querySelector('.card');
+  if (flashcardEl) flashcardEl.classList.remove('flipped');
+  const cardContainer = document.querySelector('.card-container');
+  if (cardContainer) cardContainer.style.display = '';
+
+  // remover zoom button se presente
+  if (zoomBtn) zoomBtn.style.display = 'none';
+
+  // vamos inserir o layout de jogo DENTRO do cardImage, ao lado da imagem
+  cardImage.innerHTML = '';
+  cardImage.style.display = 'flex';
+  cardImage.style.position = 'relative';
+
+  // game layout (dentro do card)
+  const gameLayout = document.createElement('div');
+  gameLayout.className = 'game-layout';
+  gameLayout.style.width = '100%';
+  gameLayout.style.height = '100%';
+
+  const left = document.createElement('div');
+  left.className = 'game-left';
+  left.style.height = '100%';
+  // empilhar imagem e botÃ£o verticalmente e centralizar
+  try {
+    // Ajuste: empilhar imagem e botÃ£o, com a imagem ocupando espaÃ§o principal
+    left.style.display = 'flex';
+    left.style.flexDirection = 'column';
+    left.style.justifyContent = 'flex-start';
+    left.style.alignItems = 'center';
+    left.style.paddingTop = '24px';
+    left.style.paddingBottom = '24px';
+  } catch (e) {}
+  gameLayout.appendChild(left);
+
+  const right = document.createElement('div');
+  right.className = 'game-right';
+  gameLayout.appendChild(right);
+
+  // inserir o layout dentro do cardImage
+  cardImage.appendChild(gameLayout);
+
+  // imagem dentro da coluna esquerda
+  const img = document.createElement('img');
+  img.src = card.img;
+  img.alt = 'Imagem do card (interativa)';
+  img.style.maxWidth = '100%';
+  img.style.maxHeight = '100%';
+  img.style.flex = '1 1 auto';
+  img.style.objectFit = 'contain';
+  img.style.display = 'block';
+  // anexar imagem diretamente ao container esquerdo (sem wrapper) â€” preserva tamanho original
+  left.appendChild(img);
+
+  // detecta se a imagem Ã© majoritariamente escura ou clara para escolher cor dos hotspots
+  // (hotspot color logic removed â€” restoring previous static visuals)
+
+  // Painel tipo caderno na direita
+  const notebook = document.createElement('div');
+  notebook.className = 'notebook-panel';
+  // tÃ­tulo removido conforme solicitado (painel ficarÃ¡ sem tÃ­tulo)
+  const list = document.createElement('div');
+  list.className = 'notebook-list';
+  notebook.appendChild(list);
+
+  // snapshot das referÃªncias iniciais (as definidas no cÃ³digo) - nÃ£o podem ser editadas
+  const initialRefIds = (card.references || []).map(r => r.id + '');
+
+  // helper: cria um elemento de referÃªncia editÃ¡vel
+  function createRefItem(ref) {
+    const item = document.createElement('div');
+    item.className = 'ref-item';
+    item.setAttribute('data-ref-id', ref.id);
+    const isLocked = initialRefIds.indexOf(String(ref.id)) !== -1;
+    if (isLocked) item.classList.add('locked');
+
+    // index span (updated by refreshRefsUI)
+    const idxSpan = document.createElement('span');
+    idxSpan.className = 'ref-index';
+    idxSpan.textContent = '0';
+    item.appendChild(idxSpan);
+
+    // label area (editable only if not locked)
+    const label = document.createElement('div');
+    label.className = 'ref-label';
+    label.contentEditable = !isLocked;
+    label.spellcheck = false;
+    label.textContent = ref.label || '';
+    item.appendChild(label);
+
+    // selection behavior: clicking anywhere selects the item
+    item.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const prev = list.querySelector('.ref-item.selected');
+      if (prev && prev !== item) prev.classList.remove('selected');
+      item.classList.add('selected');
+      selectedRefId = ref.id;
+      if (!isLocked) {
+        // focus label and place caret at end
+        const range = document.createRange();
+        range.selectNodeContents(label);
+        range.collapse(false);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        label.focus();
+      }
+    });
+
+    if (!isLocked) {
+      label.addEventListener('blur', () => {
+        const text = label.textContent.trim();
+        const idx = (card.references || []).findIndex(rr => String(rr.id) === String(ref.id));
+        if (idx !== -1) card.references[idx].label = text;
+        item.classList.remove('selected');
+        selectedRefId = null;
+        refreshHotspotsUI();
+        refreshRefsUI();
+      });
+    }
+    return item;
+  }
+  // renderizar referÃªncias iniciais no painel (se houver)
+  (card.references || []).forEach(r => {
+    const it = createRefItem(r);
+    list.appendChild(it);
+  });
+  // garantir que a numeraÃ§Ã£o esteja correta
+  if (typeof refreshRefsUI === 'function') refreshRefsUI();
+  
+  notebook.appendChild(list);
+
+  // botÃ£o Adicionar logo abaixo da lista de opÃ§Ãµes (dentro do notebook)
+  const toolbar = document.createElement('div');
+  toolbar.className = 'notebook-toolbar';
+  const addBtn = document.createElement('button');
+  addBtn.className = 'add-point-btn';
+  addBtn.type = 'button';
+  addBtn.textContent = 'Adicionar';
+  toolbar.appendChild(addBtn);
+  notebook.appendChild(toolbar);
+
+  right.appendChild(notebook);
+
+  // botÃ£o AvanÃ§ar padronizado â€” canto inferior direito do card (anexado ao cardImage/gameLayout)
+  const advanceBar = document.createElement('div');
+  advanceBar.className = 'advance-toolbar';
+  const advanceBtn = document.createElement('button');
+  advanceBtn.className = 'advance-btn shimmer-btn';
+  advanceBtn.type = 'button';
+  advanceBtn.innerHTML = '<span class="text">AvanÃ§ar</span><span class="shimmer"></span>';
+  advanceBar.appendChild(advanceBtn);
+  // anexar ao gameLayout (ou cardImage) para que fique no canto do card
+  gameLayout.appendChild(advanceBar);
+
+  // helper: dispara confetti uma vez, carregando a lib sob demanda se necessÃ¡rio
+  function _fireConfettiOnce() {
+    // Respeitar usuÃ¡rios que preferem reduzir movimento
+    try {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return;
+      }
+    } catch (e) {}
+    try {
+      // cria/obtÃ©m um launcher que usa um canvas overlay com z-index alto
+      function _createLauncherAndFire() {
+        try {
+          if (!window.__confettiLauncher) {
+            // criar canvas overlay para garantir que os confetes fiquem acima de tudo
+            const canvas = document.createElement('canvas');
+            canvas.id = '__confetti_canvas';
+            canvas.style.position = 'fixed';
+            canvas.style.inset = '0';
+            canvas.style.left = '0';
+            canvas.style.top = '0';
+            canvas.style.width = '100%';
+            canvas.style.height = '100%';
+            canvas.style.pointerEvents = 'none';
+            canvas.style.zIndex = '9999999';
+            document.body.appendChild(canvas);
+            if (window.confetti && typeof window.confetti.create === 'function') {
+              window.__confettiLauncher = window.confetti.create(canvas, { resize: true });
+            } else {
+              // fallback: call global confetti if create is not present
+              window.__confettiLauncher = function(opts) { try { window.confetti(opts); } catch(e){} };
+            }
+          }
+          try { window.__confettiLauncher({ particleCount: 120, spread: 70, origin: { y: 0.6 } }); } catch(e) { console.error('confetti error', e); }
+        } catch (e) { console.error('Erro criando launcher de confetti', e); }
+      }
+
+      if (window.confetti && typeof window.confetti.create === 'function') {
+        _createLauncherAndFire();
+        return;
+      }
+      // carregar lib dinamicamente e entÃ£o criar launcher
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js';
+      s.async = true;
+      s.onload = function() {
+        try {
+          if (window.confetti) {
+            _createLauncherAndFire();
+          }
+        } catch(e) { console.error('confetti onload error', e); }
+      };
+      s.onerror = function() { console.warn('Falha ao carregar a lib de confetti'); };
+      document.head.appendChild(s);
+    } catch (e) {
+      console.error('Erro ao tentar disparar confetti', e);
+    }
+  }
+
+  // estado interno
+  const hotspotState = {}; // hotspotId -> refId
+  // estado visual: 'selected' (amarelo) ou 'correct' (verde)
+  const hotspotVisualState = {}; // hotspotId -> 'selected' | 'correct'
+  const hotspotTimers = {}; // hotspotId -> timeoutId
+  let selectedRefId = null;
+  let addMode = false;
+  // cache de elementos de hotspot para evitar querySelector repetidas
+  const hotspotElements = {};
+  // cache das dimensÃµes da imagem/container para evitar muitos getBoundingClientRect()
+  let imgRectCache = null;
+  let leftRectCache = null;
+
+  // helper: seleciona um item de referÃªncia pelo id (marca visualmente e define selectedRefId)
+  function selectRefById(refId) {
+    // limpar seleÃ§Ã£o anterior
+    const prev = list.querySelector('.ref-item.selected');
+    if (prev) prev.classList.remove('selected');
+    if (refId == null) { selectedRefId = null; return; }
+    const item = list.querySelector(`.ref-item[data-ref-id="${refId}"]`);
+    if (!item) { selectedRefId = null; return; }
+    item.classList.add('selected');
+    selectedRefId = refId;
+    // rolar para o item caso esteja fora da viewport do painel
+    item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function assignRefToHotspot(hotspotId, refId) {
+    hotspotState[hotspotId] = refId;
+    hotspotVisualState[hotspotId] = 'selected';
+
+    // reinicia timer de revelaÃ§Ã£o
+    try {
+      if (hotspotTimers[hotspotId]) clearTimeout(hotspotTimers[hotspotId]);
+    } catch (e) {}
+
+    const assignedSnapshot = String(refId);
+    hotspotTimers[hotspotId] = setTimeout(() => {
+      try {
+        // se o usuÃ¡rio mudou a escolha nesse meio tempo, ignora
+        if (String(hotspotState[hotspotId] ?? '') !== assignedSnapshot) return;
+
+        const hot = (card.hotspots || []).find(x => String(x.id) === String(hotspotId));
+        const correctRefId = hot ? hot.correctRefId : null;
+
+        if (correctRefId != null && String(correctRefId) === assignedSnapshot) {
+          hotspotVisualState[hotspotId] = 'correct';
+        } else {
+          // incorreto: permanece amarelo
+          hotspotVisualState[hotspotId] = 'selected';
+        }
+        refreshHotspotsUI();
+      } catch (e) {}
+    }, 2000);
+
+    refreshHotspotsUI();
+    refreshRefsUI();
+  }
+
+  function refreshHotspotsUI() {
+    // atualiza visual dos hotspots e da lista
+    (card.hotspots || []).forEach(h => {
+      const el = hotspotElements[h.id] || left.querySelector(`.hotspot[data-hotspot-id="${h.id}"]`);
+      if (el && !hotspotElements[h.id]) hotspotElements[h.id] = el;
+      if (!el) return;
+      el.classList.remove('correct','wrong','selected');
+      const assigned = hotspotState[h.id];
+
+      if (assigned) {
+        // mostra o nÃºmero REAL escolhido (id da referÃªncia)
+        el.textContent = String(assigned);
+        el.dataset.assigned = String(assigned);
+        el.dataset.numbered = '1';
+
+        const vs = hotspotVisualState[h.id] || 'selected';
+        if (vs === 'correct') el.classList.add('correct');
+        else el.classList.add('selected');
+      } else {
+        el.textContent = '';
+        el.dataset.assigned = '';
+        delete el.dataset.numbered;
+        delete hotspotVisualState[h.id];
+      }
+    });
+
+    // marca itens da lista como atribuÃ­dos se existirem hotspots vinculados
+    (card.references || []).forEach(r => {
+      const item = list.querySelector(`.ref-item[data-ref-id="${r.id}"]`);
+      if (!item) return;
+      const used = Object.values(hotspotState).some(val => val === r.id);
+      if (used) item.classList.add('assigned'); else item.classList.remove('assigned');
+    });
+  }
+
+  // atualiza os Ã­ndices/numeraÃ§Ã£o da lista de referÃªncias
+  function refreshRefsUI() {
+    (card.references || []).forEach((r, i) => {
+      const item = list.querySelector(`.ref-item[data-ref-id="${r.id}"]`);
+      if (!item) return;
+      const idxSpan = item.querySelector('.ref-index');
+      if (idxSpan) idxSpan.textContent = `${i + 1} -`;
+    });
+  }
+
+  function createHotspotElement(h) {
+    const el = document.createElement('div');
+    el.className = 'hotspot';
+    el.dataset.hotspotId = h.id;
+    // posicionar o hotspot em pixels relativo ao container `left`, calculando
+    // a partir das porcentagens armazenadas (se existirem) usando as dimensÃµes atuais da imagem
+    try {
+      const imgRect = imgRectCache || img.getBoundingClientRect();
+      const leftRect = leftRectCache || left.getBoundingClientRect();
+      if (typeof h.left === 'string' && h.left.includes('%')) {
+        const pctX = parseFloat(h.left) / 100;
+        const px = (imgRect.left - leftRect.left) + pctX * imgRect.width;
+        el.style.left = `${px}px`;
+      } else if (typeof h.left === 'string' && h.left.endsWith('px')) {
+        el.style.left = h.left;
+      } else if (typeof h.left === 'number') {
+        el.style.left = `${h.left}px`;
+      } else {
+        el.style.left = h.left || '0px';
+      }
+
+      if (typeof h.top === 'string' && h.top.includes('%')) {
+        const pctY = parseFloat(h.top) / 100;
+        const py = (imgRect.top - leftRect.top) + pctY * imgRect.height;
+        el.style.top = `${py}px`;
+      } else if (typeof h.top === 'string' && h.top.endsWith('px')) {
+        el.style.top = h.top;
+      } else if (typeof h.top === 'number') {
+        el.style.top = `${h.top}px`;
+      } else {
+        el.style.top = h.top || '0px';
+      }
+    } catch (err) {
+      // fallback: aplicar valores brutos
+      el.style.top = h.top;
+      el.style.left = h.left;
+    }
+    el.dataset.assigned = '';
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (addMode) return; // se em modo adicionar, ignorar cliques em hotspots
+
+      const hid = h.id;
+
+      if (selectedRefId) {
+        assignRefToHotspot(hid, selectedRefId);
+        // limpa seleÃ§Ã£o apÃ³s atribuir
+        const prev = notebook.querySelector('.ref-item.selected');
+        if (prev) prev.classList.remove('selected');
+        selectedRefId = null;
+        return;
+      }
+
+      // se o hotspot jÃ¡ tem uma referÃªncia atribuÃ­da, abrir o menu para permitir trocar
+      if (hotspotState[hid]) {
+        openHotspotMenuAt(el, h);
+        return;
+      }
+
+      // se nÃ£o havia ordenaÃ§Ã£o, abrir o menu de atribuiÃ§Ã£o para escolher a referÃªncia
+      openHotspotMenuAt(el, h);
+      return;
+    });
+
+    // abrir menu de atribuiÃ§Ã£o ao clicar com o botÃ£o direito
+    el.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (addMode) return;
+      openHotspotMenuAt(el, h);
+    });
+    // anexar hotspot ao container esquerdo (mesmo lugar da imagem)
+    left.appendChild(el);
+    // cachear o elemento para acessos rÃ¡pidos
+    hotspotElements[h.id] = el;
+    return el;
+  }
+
+  // fecha menus abertos
+  function closeAllHotspotMenus() {
+    const existing = left.querySelectorAll('.hotspot-menu');
+    existing.forEach(m => m.remove());
+  }
+
+  // abre menu de atribuiÃ§Ã£o posicionado prÃ³ximo ao elemento hotspot
+  function openHotspotMenuAt(el, h) {
+    closeAllHotspotMenus();
+    const menu = document.createElement('div');
+    menu.className = 'hotspot-menu';
+    menu.dataset.forHotspot = h.id;
+
+    const currentAssigned = hotspotState[h.id];
+
+    (card.references || []).forEach(r => {
+      const btn = document.createElement('button');
+      btn.className = 'hotspot-menu-btn';
+      btn.textContent = `${r.label || ''}`;
+      if (currentAssigned != null && String(currentAssigned) === String(r.id)) {
+        btn.setAttribute('aria-current', 'true');
+        btn.dataset.selected = '1';
+      }
+      btn.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        assignRefToHotspot(h.id, r.id);
+        menu.remove();
+      });
+      menu.appendChild(btn);
+    });
+
+    left.appendChild(menu);
+    // garantir z-index alto inline caso a imagem/container crie outro stacking context
+    menu.style.zIndex = '9999';
+    // posicionar relativo ao container esquerdo
+    const hotspotRect = el.getBoundingClientRect();
+    const parentRect = left.getBoundingClientRect();
+    let topPx = hotspotRect.top - parentRect.top + hotspotRect.height + 6;
+    let leftPx = hotspotRect.left - parentRect.left;
+    // ajustar se sair do painel Ã  direita
+    const menuW = menu.offsetWidth || 220;
+    if (leftPx + menuW > parentRect.width) leftPx = parentRect.width - menuW - 8;
+    // aplicar posiÃ§Ãµes
+    menu.style.top = `${topPx}px`;
+    menu.style.left = `${leftPx}px`;
+  }
+
+  // fechar menus ao clicar fora
+  document.addEventListener('click', (e) => { closeAllHotspotMenus(); }, { passive: true });
+
+  // renderizar hotspots existentes
+  // calcular e armazenar retÃ¢ngulos uma vez para evitar mÃºltiplos reflows
+  function updateRects() {
+    try {
+      imgRectCache = img.getBoundingClientRect();
+      leftRectCache = left.getBoundingClientRect();
+    } catch (e) {
+      imgRectCache = null;
+      leftRectCache = null;
+    }
+  }
+
+  function repositionHotspots() {
+    (card.hotspots || []).forEach(h => {
+      const el = hotspotElements[h.id];
+      if (!el) return;
+      try {
+        const imgRect = imgRectCache || img.getBoundingClientRect();
+        const leftRect = leftRectCache || left.getBoundingClientRect();
+        if (typeof h.left === 'string' && h.left.includes('%')) {
+          const pctX = parseFloat(h.left) / 100;
+          const px = (imgRect.left - leftRect.left) + pctX * imgRect.width;
+          el.style.left = `${px}px`;
+        }
+        if (typeof h.top === 'string' && h.top.includes('%')) {
+          const pctY = parseFloat(h.top) / 100;
+          const py = (imgRect.top - leftRect.top) + pctY * imgRect.height;
+          el.style.top = `${py}px`;
+        }
+      } catch (e) {
+        // ignore - keep previous positions
+      }
+    });
+  }
+
+  updateRects();
+  (card.hotspots || []).forEach(h => {
+    createHotspotElement(h);
+  });
+  // garantir que os hotspots estejam posicionados corretamente
+  repositionHotspots();
+
+  // atualizar caches e reposicionar em resize / quando a imagem carregar
+  // remove listeners anteriores (se existirem) e registra os novos para esta instÃ¢ncia
+  try {
+    if (window.__hotspot_resize_handler) window.removeEventListener('resize', window.__hotspot_resize_handler);
+  } catch (e) {}
+  // Debounce resize to avoid excessive repositioning
+  window.__hotspot_resize_handler = () => { updateRects(); repositionHotspots(); };
+  if (window.__hotspot_resize_debounced) {
+    window.removeEventListener('resize', window.__hotspot_resize_debounced);
+  }
+  window.__hotspot_resize_debounced = (() => {
+    let rafId = null;
+    return function() {
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        try { window.__hotspot_resize_handler(); } catch (e) {}
+      });
+    };
+  })();
+  window.addEventListener('resize', window.__hotspot_resize_debounced, { passive: true });
+
+  try {
+    if (window.__hotspot_lastImg && window.__hotspot_imgload_handler) window.__hotspot_lastImg.removeEventListener('load', window.__hotspot_imgload_handler);
+  } catch (e) {}
+  window.__hotspot_imgload_handler = () => { updateRects(); repositionHotspots(); };
+  window.__hotspot_lastImg = img;
+  img.addEventListener('load', window.__hotspot_imgload_handler, { once: true });
+
+  // adicionar comportamento do botÃ£o 'Adicionar Ponto'
+  addBtn.addEventListener('click', () => {
+    addMode = !addMode;
+    // atualizar texto do botÃ£o simples (nÃ£o tem .text span)
+    addBtn.textContent = addMode ? 'Clique na imagem para adicionar' : 'Adicionar';
+  });
+
+  
+
+  // clique na Ã¡rea da imagem para criar ponto quando em addMode
+  left.addEventListener('click', (ev) => {
+    if (!addMode) return;
+    // calcula posiÃ§Ã£o relativa dentro da imagem (precisa usar bounding rect do IMG)
+    const rect = img.getBoundingClientRect();
+    const x = ev.clientX - rect.left;
+    const y = ev.clientY - rect.top;
+    if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
+    const leftPct = ((x / rect.width) * 100).toFixed(1) + '%';
+    const topPct = ((y / rect.height) * 100).toFixed(1) + '%';
+    const newId = 'h' + Date.now();
+    const newHot = { id: newId, top: topPct, left: leftPct };
+    card.hotspots = card.hotspots || [];
+    card.hotspots.push(newHot);
+
+    // criar automaticamente uma nova referÃªncia vazia e abrir espaÃ§o para digitar
+    card.references = card.references || [];
+    const maxRefId = (card.references.reduce((m, rr) => Math.max(m, Number(rr.id) || 0), 0) || 0);
+    const newRefId = maxRefId + 1;
+    const newRef = { id: newRefId, label: '' };
+    card.references.push(newRef);
+    const newRefItem = createRefItem(newRef);
+    list.appendChild(newRefItem);
+    // atualizar numeraÃ§Ã£o apÃ³s adicionar novo item
+    refreshRefsUI();
+
+    // cria o hotspot (atribuiÃ§Ã£o Ã© livre via menu/seleÃ§Ã£o)
+    createHotspotElement(newHot);
+    addMode = false;
+    addBtn.textContent = 'Adicionar';
+
+    // seleciona e foca o novo item para que o usuÃ¡rio digite imediatamente
+    setTimeout(() => {
+      newRefItem.classList.add('selected');
+      selectedRefId = newRefId;
+      const range = document.createRange();
+      range.selectNodeContents(newRefItem);
+      range.collapse(false);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      newRefItem.focus();
+      // rolar lista para exibir o novo item se necessÃ¡rio
+      newRefItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 60);
+
+    refreshHotspotsUI();
+  });
+
+  // rotina de verificaÃ§Ã£o compartilhada: marca hotspots, mostra feedback e retorna se estÃ¡ tudo correto
+  function verifyAndFeedback() {
+    (card.hotspots || []).forEach(h => {
+      const el = hotspotElements[h.id] || left.querySelector(`.hotspot[data-hotspot-id="${h.id}"]`);
+      if (el && !hotspotElements[h.id]) hotspotElements[h.id] = el;
+      if (!el) return;
+      el.classList.remove('correct','wrong');
+      const chosen = hotspotState[h.id];
+
+      if (h.correctRefId && chosen != null) {
+        if (String(chosen) === String(h.correctRefId)) {
+          hotspotVisualState[h.id] = 'correct';
+          el.classList.add('correct');
+        } else {
+          // incorreto: permanece amarelo
+          hotspotVisualState[h.id] = 'selected';
+        }
+      }
+    });
+    const hotspots = (card.hotspots || []).filter(h => !!h.correctRefId);
+    const allCorrect = hotspots.length > 0 && hotspots.every(h => hotspotState[h.id] === h.correctRefId);
+    lastVerifySuccess = allCorrect;
+    // coletar dados de revisÃ£o para este card
+    try {
+      const result = { id: card.id, img: card.img || currentImageUrl || '', items: [] };
+      hotspots.forEach(h => {
+        const chosen = hotspotState[h.id];
+        const refLabel = (card.references || []).find(r => r.id === (chosen ?? h.correctRefId))?.label || '';
+        const correctLabel = (card.references || []).find(r => r.id === h.correctRefId)?.label || '';
+        result.items.push({
+          hotspotId: h.id,
+          chosenRefId: chosen,
+          correctRefId: h.correctRefId,
+          chosenLabel: refLabel,
+          correctLabel: correctLabel,
+          isCorrect: !!(chosen === h.correctRefId)
+        });
+      });
+      const idx = reviewResults.findIndex(r => r.id === result.id);
+      if (idx >= 0) reviewResults[idx] = result; else reviewResults.push(result);
+    } catch(e) {}
+    showFeedback(allCorrect);
+    if (allCorrect) setTimeout(() => { _fireConfettiOnce(); }, 150);
+    return allCorrect;
+  }
+
+  // popup de feedback simples
+  function showFeedback(success) {
+    try {
+      const existing = document.getElementById('feedback-modal');
+      if (existing) existing.remove();
+      const modal = document.createElement('div');
+      modal.id = 'feedback-modal';
+      modal.className = 'feedback-modal';
+      const content = document.createElement('div');
+      content.className = 'feedback-content ' + (success ? 'success' : 'error');
+      content.textContent = success ? 'ParabÃ©ns! VocÃª acertou tudo.' : 'NÃ£o estÃ¡ correto! Tente novamente.';
+      modal.appendChild(content);
+      const actions = document.createElement('div');
+      actions.className = 'feedback-actions';
+
+      if (!success) {
+        const retry = document.createElement('button');
+        retry.className = 'btn';
+        retry.textContent = 'Tentar novamente.';
+        retry.addEventListener('click', () => {
+          try { modal.remove(); } catch (e) {}
+        });
+        actions.appendChild(retry);
+      }
+
+      const ok = document.createElement('button');
+      ok.className = 'btn';
+      ok.textContent = success ? 'Continuar' : 'Ok, continuar mesmo assim.';
+      ok.addEventListener('click', () => {
+        try {
+          modal.remove();
+          // contabiliza acerto se o Ãºltimo veredito foi sucesso
+          if (lastVerifySuccess) correctCount++;
+          // AvanÃ§a quando o usuÃ¡rio confirmar no popup ou mostra resumo ao final
+          const totalPlayable = currentFlashcards.filter(c => !c.isWelcome).length;
+          const isLast = currentIndex >= currentFlashcards.length - 1;
+          if (isLast) {
+            showFinalSummary(totalPlayable);
+          } else {
+            currentIndex++;
+            renderCurrentCard();
+          }
+        } catch(e) {}
+      });
+      actions.appendChild(ok);
+      modal.appendChild(actions);
+      document.body.appendChild(modal);
+    } catch (e) { /* ignore */ }
+  }
+
+  // botÃ£o unificado: verifica e, se correto, avanÃ§a
+  advanceBtn.addEventListener('click', () => {
+    const ok = verifyAndFeedback();
+    if (ok) {
+      // nÃ£o avanÃ§ar automaticamente, esperar o usuÃ¡rio clicar em "Continuar"
+      // setTimeout foi removido
+    }
+  });
+
+  function showFinalSummary(totalPlayable) {
+    try {
+      const existing = document.getElementById('final-summary-modal');
+      if (existing) existing.remove();
+
+      const host = document.getElementById('cardImage');
+      if (!host) return;
+
+      const modal = document.createElement('div');
+      modal.id = 'final-summary-modal';
+      modal.className = 'result-overlay final-summary-modal';
+      modal.setAttribute('role', 'dialog');
+      modal.setAttribute('aria-modal', 'true');
+
+      const safeTotal = Math.max(0, Number(totalPlayable) || 0);
+      const safeCorrect = Math.max(0, Number(correctCount) || 0);
+      const pct = safeTotal > 0 ? Math.round((safeCorrect / safeTotal) * 100) : 0;
+
+      // Regra (como vocÃª descreveu):
+      // - < 50%: abaixo da mÃ©dia (triste)
+      // - >= 50%: acima da mÃ©dia (parabÃ©ns)
+      // A estrela deve aparecer sempre que houver perguntas (safeTotal > 0).
+      const passed = safeTotal > 0 && safeCorrect >= Math.ceil(safeTotal / 2);
+      const starMode = safeTotal > 0 ? (passed ? 'celebrate' : 'sad') : 'none';
+
+      const content = document.createElement('div');
+      content.className = 'feedback-content final-summary-content ' + (passed ? 'success' : 'error');
+
+      try { modal.classList.add(passed ? 'is-passed' : 'is-failed'); } catch (e) {}
+
+      const title = document.createElement('div');
+      title.className = 'final-summary-title';
+      title.textContent = 'Resultado';
+      content.appendChild(title);
+
+      // palco: robÃ´ + balÃ£o se movem juntos
+      const stage = document.createElement('div');
+      stage.className = 'final-summary-stage';
+
+      const speech = document.createElement('div');
+      speech.className = 'speech';
+
+      const speechLine1 = document.createElement('div');
+      speechLine1.className = 'speech-line speech-line-1';
+      speechLine1.textContent = `${pct}% de acertos`;
+
+      const speechLine2 = document.createElement('div');
+      speechLine2.className = 'speech-line speech-line-2 ' + (passed ? 'is-passed' : 'is-failed');
+      speechLine2.textContent = `Acertos: ${safeCorrect}/${safeTotal}`;
+
+      speech.appendChild(speechLine1);
+      speech.appendChild(speechLine2);
+
+      // Dica (discreta) para a estrela: mostrar apenas quando a estrela existir
+      if (starMode !== 'none') {
+        const speechHint = document.createElement('div');
+        speechHint.className = 'speech-line speech-hint';
+        speechHint.textContent = 'Mova o robÃ´ para coletar a estrela.';
+        speech.appendChild(speechHint);
+      }
+      stage.appendChild(speech);
+
+      // ColecionÃ¡veis: mÃºltiplas estrelas + mÃºltiplos balÃµes (modo triste), ou 1 estrela (modo parabÃ©ns)
+      // Regra: nenhuma mensagem pode abrir antes do robÃ´ se mover atÃ© a estrela.
+      let hasMovedSinceOpen = false;
+      const STAR_LOCAL = 'assets/star.png';
+      const STAR_URL = 'https://i.ibb.co/FkhTv469/star-png.png';
+      const collectibles = [];
+
+      // No modo triste, a mensagem deve seguir a ORDEM DE COLETA (e nÃ£o a ordem/posiÃ§Ã£o das estrelas).
+      // PadrÃ£o solicitado:
+      // 1) "Fiquei triste, precisa estudar mais."
+      // 2) "Acredito na sua capacidade."
+      // 3) "VocÃª consegue!"
+      const sadMessagesByOrder = (starMode === 'sad')
+        ? ['Fiquei triste, precisa estudar mais.', 'Acredito na sua capacidade.', 'VocÃª consegue!']
+        : null;
+      let sadCollectedCount = 0;
+
+      const createSpeechSecondary = (message) => {
+        const el = document.createElement('div');
+        el.className = 'speech speech-secondary is-hidden';
+        el.textContent = String(message || '');
+        modal.appendChild(el);
+        return el;
+      };
+
+      const createStarEl = () => {
+        const el = document.createElement('img');
+        el.className = 'collectible-star';
+        el.src = STAR_LOCAL;
+        el.addEventListener('error', () => {
+          try { el.src = STAR_URL; } catch (e) {}
+        }, { once: true });
+        try { el.crossOrigin = 'anonymous'; } catch (e) {}
+        try { el.referrerPolicy = 'no-referrer'; } catch (e) {}
+        el.alt = '';
+        el.decoding = 'async';
+        try { el.setAttribute('draggable', 'false'); } catch (e) {}
+        el.setAttribute('aria-hidden', 'true');
+        return el;
+      };
+
+      const addCollectible = (message) => {
+        const item = {
+          message: String(message || ''),
+          starEl: null,
+          speechEl: null,
+          collected: false,
+          pinned: false,
+          pinnedLeft: 0,
+          pinnedTop: 0
+        };
+        item.speechEl = createSpeechSecondary(item.message);
+        if (starMode !== 'none') {
+          item.starEl = createStarEl();
+          modal.appendChild(item.starEl);
+        }
+        collectibles.push(item);
+        return item;
+      };
+
+      if (starMode === 'celebrate') {
+        addCollectible('ParabÃ©ns! Continue assim.');
+      } else if (starMode === 'sad') {
+        // A mensagem serÃ¡ definida no momento da coleta, seguindo `sadMessagesByOrder`.
+        addCollectible('');
+        addCollectible('');
+        addCollectible('');
+      }
+
+      const perso = document.createElement('div');
+      perso.className = 'perso';
+      const eve = document.createElement('div');
+      eve.className = 'eve';
+      const head = document.createElement('div');
+      head.className = 'head';
+      const face = document.createElement('div');
+      face.className = 'face';
+
+      // olhos em duas camadas: neutro (original) + mood (passou/falhou)
+      const eyesNeutral = document.createElement('div');
+      eyesNeutral.className = 'eyes eyes-neutral';
+      const eyesMood = document.createElement('div');
+      eyesMood.className = 'eyes eyes-mood';
+      face.appendChild(eyesNeutral);
+      face.appendChild(eyesMood);
+
+      head.appendChild(face);
+      const body = document.createElement('div');
+      body.className = 'body';
+      const headshadow = document.createElement('div');
+      headshadow.className = 'headshadow';
+      body.appendChild(headshadow);
+      eve.appendChild(head);
+      eve.appendChild(body);
+      const shadow = document.createElement('div');
+      shadow.className = 'shadow';
+      perso.appendChild(eve);
+      perso.appendChild(shadow);
+      stage.appendChild(perso);
+
+      // controles (D-pad)
+      const control = document.createElement('div');
+      control.className = 'control';
+      const btTop = document.createElement('button');
+      btTop.type = 'button';
+      btTop.className = 'bt bt_top';
+      btTop.textContent = '<';
+      const btRight = document.createElement('button');
+      btRight.type = 'button';
+      btRight.className = 'bt bt_right';
+      btRight.textContent = '>';
+      const btBottom = document.createElement('button');
+      btBottom.type = 'button';
+      btBottom.className = 'bt bt_bottom';
+      btBottom.textContent = '>';
+      const btLeft = document.createElement('button');
+      btLeft.type = 'button';
+      btLeft.className = 'bt bt_left';
+      btLeft.textContent = '<';
+      control.appendChild(btTop);
+      control.appendChild(btRight);
+      control.appendChild(btBottom);
+      control.appendChild(btLeft);
+
+      content.appendChild(stage);
+      modal.appendChild(content);
+
+      // O botÃ£o "Fechar" Ã© posicionado relativo ao overlay (result-overlay).
+      // Para alinhar o controle na mesma altura, o controle tambÃ©m precisa usar o overlay como referÃªncia.
+      modal.appendChild(control);
+      const actions = document.createElement('div');
+      actions.className = 'feedback-actions';
+
+      const restart = document.createElement('button');
+      restart.className = 'advance-btn shimmer-btn';
+      restart.type = 'button';
+      restart.setAttribute('aria-label', 'RecomeÃ§ar');
+      {
+        const shimmer = document.createElement('span');
+        shimmer.className = 'shimmer';
+        const text = document.createElement('span');
+        text.className = 'text';
+        text.textContent = 'Reiniciar';
+        restart.appendChild(shimmer);
+        restart.appendChild(text);
+      }
+
+      const ok = document.createElement('button');
+      ok.className = 'advance-btn shimmer-btn';
+      ok.type = 'button';
+      ok.setAttribute('aria-label', 'Fechar');
+      {
+        const shimmer = document.createElement('span');
+        shimmer.className = 'shimmer';
+        const text = document.createElement('span');
+        text.className = 'text';
+        text.textContent = 'Fechar';
+        ok.appendChild(shimmer);
+        ok.appendChild(text);
+      }
+
+      // movimentaÃ§Ã£o (sem jQuery) - comportamento do original:
+      // - cima/baixo: move apenas o robÃ´
+      // - esquerda/direita: move robÃ´ + balÃ£o juntos
+      let roboOffsetX = 0;
+      let roboOffsetY = 0;
+      const step = 60;
+
+      const getPx = (value) => {
+        const n = parseFloat(String(value || '').replace('px', ''));
+        return Number.isFinite(n) ? n : 0;
+      };
+
+      let roboBaseLeft = 0;
+      let roboBaseTop = 0;
+
+      // Wrap-around ("buraco de minhoca"): se sair por um lado, reaparece do outro.
+      // MantÃ©m ao menos N px visÃ­veis para nÃ£o desaparecer totalmente.
+      const minVisible = 18;
+
+      // Quando ocorrer wrap, precisamos "teleportar" sem transiÃ§Ã£o.
+      // Caso contrÃ¡rio, o CSS (transition) faz o robÃ´ atravessar a tela.
+      const applyPositionsNoTransitionOnce = () => {
+        const prevPersoTransition = perso.style.transition;
+        const prevSpeechTransitions = [];
+        try { perso.style.transition = 'none'; } catch (e) {}
+        try {
+          for (const c of collectibles) {
+            if (!c || !c.speechEl) continue;
+            prevSpeechTransitions.push([c.speechEl, c.speechEl.style.transition]);
+            c.speechEl.style.transition = 'none';
+          }
+        } catch (e) {}
+        applyPositions();
+        // forÃ§a o browser a aplicar o estilo sem transiÃ§Ã£o
+        try { void perso.offsetHeight; } catch (e) {}
+        try {
+          for (const c of collectibles) {
+            if (c && c.speechEl) { try { void c.speechEl.offsetHeight; } catch (e) {} }
+          }
+        } catch (e) {}
+        requestAnimationFrame(() => {
+          try { perso.style.transition = prevPersoTransition; } catch (e) {}
+          try {
+            for (const t of prevSpeechTransitions) {
+              try { t[0].style.transition = t[1]; } catch (e) {}
+            }
+          } catch (e) {}
+        });
+      };
+
+      const wrapIfNeeded = () => {
+        const bounds = modal.getBoundingClientRect();
+        const r = perso.getBoundingClientRect();
+        let adjustX = 0;
+        let adjustY = 0;
+
+        // saiu pela esquerda -> reaparece Ã  direita
+        if (r.right < bounds.left + minVisible) {
+          adjustX = (bounds.right - minVisible) - r.left;
+        }
+        // saiu pela direita -> reaparece Ã  esquerda
+        else if (r.left > bounds.right - minVisible) {
+          adjustX = (bounds.left + minVisible) - r.right;
+        }
+
+        // saiu por cima -> reaparece embaixo
+        if (r.bottom < bounds.top + minVisible) {
+          adjustY = (bounds.bottom - minVisible) - r.top;
+        }
+        // saiu por baixo -> reaparece em cima
+        else if (r.top > bounds.bottom - minVisible) {
+          adjustY = (bounds.top + minVisible) - r.bottom;
+        }
+
+        if (adjustX !== 0) {
+          roboOffsetX += adjustX;
+        }
+        if (adjustY !== 0) {
+          roboOffsetY += adjustY;
+        }
+        if (adjustX !== 0 || adjustY !== 0) {
+          // teleporte instantÃ¢neo ao atravessar a borda
+          applyPositionsNoTransitionOnce();
+        }
+      };
+
+      const applyPositions = () => {
+        perso.style.left = `${roboBaseLeft + roboOffsetX}px`;
+        perso.style.top = `${roboBaseTop + roboOffsetY}px`;
+        try {
+          for (const c of collectibles) {
+            if (!c || !c.speechEl) continue;
+            if (c.pinned) {
+              c.speechEl.style.left = `${c.pinnedLeft}px`;
+              c.speechEl.style.top = `${c.pinnedTop}px`;
+            }
+          }
+        } catch (e) {}
+      };
+      applyPositions();
+
+      const rectIntersects = (a, b) => {
+        return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
+      };
+
+      const getForbiddenRects = () => {
+        const rects = [];
+        const pad = 10;
+        const add = (el) => {
+          try {
+            if (!el) return;
+            const r = el.getBoundingClientRect();
+            rects.push({
+              left: r.left - pad,
+              top: r.top - pad,
+              right: r.right + pad,
+              bottom: r.bottom + pad
+            });
+          } catch (e) {}
+        };
+
+        // BotÃµes (Reiniciar/Fechar)
+        try { add(modal.querySelector('.feedback-actions')); } catch (e) {}
+        // D-pad
+        try { add(modal.querySelector('.control')); } catch (e) {}
+
+        return rects;
+      };
+
+      const getBalloonRects = () => {
+        // Ãreas ocupadas pelos balÃµes: principal + secundÃ¡rios visÃ­veis.
+        const rects = [];
+        const pad = 10;
+        const addRect = (el) => {
+          try {
+            if (!el) return;
+            if (el.classList && el.classList.contains('is-hidden')) return;
+            const r = el.getBoundingClientRect();
+            rects.push({
+              left: r.left - pad,
+              top: r.top - pad,
+              right: r.right + pad,
+              bottom: r.bottom + pad
+            });
+          } catch (e) {}
+        };
+        try { addRect(speech); } catch (e) {}
+        try {
+          for (const c of collectibles) {
+            if (!c || !c.speechEl) continue;
+            // sÃ³ considera secundÃ¡rios jÃ¡ exibidos
+            if (!c.pinned) continue;
+            addRect(c.speechEl);
+          }
+        } catch (e) {}
+        return rects;
+      };
+
+      const repositionRemainingStarsToAvoidBalloons = () => {
+        // Reposiciona apenas estrelas ainda nÃ£o coletadas que estejam embaixo de algum balÃ£o.
+        try {
+          const pad = 10;
+          const starSize = 44;
+          const w = Math.max(0, modal.clientWidth || 0);
+          const h = Math.max(0, modal.clientHeight || 0);
+          const maxX = Math.max(pad, w - starSize - pad);
+          const maxY = Math.max(pad, h - starSize - pad);
+          const roboRect = perso.getBoundingClientRect();
+          const baseForbidden = getForbiddenRects();
+          const balloonRects = getBalloonRects();
+          const intersects = (ra, rb) => rectIntersects(ra, rb);
+
+          // jÃ¡ colocadas (para nÃ£o empilhar estrelas)
+          const placedStarRects = [];
+          for (const c of collectibles) {
+            if (!c || !c.starEl || c.collected) continue;
+            try {
+              const r = c.starEl.getBoundingClientRect();
+              placedStarRects.push({ left: r.left, top: r.top, right: r.right, bottom: r.bottom, _c: c });
+            } catch (e) {}
+          }
+
+          for (const c of collectibles) {
+            if (!c || !c.starEl || c.collected) continue;
+            let starRect;
+            try { starRect = c.starEl.getBoundingClientRect(); } catch (e) { continue; }
+            let underBalloon = false;
+            for (const br of balloonRects) {
+              if (intersects(starRect, br)) { underBalloon = true; break; }
+            }
+            if (!underBalloon) continue;
+
+            // tenta achar novo spot que nÃ£o colida com robÃ´, botÃµes/dpad e balÃµes
+            for (let i = 0; i < 35; i++) {
+              const x = Math.round(pad + Math.random() * (maxX - pad));
+              const y = Math.round(pad + Math.random() * (maxY - pad));
+              c.starEl.style.left = `${x}px`;
+              c.starEl.style.top = `${y}px`;
+              c.starEl.style.width = `${starSize}px`;
+              c.starEl.style.height = `${starSize}px`;
+
+              const sr = c.starEl.getBoundingClientRect();
+              let okSpot = !intersects(roboRect, sr);
+
+              if (okSpot && baseForbidden.length) {
+                for (const f of baseForbidden) {
+                  if (intersects(sr, f)) { okSpot = false; break; }
+                }
+              }
+              if (okSpot && balloonRects.length) {
+                for (const br of balloonRects) {
+                  if (intersects(sr, br)) { okSpot = false; break; }
+                }
+              }
+              if (okSpot && placedStarRects.length) {
+                for (const pr of placedStarRects) {
+                  if (pr._c === c) continue;
+                  if (intersects(sr, pr)) { okSpot = false; break; }
+                }
+              }
+
+              if (okSpot) break;
+            }
+          }
+        } catch (e) {}
+      };
+
+      // O balÃ£o principal deve ficar fixo/centralizado via CSS (nÃ£o acompanha o robÃ´).
+
+      const getSecondaryMinTop = () => {
+        // balÃ£o triste SEMPRE abaixo do balÃ£o principal
+        try {
+          const bounds = modal.getBoundingClientRect();
+          const s = speech.getBoundingClientRect();
+          const gap = 12;
+          const pad = 10;
+          return Math.max(pad, Math.round((s.bottom - bounds.top) + gap));
+        } catch (e) {
+          return 10;
+        }
+      };
+
+      const clampPinnedBalloonToCard = (c) => {
+        // MantÃ©m cada balÃ£o secundÃ¡rio inteiro dentro do card.
+        try {
+          if (!c || !c.pinned || !c.speechEl) return;
+          const bounds = modal.getBoundingClientRect();
+          const pad = 10;
+
+          // Regra: sempre abaixo do balÃ£o principal (speech)
+          const minTop = getSecondaryMinTop();
+          if (c.pinnedTop < minTop) {
+            c.pinnedTop = minTop;
+            applyPositions();
+          }
+
+          // garantir que estÃ¡ medÃ­vel
+          const r = c.speechEl.getBoundingClientRect();
+          let dx = 0;
+          let dy = 0;
+          if (r.left < bounds.left + pad) dx = (bounds.left + pad) - r.left;
+          else if (r.right > bounds.right - pad) dx = (bounds.right - pad) - r.right;
+          if (r.top < bounds.top + minTop) dy = (bounds.top + minTop) - r.top;
+          else if (r.bottom > bounds.bottom - pad) dy = (bounds.bottom - pad) - r.bottom;
+          if (dx !== 0 || dy !== 0) {
+            c.pinnedLeft += dx;
+            c.pinnedTop += dy;
+
+            // ReforÃ§a o limite mÃ­nimo depois do ajuste
+            if (c.pinnedTop < minTop) c.pinnedTop = minTop;
+            applyPositions();
+          }
+
+          // Evitar cobrir os botÃµes/controle: prefere mover para cima (mas sem passar do minTop),
+          // e se nÃ£o der, move na horizontal.
+          try {
+            const forbidden = getForbiddenRects();
+            if (forbidden.length) {
+              let safety = 0;
+              while (safety++ < 6) {
+                const rr = c.speechEl.getBoundingClientRect();
+                let hitRect = null;
+                for (const f of forbidden) {
+                  if (rectIntersects(rr, f)) { hitRect = f; break; }
+                }
+                if (!hitRect) break;
+
+                const gap = 10;
+                const desiredTop = Math.round((hitRect.top - bounds.top) - gap - rr.height);
+                if (desiredTop >= minTop) {
+                  c.pinnedTop = desiredTop;
+                  applyPositions();
+                  continue;
+                }
+
+                // Sem espaÃ§o para subir: tenta deslocar na horizontal
+                let ddx = (hitRect.left - gap) - rr.right;
+                if ((rr.left + ddx) < bounds.left + pad) ddx = (hitRect.right + gap) - rr.left;
+                c.pinnedLeft += ddx;
+                applyPositions();
+              }
+            }
+          } catch (e) {}
+        } catch (e) {}
+      };
+
+      const resolveOverlapForPinnedBalloon = (c) => {
+        // NÃ£o move balÃµes jÃ¡ existentes. Se o novo balÃ£o nascer sobre outro,
+        // ajusta sÃ³ este (mÃ­nimo necessÃ¡rio) para deixar de sobrepor.
+        try {
+          if (!c || !c.pinned || !c.speechEl) return;
+          const gap = 10;
+          const minTop = getSecondaryMinTop();
+
+          const isPinnedVisible = (x) => x && x.pinned && x.speechEl && !x.speechEl.classList.contains('is-hidden');
+          const others = collectibles.filter(o => o !== c && isPinnedVisible(o));
+          if (!others.length) return;
+
+          // estabiliza em poucas iteraÃ§Ãµes
+          for (let safety = 0; safety < 10; safety++) {
+            applyPositions();
+            const r = c.speechEl.getBoundingClientRect();
+
+            let collided = false;
+            for (const o of others) {
+              const ro = o.speechEl.getBoundingClientRect();
+              if (!rectIntersects(r, ro)) continue;
+              collided = true;
+
+              // tenta empurrar para baixo; se nÃ£o der, para cima; se nÃ£o der, para os lados.
+              const overlapY = Math.min(r.bottom, ro.bottom) - Math.max(r.top, ro.top);
+              const overlapX = Math.min(r.right, ro.right) - Math.max(r.left, ro.left);
+
+              // down
+              c.pinnedTop += Math.max(0, Math.ceil(overlapY + gap));
+              applyPositions();
+              clampPinnedBalloonToCard(c);
+              applyPositions();
+              const r2 = c.speechEl.getBoundingClientRect();
+              if (!rectIntersects(r2, ro)) continue;
+
+              // up (sem passar do minTop)
+              c.pinnedTop = Math.max(minTop, c.pinnedTop - Math.max(0, Math.ceil(overlapY + gap)) * 2);
+              applyPositions();
+              clampPinnedBalloonToCard(c);
+              applyPositions();
+              const r3 = c.speechEl.getBoundingClientRect();
+              if (!rectIntersects(r3, ro)) continue;
+
+              // right / left
+              const dir = (r.left + r.right) / 2 < (ro.left + ro.right) / 2 ? -1 : 1;
+              c.pinnedLeft += dir * Math.max(0, Math.ceil(overlapX + gap));
+              applyPositions();
+              clampPinnedBalloonToCard(c);
+            }
+
+            if (!collided) break;
+          }
+        } catch (e) {}
+      };
+
+      const checkStarCollision = () => {
+        try {
+          if (!hasMovedSinceOpen) return;
+          const a = perso.getBoundingClientRect();
+          for (const c of collectibles) {
+            if (!c || c.collected || !c.starEl || !c.speechEl) continue;
+            const b = c.starEl.getBoundingClientRect();
+            const hit = !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
+            if (!hit) continue;
+
+            // Define a mensagem no momento da coleta.
+            try {
+              let messageToShow = c.message;
+              if (starMode === 'sad' && sadMessagesByOrder && sadMessagesByOrder.length) {
+                const idx = Math.min(Math.max(0, sadCollectedCount), sadMessagesByOrder.length - 1);
+                messageToShow = sadMessagesByOrder[idx];
+              }
+              c.message = String(messageToShow || '');
+              c.speechEl.textContent = c.message;
+            } catch (e) {}
+
+            // O balÃ£o deve aparecer exatamente onde a estrela estava.
+            try {
+              const starRect = c.starEl.getBoundingClientRect();
+              const modalRect = modal.getBoundingClientRect();
+              c.pinnedLeft = Math.round(starRect.left - modalRect.left);
+              c.pinnedTop = Math.round(starRect.top - modalRect.top);
+              c.pinned = true;
+            } catch (e) {}
+
+            // Regra: sempre abaixo do balÃ£o principal
+            try {
+              const minTop = getSecondaryMinTop();
+              if (c.pinnedTop < minTop) c.pinnedTop = minTop;
+            } catch (e) {}
+
+            c.collected = true;
+            try { c.starEl.remove(); } catch (e) {}
+            try { c.speechEl.classList.remove('is-hidden'); } catch (e) {}
+
+            // AvanÃ§a o contador sÃ³ apÃ³s uma coleta bem-sucedida.
+            if (starMode === 'sad') {
+              sadCollectedCount += 1;
+            }
+
+            applyPositions();
+            clampPinnedBalloonToCard(c);
+            resolveOverlapForPinnedBalloon(c);
+            repositionRemainingStarsToAvoidBalloons();
+          }
+        } catch (e) {}
+      };
+
+      const moveHorizontal = (dx) => {
+        hasMovedSinceOpen = true;
+        roboOffsetX += dx;
+        applyPositions();
+        wrapIfNeeded();
+        checkStarCollision();
+      };
+
+      const moveVerticalRobotOnly = (dy) => {
+        hasMovedSinceOpen = true;
+        roboOffsetY += dy;
+        applyPositions();
+        wrapIfNeeded();
+        checkStarCollision();
+      };
+
+      btLeft.addEventListener('click', () => moveHorizontal(-step));
+      btRight.addEventListener('click', () => moveHorizontal(step));
+      btTop.addEventListener('click', () => moveVerticalRobotOnly(-step));
+      btBottom.addEventListener('click', () => moveVerticalRobotOnly(step));
+
+      // Permitir mover com dedo (touch) e mouse (clicar+arrastar).
+      // ImplementaÃ§Ã£o com Pointer Events para funcionar em qualquer dispositivo.
+      let dragPointerId = null;
+      let dragLastClientX = 0;
+      let dragLastClientY = 0;
+      let dragPendingDx = 0;
+      let dragPendingDy = 0;
+      let dragRaf = 0;
+
+      const dragScheduleApply = () => {
+        if (dragRaf) return;
+        dragRaf = requestAnimationFrame(() => {
+          dragRaf = 0;
+          if (dragPendingDx === 0 && dragPendingDy === 0) return;
+          hasMovedSinceOpen = true;
+          roboOffsetX += dragPendingDx;
+          roboOffsetY += dragPendingDy;
+          dragPendingDx = 0;
+          dragPendingDy = 0;
+          applyPositions();
+          wrapIfNeeded();
+          checkStarCollision();
+        });
+      };
+
+      const dragTargetIsBlocked = (target) => {
+        try {
+          if (!target || !target.closest) return false;
+          // NÃ£o iniciar drag em botÃµes/controles.
+          if (target.closest('.feedback-actions')) return true;
+          if (target.closest('.control')) return true;
+          // Se algum dia os balÃµes voltarem a aceitar eventos, evita iniciar por cima.
+          if (target.closest('.speech')) return true;
+          return false;
+        } catch (e) {
+          return false;
+        }
+      };
+
+      const onStagePointerDown = (ev) => {
+        try {
+          // SÃ³ botÃ£o principal do mouse (quando aplicÃ¡vel)
+          if (typeof ev.button === 'number' && ev.button !== 0) return;
+          if (dragPointerId !== null) return;
+          if (dragTargetIsBlocked(ev.target)) return;
+
+          dragPointerId = ev.pointerId;
+          dragLastClientX = ev.clientX;
+          dragLastClientY = ev.clientY;
+          try { stage.setPointerCapture(dragPointerId); } catch (e) {}
+          try { ev.preventDefault(); } catch (e) {}
+        } catch (e) {}
+      };
+
+      const onStagePointerMove = (ev) => {
+        try {
+          if (dragPointerId === null) return;
+          if (ev.pointerId !== dragPointerId) return;
+          const dx = ev.clientX - dragLastClientX;
+          const dy = ev.clientY - dragLastClientY;
+          dragLastClientX = ev.clientX;
+          dragLastClientY = ev.clientY;
+          dragPendingDx += dx;
+          dragPendingDy += dy;
+          dragScheduleApply();
+          try { ev.preventDefault(); } catch (e) {}
+        } catch (e) {}
+      };
+
+      const onStagePointerUpOrCancel = (ev) => {
+        try {
+          if (dragPointerId === null) return;
+          if (ev.pointerId !== dragPointerId) return;
+          try { stage.releasePointerCapture(dragPointerId); } catch (e) {}
+          dragPointerId = null;
+          dragPendingDx = 0;
+          dragPendingDy = 0;
+          if (dragRaf) {
+            try { cancelAnimationFrame(dragRaf); } catch (e) {}
+            dragRaf = 0;
+          }
+        } catch (e) {}
+      };
+
+      try {
+        stage.addEventListener('pointerdown', onStagePointerDown, { passive: false });
+        stage.addEventListener('pointermove', onStagePointerMove, { passive: false });
+        stage.addEventListener('pointerup', onStagePointerUpOrCancel, { passive: true });
+        stage.addEventListener('pointercancel', onStagePointerUpOrCancel, { passive: true });
+      } catch (e) {}
+
+      const keyHandler = (ev) => {
+        // evita rolar a pÃ¡gina com setas
+        if (ev.key === 'ArrowLeft') { ev.preventDefault(); moveHorizontal(-step); }
+        else if (ev.key === 'ArrowRight') { ev.preventDefault(); moveHorizontal(step); }
+        else if (ev.key === 'ArrowUp') { ev.preventDefault(); moveVerticalRobotOnly(-step); }
+        else if (ev.key === 'ArrowDown') { ev.preventDefault(); moveVerticalRobotOnly(step); }
+      };
+      document.addEventListener('keydown', keyHandler);
+
+      const closeOverlay = () => {
+        try { document.removeEventListener('keydown', keyHandler); } catch (e) {}
+        try {
+          stage.removeEventListener('pointerdown', onStagePointerDown);
+          stage.removeEventListener('pointermove', onStagePointerMove);
+          stage.removeEventListener('pointerup', onStagePointerUpOrCancel);
+          stage.removeEventListener('pointercancel', onStagePointerUpOrCancel);
+        } catch (e) {}
+        try {
+          if (dragRaf) { cancelAnimationFrame(dragRaf); dragRaf = 0; }
+        } catch (e) {}
+        try { modal.remove(); } catch (e) {}
+        try { host.classList.remove('result-overlay-open'); } catch (e) {}
+      };
+
+      const closeToMenu = () => {
+        closeOverlay();
+        try { goBackToMenu(); } catch (e) {}
+      };
+
+      const restartFromBeginning = () => {
+        closeOverlay();
+        try { startMode('pratica'); } catch (e) {}
+      };
+
+      restart.addEventListener('click', restartFromBeginning);
+      ok.addEventListener('click', closeToMenu);
+      actions.appendChild(restart);
+      actions.appendChild(ok);
+      modal.appendChild(actions);
+
+      // Montar overlay dentro do card, com o mesmo tamanho
+      try { host.classList.add('result-overlay-open'); } catch (e) {}
+      host.appendChild(modal);
+
+      // Centralizar ao abrir (precisa estar no DOM)
+      requestAnimationFrame(() => {
+        try {
+          roboBaseLeft = getPx(getComputedStyle(perso).left);
+          roboBaseTop = getPx(getComputedStyle(perso).top);
+
+          // garantir posiÃ§Ã£o inicial baseada nas regras do CSS
+          applyPositions();
+
+          // Centralizar apenas o robÃ´ no palco (o balÃ£o principal fica fixo/centralizado via CSS)
+          const stageRect = stage.getBoundingClientRect();
+          const persoRect = perso.getBoundingClientRect();
+          const persoCenterX = persoRect.left + (persoRect.width / 2);
+          const persoCenterY = persoRect.top + (persoRect.height / 2);
+          const stageCenterX = stageRect.left + (stageRect.width / 2);
+          const stageCenterY = stageRect.top + (stageRect.height / 2);
+
+          const dx = Math.round(stageCenterX - persoCenterX);
+          const dy = Math.round(stageCenterY - persoCenterY);
+
+          roboOffsetX += dx;
+          roboOffsetY += dy;
+          applyPositions();
+          wrapIfNeeded();
+
+          // posicionar as estrelas em qualquer canto/Ã¡rea do overlay,
+          // garantindo que nÃ£o nasÃ§am em cima do robÃ´ nem em cima dos botÃµes/D-pad.
+          try {
+            if (collectibles && collectibles.length) {
+              const pad = 10;
+              const starSize = 44;
+              const w = Math.max(0, modal.clientWidth || 0);
+              const h = Math.max(0, modal.clientHeight || 0);
+              const maxX = Math.max(pad, w - starSize - pad);
+              const maxY = Math.max(pad, h - starSize - pad);
+              const roboRect = perso.getBoundingClientRect();
+              const forbidden = getForbiddenRects();
+              const balloonRects = getBalloonRects();
+              const intersects = (ra, rb) => rectIntersects(ra, rb);
+              const placedStarRects = [];
+              const starGap = 6;
+
+              for (const c of collectibles) {
+                if (!c || !c.starEl) continue;
+                // tenta algumas vezes para evitar nascer colada no robÃ´, em Ã¡reas proibidas ou em outra estrela
+                for (let i = 0; i < 35; i++) {
+                  const x = Math.round(pad + Math.random() * (maxX - pad));
+                  const y = Math.round(pad + Math.random() * (maxY - pad));
+                  c.starEl.style.left = `${x}px`;
+                  c.starEl.style.top = `${y}px`;
+                  c.starEl.style.width = `${starSize}px`;
+                  c.starEl.style.height = `${starSize}px`;
+                  const starRect = c.starEl.getBoundingClientRect();
+
+                  let okSpot = !intersects(roboRect, starRect);
+
+                  if (okSpot && forbidden.length) {
+                    for (const f of forbidden) {
+                      if (intersects(starRect, f)) { okSpot = false; break; }
+                    }
+                  }
+
+                  if (okSpot && balloonRects.length) {
+                    for (const br of balloonRects) {
+                      if (intersects(starRect, br)) { okSpot = false; break; }
+                    }
+                  }
+
+                  if (okSpot && placedStarRects.length) {
+                    const expanded = {
+                      left: starRect.left - starGap,
+                      top: starRect.top - starGap,
+                      right: starRect.right + starGap,
+                      bottom: starRect.bottom + starGap
+                    };
+                    for (const pr of placedStarRects) {
+                      if (intersects(expanded, pr)) { okSpot = false; break; }
+                    }
+                  }
+
+                  if (okSpot) {
+                    placedStarRects.push({ left: starRect.left, top: starRect.top, right: starRect.right, bottom: starRect.bottom });
+                    break;
+                  }
+                }
+              }
+            }
+          } catch (e) {}
+        } catch (e) {}
+      });
+    } catch(e) {}
+  }
+
+  // (BotÃ£o AvanÃ§ar foi movido para o primeiro card - bloco removido aqui)
+
+  // primeira renderizaÃ§Ã£o do estado
+  refreshHotspotsUI();
+
+  function showReviewModal() {
+    try {
+      const existing = document.getElementById('review-modal');
+      if (existing) existing.remove();
+      const modal = document.createElement('div');
+      modal.id = 'review-modal';
+      modal.className = 'feedback-modal';
+      const container = document.createElement('div');
+      container.className = 'feedback-content';
+      const title = document.createElement('div');
+      title.textContent = 'RevisÃ£o dos cards';
+      container.appendChild(title);
+      const listWrap = document.createElement('div');
+      listWrap.style.maxHeight = '60vh';
+      listWrap.style.overflowY = 'auto';
+      listWrap.style.display = 'grid';
+      listWrap.style.gridTemplateColumns = '1fr';
+      listWrap.style.gap = '12px';
+      reviewResults.forEach(r => {
+        const item = document.createElement('div');
+        item.style.display = 'grid';
+        item.style.gridTemplateColumns = '140px 1fr';
+        item.style.gap = '12px';
+        item.style.alignItems = 'start';
+        const thumb = document.createElement('img');
+        thumb.src = r.img || '';
+        thumb.alt = 'Miniatura';
+        thumb.style.width = '140px';
+        thumb.style.height = 'auto';
+        thumb.style.borderRadius = '8px';
+        thumb.style.objectFit = 'cover';
+        const details = document.createElement('div');
+        const ul = document.createElement('ul');
+        ul.style.listStyle = 'none';
+        ul.style.margin = '0';
+        ul.style.padding = '0';
+        r.items.forEach(it => {
+          const li = document.createElement('li');
+          li.style.display = 'flex';
+          li.style.justifyContent = 'space-between';
+          li.style.padding = '4px 0';
+          const left = document.createElement('span');
+          left.textContent = `${it.correctLabel}`;
+          const right = document.createElement('span');
+          right.textContent = it.isCorrect ? 'âœ”ï¸' : `âœ–ï¸ (${it.chosenLabel || 'sem escolha'})`;
+          right.style.color = it.isCorrect ? '#2e7d32' : '#c62828';
+          li.appendChild(left);
+          li.appendChild(right);
+          ul.appendChild(li);
+        });
+        details.appendChild(ul);
+        item.appendChild(thumb);
+        item.appendChild(details);
+        listWrap.appendChild(item);
+      });
+      container.appendChild(listWrap);
+      const actions = document.createElement('div');
+      actions.className = 'feedback-actions';
+      const close = document.createElement('button');
+      close.className = 'btn';
+      close.textContent = 'Fechar';
+      close.addEventListener('click', () => { try { modal.remove(); } catch(e){} });
+      actions.appendChild(close);
+      modal.appendChild(container);
+      modal.appendChild(actions);
+      document.body.appendChild(modal);
+    } catch(e) {}
+  }
+}
+
+flashcard.addEventListener('click', () => {
+    const card = currentFlashcards[currentIndex];
+      // Se for capa, nÃ£o vira. Se for card normal, vira.
+      if (card.isWelcome) return;
+      // nÃ£o permitir giro/flip no modo prÃ¡tica
+      if (currentMode === 'pratica') return;
+      flashcard.classList.toggle('flipped');
+});
+
+// prevBtn removed from HTML
+
+// nextBtn removed from HTML
+
+// shuffleBtn removed from HTML
+
+// Zoom
+zoomBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (currentImageUrl) {
+    zoomImage.src = currentImageUrl;
+    zoomOverlay.classList.add('active');
+  }
+});
+
+zoomClose.addEventListener('click', () => {
+  zoomOverlay.classList.remove('active');
+});
+
+zoomOverlay.addEventListener('click', (e) => {
+  if (e.target === zoomOverlay) {
+    zoomOverlay.classList.remove('active');
+  }
+});
+
+// Acessibilidade: permitir ativaÃ§Ã£o via teclado nas imagens de controle
+try {
+  function attachKeyboardActivation(el) {
+    if (!el) return;
+    try { el.setAttribute('role', 'button'); } catch(e) {}
+    try { if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0'); } catch(e) {}
+    el.addEventListener('keydown', (e) => {
+      const key = e.key || e.code;
+      if (key === 'Enter' || key === ' ' || key === 'Spacebar') {
+        e.preventDefault();
+        try { el.click(); } catch(err) {}
+      }
+    });
+  }
+  // shuffleBtn removed
+} catch (e) {}
+
+// Consolidated DOMContentLoaded: ensure menu buttons work and startMode is globally available
+document.addEventListener('DOMContentLoaded', () => {
+  // Make startMode available globally for inline onclick handlers
+  try {
+    window.startMode = startMode;
+  } catch (e) {}
+
+  // Attach listeners to menu cards
+  try {
+    const cards = document.querySelectorAll('.menu-card');
+    cards.forEach(card => {
+      if (card.dataset.startAttached) return;
+      const onclick = card.getAttribute('onclick') || '';
+      const m = onclick.match(/startMode\(['"](\w+)['"]\)/);
+      if (m) {
+        card.addEventListener('click', (ev) => {
+          ev.preventDefault();
+          startMode(m[1]);
+        });
+        card.dataset.startAttached = '1';
+      }
+    });
+  } catch (e) {}
+
+  // Create fallback back button
+  try {
+    if (document.getElementById('global-back-fallback')) return;
+    const a = document.createElement('button');
+    a.id = 'global-back-fallback';
+    a.type = 'button';
+    a.setAttribute('aria-label', 'Voltar');
+    a.style.position = 'fixed';
+    a.style.left = '12px';
+    a.style.top = '12px';
+    a.style.width = '36px';
+    a.style.height = '36px';
+    a.style.borderRadius = '50%';
+    a.style.background = '#ffffff';
+    a.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+    a.style.zIndex = '4000';
+    a.style.display = 'none';
+    a.style.backgroundImage = "url('https://s3-eu-west-1.amazonaws.com/thomascullen-codepen/back.svg')";
+    a.style.backgroundRepeat = 'no-repeat';
+    a.style.backgroundPosition = 'center';
+    a.style.backgroundSize = '18px';
+    a.style.cursor = 'pointer';
+    a.addEventListener('click', (ev) => { ev.preventDefault(); try { goBackToMenu(); } catch(e){} });
+    document.body.appendChild(a);
+  } catch (e) {}
+});
