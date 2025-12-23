@@ -192,6 +192,88 @@ function dlog(...args) {
   try { if (window.DEBUG) console.log(...args); } catch (e) {}
 }
 
+// Parallax global (mobile + desktop)
+// - Atualiza CSS vars para Kodama (shift) e Anadix (parallax)
+// - Usa Pointer Events (e touchmove fallback) sem bloquear scroll
+function initGlobalParallaxVars() {
+  const prefersReduced = (() => {
+    try { return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; }
+  })();
+  if (prefersReduced) return;
+
+  const root = document.documentElement;
+
+  const state = {
+    targetX: 0,
+    targetY: 0,
+    x: 0,
+    y: 0,
+    w: Math.max(1, window.innerWidth || 1),
+    h: Math.max(1, window.innerHeight || 1)
+  };
+
+  const clamp01 = (n) => Math.max(0, Math.min(1, n));
+
+  function setTargetFromClientXY(cx, cy) {
+    const nx = clamp01(cx / state.w) - 0.5;
+    const ny = clamp01(cy / state.h) - 0.5;
+    // ranges (px): leves para não desorganizar layout
+    state.targetX = nx * 18;
+    state.targetY = ny * 12;
+  }
+
+  function onMove(ev) {
+    if (!ev) return;
+    if (ev.touches && ev.touches[0]) {
+      setTargetFromClientXY(ev.touches[0].clientX, ev.touches[0].clientY);
+      return;
+    }
+    if (ev.targetTouches && ev.targetTouches[0]) {
+      setTargetFromClientXY(ev.targetTouches[0].clientX, ev.targetTouches[0].clientY);
+      return;
+    }
+    if (typeof ev.clientX === 'number' && typeof ev.clientY === 'number') {
+      setTargetFromClientXY(ev.clientX, ev.clientY);
+    }
+  }
+
+  function onResize() {
+    state.w = Math.max(1, window.innerWidth || 1);
+    state.h = Math.max(1, window.innerHeight || 1);
+  }
+
+  window.addEventListener('resize', onResize, { passive: true });
+  window.addEventListener('pointermove', onMove, { passive: true });
+  window.addEventListener('touchmove', onMove, { passive: true });
+
+  // Primeira pintura: central
+  setTargetFromClientXY(state.w * 0.5, state.h * 0.5);
+
+  function tick() {
+    state.x += (state.targetX - state.x) * 0.08;
+    state.y += (state.targetY - state.y) * 0.08;
+
+    // Anadix mais evidente
+    root.style.setProperty('--anadix-parallax-x', `${state.x.toFixed(2)}px`);
+    root.style.setProperty('--anadix-parallax-y', `${state.y.toFixed(2)}px`);
+
+    // Kodama mais sutil
+    root.style.setProperty('--kodama-shift-x', `${(state.x * 0.55).toFixed(2)}px`);
+    root.style.setProperty('--kodama-shift-y', `${(state.y * 0.40).toFixed(2)}px`);
+
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+try {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initGlobalParallaxVars);
+  } else {
+    initGlobalParallaxVars();
+  }
+} catch (e) {}
+
 // Fundo interativo (canvas) — parallax + vagalumes (original, sem assets externos)
 function initInteractiveBackground() {
   const canvas = document.getElementById('interactive-bg');
@@ -358,6 +440,8 @@ function initInteractiveBackground() {
   resize();
   window.addEventListener('resize', resize, { passive: true });
   window.addEventListener('pointermove', onPointerMove, { passive: true });
+  // Fallback para browsers sem Pointer Events
+  window.addEventListener('touchmove', onPointerMove, { passive: true });
 
   // Renderiza estático se usuário preferir menos movimento
   if (prefersReduced) {
@@ -481,6 +565,7 @@ try {
       }
 
       if (isTouchDevice) {
+        // Em mobile/tablet: simplifica extras, mas mantém parallax (mouseAction)
         this.vines = false;
         this.shrooms = false;
         this.fireflies = false;
@@ -490,7 +575,7 @@ try {
         this.vinesMotion = false;
         this.shroomsMotion = false;
         this.textMotion = false;
-        this.mouseAction = false;
+        this.mouseAction = true;
         this.shroomTrip = false;
       }
     }
@@ -906,15 +991,14 @@ try {
       try {
         if (!o._parallaxBound) {
           window.addEventListener('pointermove', o.updateMouseObj, { passive: true });
-          window.addEventListener('mousemove', o.updateMouseObj, { passive: true });
-          window.addEventListener('touchmove', o.updateMouseObj, { passive: false });
+          window.addEventListener('touchmove', o.updateMouseObj, { passive: true });
           o._parallaxBound = true;
         }
       } catch (e) {}
 
       // Mantém também no SVG (quando o ponteiro estiver sobre ele).
       try { o.svg.addEventListener('mousemove', o.updateMouseObj); } catch (e) {}
-      try { o.svg.addEventListener('touchmove', o.updateMouseObj, { passive: false }); } catch (e) {}
+      try { o.svg.addEventListener('touchmove', o.updateMouseObj, { passive: true }); } catch (e) {}
 
       TweenMax.to(o.acceleration, 10, { val: 0.05, ease: Linear.easeNone });
 
@@ -953,7 +1037,6 @@ try {
     },
     updateMouseObj: function(e) {
       if (e.targetTouches && e.targetTouches[0]) {
-        try { if (e.cancelable) e.preventDefault(); } catch (_) {}
         o.mouse.x = e.targetTouches[0].clientX;
         o.mouse.y = e.targetTouches[0].clientY;
       } else {

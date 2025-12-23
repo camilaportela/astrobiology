@@ -60,10 +60,25 @@
   /* tamanho da fonte do rodapé (ajuste aqui para mudar facilmente) */
   --footer-font-size: 0.75rem;
 
+  /* Parallax/scale (controlado via JS/CSS) */
+  --anadix-parallax-x: 0px;
+  --anadix-parallax-y: 0px;
+  --anadix-scale: 1;
+
   /* Kodama: controle fino do enquadramento (mais perto = maior scale) */
   --kodama-scale: 1.09;
   --kodama-shift-x: 0px;
   --kodama-shift-y: 0px;
+}
+
+/* Mobile/tablet: evitar calc negativo e melhorar encaixe do modo prática */
+@media (max-width: 900px) {
+  :root {
+    --notebook-side-gap: 16px;
+    --pratica-right-panel: 0px;
+    /* svh lida melhor com a barra do navegador no mobile */
+    --pratica-card-height: calc(100svh - 144px);
+  }
 }
 
 body {
@@ -1426,6 +1441,16 @@ body:not(.mode-pratica):not(.mode-teorica) .menu-container {
   will-change: opacity, transform;
 }
 
+/* Wrapper para aplicar parallax/scale sem mexer no posicionamento do container */
+#assistente-fixo .assistente-parallax {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform: translate3d(var(--anadix-parallax-x), var(--anadix-parallax-y), 0) scale(var(--anadix-scale));
+  transform-origin: bottom center;
+  will-change: transform;
+}
+
 /* Transição de saída/entrada (usada ao trocar para a tela de cards) */
 #assistente-fixo.assistente-hidden {
   opacity: 0;
@@ -1643,6 +1668,30 @@ body.microscope-eyepiece-mode #assistente-fixo #balao-fala {
   transition: all 0.3s ease;
 }
 
+/* Em telas pequenas, reduzir e subir a Anadix para não cobrir o rodapé */
+@media (max-width: 700px) {
+  :root {
+    --anadix-scale: 0.62;
+    --footer-font-size: 0.7rem;
+  }
+
+  .footer {
+    bottom: env(safe-area-inset-bottom, 0px);
+    padding: 0 12px;
+  }
+
+  #assistente-fixo {
+    bottom: calc(-88px + var(--footer-height) + env(safe-area-inset-bottom, 0px));
+    width: 940px;
+    height: 580px;
+  }
+
+  /* Balão: prioriza caber no viewport */
+  #assistente-fixo #balao-fala {
+    max-width: min(460px, 88vw);
+  }
+}
+
 #assistente-fixo .help_avatar:hover .avatar_help_avatar { bottom: -150px; }
 #assistente-fixo .help_avatar:hover .animate_arm_front { animation: anima_arm_front 1.2s; }
 #assistente-fixo .help_avatar:hover .animate_arm_back { animation: anima_arm_back 1s; }
@@ -1837,8 +1886,24 @@ body.microscope-eyepiece-mode #assistente-fixo #balao-fala {
 
 @media (max-width: 900px) {
   .mode-pratica .card { height: auto; max-width: 100%; }
-  .mode-pratica .game-left { flex: 1 1 100%; }
-  .mode-pratica .game-right { display: none; }
+
+  /* Mobile/tablet: empilha imagem + notebook (não pode esconder o notebook) */
+  .mode-pratica .game-layout {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .mode-pratica .game-left {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .mode-pratica .game-right {
+    display: flex;
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: 100%;
+  }
 }
 .ref-item {
   background: rgba(255,255,255,0.02);
