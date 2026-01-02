@@ -12,7 +12,7 @@
   "games": [
     {
       "img": "https://i.imgur.com/sKnx9do.png",
-      "anadixSpeech": "Vamos praticar indicando e identificando o câmbio vascular fascicular e interfascicular e dizer qual a diferença entre eles quanto à origem. Dica: clique nos pontos e associe ao nome correto.",
+      "anadixSpeech": "Vamos praticar.<br> Indique e identifique o câmbio vascular (fascicular e interfascicular) e diga qual a diferença entre eles quanto à origem. <br>Dica: clique nos pontos e associe ao nome correto.",
       "references": [
         { "id": 1, "label": "Xilema" },
         { "id": 2, "label": "Floema" },
