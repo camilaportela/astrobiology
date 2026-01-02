@@ -77,7 +77,20 @@
     --notebook-side-gap: 16px;
     --pratica-right-panel: 0px;
     /* svh lida melhor com a barra do navegador no mobile */
-    --pratica-card-height: calc(100svh - 144px);
+    --pratica-card-height: calc(100svh - 96px);
+  }
+}
+
+/* Mobile/tablet: quando Anadix está dentro do card, priorizar a área do jogo (imagem/hotspots)
+   para o balão não ficar por cima do conteúdo principal. */
+@media (max-width: 900px) {
+  #assistente-fixo.assistente-in-card {
+    z-index: 5;
+  }
+
+  .card-face.assistente-card-clip #cardImage {
+    position: relative;
+    z-index: 20;
   }
 }
 
