@@ -1891,7 +1891,12 @@ body.microscope-eyepiece-mode #assistente-fixo #balao-fala {
 }
 
 @media (max-width: 900px) {
-  .mode-pratica .card { height: auto; max-width: 100%; }
+  .mode-pratica .card {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    height: var(--pratica-card-height);
+  }
 
   /* Mobile/tablet: empilha imagem + notebook (não pode esconder o notebook) */
   .mode-pratica .game-layout {
