@@ -1545,6 +1545,56 @@ body.final-summary-open .footer {
   pointer-events: auto;
 }
 
+/* Mobile/tablet: evitar que balão/assistente atrapalhem cliques e não “selecionar para copiar” */
+@media (max-width: 900px) {
+  /* O balão pode ficar por cima visualmente, mas não deve bloquear hotspots/menus */
+  #assistente-fixo.assistente-in-card #balao-fala,
+  #assistente-fixo.assistente-in-card #balao-fala * {
+    pointer-events: none;
+  }
+
+  /* Reduzir o balão para minimizar sobreposição em telas menores */
+  #assistente-fixo.assistente-in-card #balao-fala {
+    min-width: 180px;
+    max-width: min(320px, 76vw);
+    padding: 10px;
+    font-size: 12px;
+  }
+
+  /* Preserva a animação, mas com escala menor no mobile */
+  #assistente-fixo #balao-fala.visivel {
+    transform: translateX(-50%) translateY(-10px) scale(0.85);
+    transform-origin: 50% 100%;
+  }
+
+  #assistente-fixo.assistente-in-card.anadix-right-cards #balao-fala.visivel {
+    transform: translateY(-10px) scale(0.85);
+    transform-origin: 100% 100%;
+  }
+
+  /* Remover highlight azul de toque/seleção nos itens do caderno e menus */
+  .ref-item,
+  .ref-item *,
+  .notebook-toolbar button,
+  .hotspot-menu,
+  .hotspot-menu-btn {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Evitar “seleção azul” em itens travados, mas manter edição em itens novos */
+  .ref-item.locked,
+  .ref-item.locked *,
+  .ref-item .ref-index {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+  .ref-item:not(.locked) .ref-label {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+}
+
 /* Balão no topo direito quando Anadix está à direita */
 #assistente-fixo.assistente-in-card.anadix-right-cards #balao-fala {
   left: auto;
