@@ -11,8 +11,8 @@
   },
   "games": [
     {
-      "img": "https://i.imgur.com/k8D25Bs.jpeg",
-      "anadixSpeech": "Olá! Sou <b>Anadix</b>. Guardiã do conhecimento.<br>Vamos praticar identificando estruturas.<br><br>Dica: clique nos pontos e associe ao nome correto.",
+      "img": "https://i.imgur.com/sKnx9do.png",
+      "anadixSpeech": "Vamos praticar indicando e identificando o câmbio vascular fascicular e interfascicular e dizer qual a diferença entre eles quanto à origem. Dica: clique nos pontos e associe ao nome correto.",
       "references": [
         { "id": 1, "label": "Xilema" },
         { "id": 2, "label": "Floema" },
