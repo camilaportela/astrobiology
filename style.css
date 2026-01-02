@@ -1403,9 +1403,15 @@ body:not(.mode-pratica):not(.mode-teorica) .menu-container {
   align-items: center;
   height: var(--footer-height);
   padding: 0 0 0 40px;
-  z-index: 2000; /* acima do conteúdo para ficar sempre visível */
+  /* Precisa ficar acima da Anadix (#assistente-fixo: z-index 9999) para o texto não aparecer “por baixo”. */
+  z-index: 12040;
   background: transparent; /* manter transparente conforme pedido */
   pointer-events: none; /* não intercepta cliques */
+}
+
+/* Quando o Resultado (modal) estiver aberto, o rodapé não deve competir com overlays do card */
+body.final-summary-open .footer {
+  z-index: 2000;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2312,8 +2318,9 @@ body.microscope-eyepiece-mode #assistente-fixo #balao-fala {
 
 /* Ajuste responsivo para o painel do jogo */
 @media (max-width: 700px) {
-  .game-right { display: none; }
-  .game-layout { flex-direction: column; }
+  /* NÃO esconder o notebook/opções no celular: precisa manter TODAS as funções jogáveis */
+  .mode-pratica .game-right { display: flex; }
+  .mode-pratica .game-layout { flex-direction: column; }
 }
 
 /* toolbar do notebook (botões Verificar / Adicionar) */

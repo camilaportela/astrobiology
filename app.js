@@ -2772,6 +2772,8 @@ function renderGame(card) {
       const existing = document.getElementById('final-summary-modal');
       if (existing) existing.remove();
 
+      try { document.body.classList.add('final-summary-open'); } catch (e) {}
+
       const host = document.getElementById('cardImage');
       if (!host) return;
 
@@ -3538,6 +3540,7 @@ function renderGame(card) {
         } catch (e) {}
         try { modal.remove(); } catch (e) {}
         try { host.classList.remove('result-overlay-open'); } catch (e) {}
+        try { document.body.classList.remove('final-summary-open'); } catch (e) {}
       };
 
       const closeToMenu = () => {

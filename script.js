@@ -243,6 +243,9 @@ function initGlobalParallaxVars() {
   }
 
   window.addEventListener('resize', onResize, { passive: true });
+  // Em mobile, muitas vezes o usuário “encosta e arrasta”; garantir resposta já no toque inicial.
+  window.addEventListener('pointerdown', onMove, { passive: true });
+  window.addEventListener('touchstart', onMove, { passive: true });
   window.addEventListener('pointermove', onMove, { passive: true });
   window.addEventListener('touchmove', onMove, { passive: true });
 
@@ -439,8 +442,10 @@ function initInteractiveBackground() {
 
   resize();
   window.addEventListener('resize', resize, { passive: true });
+  window.addEventListener('pointerdown', onPointerMove, { passive: true });
   window.addEventListener('pointermove', onPointerMove, { passive: true });
   // Fallback para browsers sem Pointer Events
+  window.addEventListener('touchstart', onPointerMove, { passive: true });
   window.addEventListener('touchmove', onPointerMove, { passive: true });
 
   // Renderiza estático se usuário preferir menos movimento
@@ -457,7 +462,9 @@ function initInteractiveBackground() {
     if (!document.getElementById('interactive-bg')) {
       try { cancelAnimationFrame(rafId); } catch (e) {}
       try { window.removeEventListener('resize', resize); } catch (e) {}
+      try { window.removeEventListener('pointerdown', onPointerMove); } catch (e) {}
       try { window.removeEventListener('pointermove', onPointerMove); } catch (e) {}
+      try { window.removeEventListener('touchstart', onPointerMove); } catch (e) {}
       try { obs.disconnect(); } catch (e) {}
     }
   });
