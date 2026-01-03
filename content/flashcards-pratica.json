@@ -10,28 +10,89 @@
     ]
   },
   "games": [
-    {
-      "img": "https://i.imgur.com/sKnx9do.png",
-      "anadixSpeech": "Vamos praticar.<br> Indique e identifique o câmbio vascular (fascicular e interfascicular) e diga qual a diferença entre eles quanto à origem. <br>Dica: clique nos pontos e associe ao nome correto.",
-      "references": [
-        { "id": 1, "label": "Xilema" },
-        { "id": 2, "label": "Floema" },
-        { "id": 3, "label": "Câmbio" }
-      ],
-      "hotspots": [
-        { "id": "h1", "top": "48%", "left": "52%", "correctRefId": 1 },
-        { "id": "h2", "top": "50%", "left": "66%", "correctRefId": 2 },
-        { "id": "h3", "top": "58%", "left": "49%", "correctRefId": 3 }
-      ]
-    },
-    {
-      "img": "https://i.imgur.com/2O1xi7C.png",
-      "anadixSpeech": "Quer adicionar mais um card?\n\nBasta trocar a URL da imagem, as opções e os hotspots aqui no JSON.",
-      "references": [
-        { "id": 1, "label": "Teste" },
-        { "id": 2, "label": "Teste 2" }
-      ],
-      "hotspots": []
-    }
-  ]
-}
+        {
+          "img": "https://i.imgur.com/sKnx9do.png",
+          "anadixSpeech": "Vamos praticar.<br>Indique e identifique o câmbio vascular (fascicular e interfascicular) e diga qual a diferença entre eles quanto à origem. <br>Dica: clique nos pontos e associe ao nome correto.",
+          "references": [
+            { "id": 1, "label": "Xilema" },
+            { "id": 2, "label": "Floema" },
+            { "id": 3, "label": "Câmbio" }
+          ],
+          "hotspots": [
+            { "id": "h1", "top": "48%", "left": "52%", "correctRefId": 1 },
+            { "id": "h2", "top": "50%", "left": "66%", "correctRefId": 2 },
+            { "id": "h3", "top": "58%", "left": "49%", "correctRefId": 3 }
+          ]
+        },
+        {
+          "img": "https://i.imgur.com/sKnx9do.png",
+          "anadixSpeech": "Vamos praticar.<br>Indique e identifique o câmbio vascular (fascicular e interfascicular) e diga qual a diferença entre eles quanto à origem. <br>Dica: clique nos pontos e associe ao nome correto.",
+          "references": [
+            { "id": 1, "label": "Xilema" },
+            { "id": 2, "label": "Floema" },
+            { "id": 3, "label": "Câmbio" }
+          ],
+          "hotspots": [
+            { "id": "h1", "top": "48%", "left": "52%", "correctRefId": 1 },
+            { "id": "h2", "top": "50%", "left": "66%", "correctRefId": 2 },
+            { "id": "h3", "top": "58%", "left": "49%", "correctRefId": 3 }
+          ]
+        },
+        {
+          "img": "https://i.imgur.com/sKnx9do.png",
+          "anadixSpeech": "Vamos praticar.<br>Indique e identifique o câmbio vascular (fascicular e interfascicular) e diga qual a diferença entre eles quanto à origem. <br>Dica: clique nos pontos e associe ao nome correto.",
+          "references": [
+            { "id": 1, "label": "Xilema" },
+            { "id": 2, "label": "Floema" },
+            { "id": 3, "label": "Câmbio" }
+          ],
+          "hotspots": [
+            { "id": "h1", "top": "48%", "left": "52%", "correctRefId": 1 },
+            { "id": "h2", "top": "50%", "left": "66%", "correctRefId": 2 },
+            { "id": "h3", "top": "58%", "left": "49%", "correctRefId": 3 }
+          ]
+        },
+        {
+          "img": "https://i.imgur.com/sKnx9do.png",
+          "anadixSpeech": "Vamos praticar.<br>Indique e identifique o câmbio vascular (fascicular e interfascicular) e diga qual a diferença entre eles quanto à origem. <br>Dica: clique nos pontos e associe ao nome correto.",
+          "references": [
+            { "id": 1, "label": "Xilema" },
+            { "id": 2, "label": "Floema" },
+            { "id": 3, "label": "Câmbio" }
+          ],
+          "hotspots": [
+            { "id": "h1", "top": "48%", "left": "52%", "correctRefId": 1 },
+            { "id": "h2", "top": "50%", "left": "66%", "correctRefId": 2 },
+            { "id": "h3", "top": "58%", "left": "49%", "correctRefId": 3 }
+          ]
+        },
+        {
+          "img": "https://i.imgur.com/sKnx9do.png",
+          "anadixSpeech": "Vamos praticar.<br>Indique e identifique o câmbio vascular (fascicular e interfascicular) e diga qual a diferença entre eles quanto à origem. <br>Dica: clique nos pontos e associe ao nome correto.",
+          "references": [
+            { "id": 1, "label": "Xilema" },
+            { "id": 2, "label": "Floema" },
+            { "id": 3, "label": "Câmbio" }
+          ],
+          "hotspots": [
+            { "id": "h1", "top": "48%", "left": "52%", "correctRefId": 1 },
+            { "id": "h2", "top": "50%", "left": "66%", "correctRefId": 2 },
+            { "id": "h3", "top": "58%", "left": "49%", "correctRefId": 3 }
+          ]
+        },
+        {
+          "img": "https://i.imgur.com/sKnx9do.png",
+          "anadixSpeech": "Vamos praticar.<br>Indique e identifique o câmbio vascular (fascicular e interfascicular) e diga qual a diferença entre eles quanto à origem. <br>Dica: clique nos pontos e associe ao nome correto.",
+          "references": [
+            { "id": 1, "label": "Xilema" },
+            { "id": 2, "label": "Floema" },
+            { "id": 3, "label": "Câmbio" }
+          ],
+          "hotspots": [
+            { "id": "h1", "top": "48%", "left": "52%", "correctRefId": 1 },
+            { "id": "h2", "top": "50%", "left": "66%", "correctRefId": 2 },
+            { "id": "h3", "top": "58%", "left": "49%", "correctRefId": 3 }
+          ]
+        }
+        ]
+      }
