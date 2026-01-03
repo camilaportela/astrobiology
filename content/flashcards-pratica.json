@@ -28,15 +28,15 @@
             { "id": 1, "label": "Câmbio vascular fascicular" },
             { "id": 2, "label": "Câmbio vascular interfascicular" },
             { "id": 3, "label": "Xilema primário" },
-            { "id": 3, "label": "Xilema secundário" },
-            { "id": 3, "label": "Floema primário" }
+            { "id": 4, "label": "Xilema secundário" },
+            { "id": 5, "label": "Floema primário" }
           ],
           "hotspots": [
             { "id": "h1", "top": "48%", "left": "52%", "correctRefId": 1 },
             { "id": "h2", "top": "50%", "left": "66%", "correctRefId": 2 },
             { "id": "h3", "top": "15%", "left": "55%", "correctRefId": 3 },
             { "id": "h4", "top": "52%", "left": "51%", "correctRefId": 4 },
-            { "id": "h5", "top": "60", "left": "58%", "correctRefId": 5 }
+            { "id": "h5", "top": "60%", "left": "58%", "correctRefId": 5 }
           ]
         },
         {
@@ -53,8 +53,8 @@
             { "id": "h1", "top": "48%", "left": "52%", "correctRefId": 1 },
             { "id": "h2", "top": "50%", "left": "66%", "correctRefId": 2 },
             { "id": "h3", "top": "58%", "left": "49%", "correctRefId": 3 },
-            { "id": "h4", "top": "58%", "left": "49%", "correctRefId": 4 },
-            { "id": "h5", "top": "58%", "left": "49%", "correctRefId": 5 }
+            { "id": "h4", "top": "60%", "left": "52%", "correctRefId": 4 },
+            { "id": "h5", "top": "62%", "left": "46%", "correctRefId": 5 }
           ]
         },
         {
@@ -80,7 +80,7 @@
             { "id": "h1", "top": "48%", "left": "52%", "correctRefId": 1 },
             { "id": "h2", "top": "50%", "left": "66%", "correctRefId": 2 },
             { "id": "h3", "top": "58%", "left": "49%", "correctRefId": 3 },
-            { "id": "h4", "top": "58%", "left": "49%", "correctRefId": 4 }
+            { "id": "h4", "top": "61%", "left": "52%", "correctRefId": 4 }
           ]
         },
         {
