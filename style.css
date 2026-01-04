@@ -1563,6 +1563,14 @@ body.mode-pratica #assistente-fixo .bracos_frente_content {
   pointer-events: none !important;
 }
 
+/* Modo prática: o assistente é decorativo/informativo — nunca deve bloquear a UI do jogo.
+   Importante: filhos com `pointer-events: auto` (SVG/avatar) podem capturar cliques mesmo
+   quando o container está com `pointer-events: none`, então desativamos em toda a árvore. */
+body.mode-pratica #assistente-fixo,
+body.mode-pratica #assistente-fixo * {
+  pointer-events: none !important;
+}
+
 /* Mobile/tablet: evitar que balão/assistente atrapalhem cliques e não “selecionar para copiar” */
 @media (max-width: 900px) {
   /* O balão pode ficar por cima visualmente, mas não deve bloquear hotspots/menus */
