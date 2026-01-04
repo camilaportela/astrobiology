@@ -652,28 +652,7 @@ body:not(.mode-pratica):not(.mode-teorica) .menu-container {
   justify-content: flex-end;
   z-index: 100;
 }
-/* Botão Avançar/Continuar: responsivo para não ficar grande e não sobrepor a imagem */
-.advance-btn.shimmer-btn {
-  min-width: 0;
-  width: auto;
-  max-width: min(190px, 44vw);
-  padding-left: 16px;
-  padding-right: 16px;
-}
-
-@media (max-width: 900px) {
-  .advance-toolbar,
-  .mode-pratica .card-face .advance-toolbar {
-    right: 16px;
-    bottom: 16px;
-  }
-
-  .advance-btn.shimmer-btn {
-    max-width: min(160px, 48vw);
-    padding-left: 14px;
-    padding-right: 14px;
-  }
-}
+.advance-btn.shimmer-btn { min-width: 190px; }
 
 .card-front-text {
   display: none;
