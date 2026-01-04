@@ -11,7 +11,7 @@
   "games": [
         {
           "img": "https://i.imgur.com/sKnx9do.png",
-        "anadixSpeech": "Identifique o câmbio fascicular e interfascicular. Qual a diferença entre eles quanto à origem?",
+        "anadixSpeech": "Qual a diferença entre eles quanto à origem?",
           "references": [
             { "id": 1, "label": "Câmbio fascicular" },
             { "id": 2, "label": "Câmbio interfascicular" }
@@ -25,8 +25,8 @@
           "img": "https://i.imgur.com/0kZzprq.png",
           "anadixSpeech": "",
           "references": [
-            { "id": 1, "label": "Câmbio vascular fascicular" },
-            { "id": 2, "label": "Câmbio vascular interfascicular" },
+            { "id": 1, "label": "Câmbio fascicular" },
+            { "id": 2, "label": "Câmbio interfascicular" },
             { "id": 3, "label": "Xilema primário" },
             { "id": 4, "label": "Xilema secundário" },
             { "id": 5, "label": "Floema primário" }
@@ -50,11 +50,11 @@
             { "id": 5, "label": "fibras do floema primário" }
           ],
           "hotspots": [
-            { "id": "h1", "top": "48%", "left": "52%", "correctRefId": 1 },
-            { "id": "h2", "top": "50%", "left": "66%", "correctRefId": 2 },
-            { "id": "h3", "top": "58%", "left": "49%", "correctRefId": 3 },
-            { "id": "h4", "top": "60%", "left": "52%", "correctRefId": 4 },
-            { "id": "h5", "top": "62%", "left": "46%", "correctRefId": 5 }
+            { "id": "h1", "top": "42%", "left": "38%", "correctRefId": 1 },
+            { "id": "h2", "top": "66%", "left": "58%", "correctRefId": 2 },
+            { "id": "h3", "top": "51%", "left": "45%", "correctRefId": 3 },
+            { "id": "h4", "top": "34%", "left": "51%", "correctRefId": 4 },
+            { "id": "h5", "top": "25%", "left": "44%", "correctRefId": 5 }
           ]
         },
         {
@@ -64,23 +64,23 @@
             { "id": 1, "label": "Xilema secundário" }
           ],
           "hotspots": [
-            { "id": "h1", "top": "48%", "left": "52%", "correctRefId": 1 }
+            { "id": "h1", "top": "53%", "left": "66%", "correctRefId": 1 }
           ]
         },
         {
           "img": "https://i.imgur.com/nIVlowl.png",
-          "anadixSpeech": "",
+          "anadixSpeech": "Observe os elementos de vaso do xilema, e os elementos de tudo crivado do floema com as células companheiras.",
           "references": [
-            { "id": 1, "label": "Xilema secundário (e os elementos de vaso)." },
+            { "id": 1, "label": "Xilema secundário" },
             { "id": 2, "label": "Câmbio vascular" },
-            { "id": 3, "label": "Floema primário (e os elementos de tubo crivado e as células companheiras)." },
+            { "id": 3, "label": "Floema primário" },
             { "id": 4, "label": "Fibras do floema" }
           ],
           "hotspots": [
-            { "id": "h1", "top": "48%", "left": "52%", "correctRefId": 1 },
-            { "id": "h2", "top": "50%", "left": "66%", "correctRefId": 2 },
-            { "id": "h3", "top": "58%", "left": "49%", "correctRefId": 3 },
-            { "id": "h4", "top": "61%", "left": "52%", "correctRefId": 4 }
+            { "id": "h1", "top": "68%", "left": "68%", "correctRefId": 1 },
+            { "id": "h2", "top": "58%", "left": "40%", "correctRefId": 2 },
+            { "id": "h3", "top": "30%", "left": "61%", "correctRefId": 3 },
+            { "id": "h4", "top": "17%", "left": "54%", "correctRefId": 4 }
           ]
         },
         {
@@ -94,11 +94,11 @@
             { "id": 5, "label": "Parênquima cortical" }
           ],
           "hotspots": [
-            { "id": "h1", "top": "48%", "left": "52%", "correctRefId": 1 },
-            { "id": "h2", "top": "50%", "left": "66%", "correctRefId": 2 },
-            { "id": "h3", "top": "58%", "left": "49%", "correctRefId": 3 },
-            { "id": "h4", "top": "60%", "left": "52%", "correctRefId": 4 }, 
-            { "id": "h5", "top": "65%", "left": "45%", "correctRefId": 5 }  
+            { "id": "h1", "top": "35%", "left": "37%", "correctRefId": 1 },
+            { "id": "h2", "top": "18%", "left": "37%", "correctRefId": 2 },
+            { "id": "h3", "top": "29%", "left": "36%", "correctRefId": 3 },
+            { "id": "h4", "top": "50%", "left": "36%", "correctRefId": 4 },
+            { "id": "h5", "top": "79%", "left": "76%", "correctRefId": 5 }
           ]
         }
         ]
