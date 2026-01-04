@@ -2381,6 +2381,25 @@ function renderGame(card) {
 
   // adicionar comportamento do botão 'Adicionar Ponto'
   addBtn.addEventListener('click', () => {
+    // Sempre copia as referências atuais (para o ADM colar no JSON)
+    // - Silencioso: não abre prompt em caso de falha para não atrapalhar jogadores.
+    try {
+      const refs = Array.isArray(card.references) ? card.references : [];
+      const refsSnippet = refs
+        .map(r => {
+          const id = r && (typeof r.id === 'number' || typeof r.id === 'string') ? r.id : '';
+          const label = (r && typeof r.label === 'string') ? r.label : '';
+          return `{ "id": ${id}, "label": ${JSON.stringify(label)} },`;
+        })
+        .join('\n');
+
+      if (refsSnippet && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        navigator.clipboard.writeText(refsSnippet).catch(() => {
+          try { console.warn('[Hotspots] Falha ao copiar references para o clipboard'); } catch (e) {}
+        });
+      }
+    } catch (e) {}
+
     addMode = !addMode;
     // atualizar texto do botão simples (não tem .text span)
     addBtn.textContent = addMode ? 'Clique na imagem para adicionar' : 'Adicionar';
