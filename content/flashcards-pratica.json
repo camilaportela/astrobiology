@@ -23,7 +23,7 @@
         },
         {
           "img": "https://i.imgur.com/0kZzprq.png",
-          "anadixSpeech": "",
+          "anadixSpeech": "Identifique clicando em cada ponto.",
           "references": [
             { "id": 1, "label": "Câmbio fascicular" },
             { "id": 2, "label": "Câmbio interfascicular" },
@@ -41,7 +41,7 @@
         },
         {
           "img": "https://i.imgur.com/aZqggiG.png",
-          "anadixSpeech": "",
+          "anadixSpeech": "Você consegue!",
           "references": [
             { "id": 1, "label": "Câmbio vascular" },
             { "id": 2, "label": "Xilema primário" },
@@ -85,7 +85,7 @@
         },
         {
           "img": "https://i.imgur.com/d2Steml.png",
-          "anadixSpeech": "",
+          "anadixSpeech": "Bons estudos!",
           "references": [
             { "id": 1, "label": "Câmbio vascular" },
             { "id": 2, "label": "Floema primário" },
