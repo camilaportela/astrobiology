@@ -2388,13 +2388,19 @@ function renderGame(card) {
     // - Silencioso: não abre prompt em caso de falha para não atrapalhar jogadores.
     try {
       const refs = Array.isArray(card.references) ? card.references : [];
-      const refsSnippet = refs
-        .map(r => {
-          const id = r && (typeof r.id === 'number' || typeof r.id === 'string') ? r.id : '';
-          const label = (r && typeof r.label === 'string') ? r.label : '';
-          return `{ "id": ${id}, "label": ${JSON.stringify(label)} },`;
-        })
-        .join('\n');
+      const IND = '          ';
+      const refsLines = refs.map((r, idx) => {
+        const id = r && (typeof r.id === 'number' || typeof r.id === 'string') ? r.id : '';
+        const label = (r && typeof r.label === 'string') ? r.label : '';
+        const comma = (idx < refs.length - 1) ? ',' : '';
+        return `${IND}  { "id": ${id}, "label": ${JSON.stringify(label)} }${comma}`;
+      });
+
+      const refsSnippet = [
+        `${IND}"references": [`,
+        ...refsLines,
+        `${IND}],`
+      ].join('\n');
 
       if (refsSnippet && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
         navigator.clipboard.writeText(refsSnippet).catch(() => {
@@ -2414,6 +2420,24 @@ function renderGame(card) {
   
 
   // clique na área da imagem para criar ponto quando em addMode
+  function __suggestNextHotspotId() {
+    try {
+      const hs = Array.isArray(card.hotspots) ? card.hotspots : [];
+      let maxN = 0;
+      hs.forEach(h => {
+        const id = h && typeof h.id === 'string' ? h.id : '';
+        const m = /^h(\d+)$/.exec(id.trim());
+        if (m) {
+          const n = Number(m[1]);
+          if (Number.isFinite(n) && n > maxN) maxN = n;
+        }
+      });
+      return 'h' + String(maxN + 1);
+    } catch (e) {
+      return 'h1';
+    }
+  }
+
   function __tryAddHotspotAtClientPoint(clientX, clientY) {
     if (!addMode) return false;
     // calcula posição relativa dentro da ÁREA RENDERIZADA (evita erro com object-fit: contain)
@@ -2426,37 +2450,39 @@ function renderGame(card) {
     const topPctNum = clamp((y / rect.height) * 100, 0, 100);
     const leftPct = leftPctNum.toFixed(0) + '%';
     const topPct = topPctNum.toFixed(0) + '%';
-    const newId = 'h' + Date.now();
-    const newHot = { id: newId, top: topPct, left: leftPct };
+    const suggestedId = __suggestNextHotspotId();
+    const newHot = { id: suggestedId, top: topPct, left: leftPct };
     card.hotspots = card.hotspots || [];
     card.hotspots.push(newHot);
 
-    // MODO DUPLO:
-    // - Jogador (padrão): cria hotspot independente (sem correctRefId, sem alterar references)
-    // - Admin: se houver uma referência selecionada, amarra e copia a linha do hotspot para colar no JSON
+    // Copiar snippet do hotspot SEMPRE, já pronto para colar no JSON:
+    // - id sugerido como hN (baseado no que já existe no card)
+    // - top/left conforme o clique
+    // - correctRefId: placeholder numérico (0) para você trocar pelo id da opção
     try {
       const refs = card.references || [];
       const hasSelectedRef = (selectedRefId != null) && refs.some(r => String(r.id) === String(selectedRefId));
+      const snippetHotspot = `{ "id": "${suggestedId}", "top": "${topPct}", "left": "${leftPct}", "correctRefId": 0 },`;
+
       if (hasSelectedRef) {
         newHot.correctRefId = selectedRefId;
-        const snippetHotspot = `{ "id": "${newId}", "top": "${topPct}", "left": "${leftPct}", "correctRefId": ${selectedRefId} },`;
+      }
 
-        try {
-          if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-            navigator.clipboard.writeText(snippetHotspot).then(() => {
-              try {
-                addBtn.textContent = 'Copiado!';
-                setTimeout(() => { try { if (!addMode) addBtn.textContent = 'Adicionar'; } catch (e) {} }, 900);
-              } catch (e) {}
-            }).catch(() => {
-              try { window.prompt('Copie e cole no JSON:', snippetHotspot); } catch (e) {}
-            });
-          } else {
+      try {
+        if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+          navigator.clipboard.writeText(snippetHotspot).then(() => {
+            try {
+              addBtn.textContent = 'Copiado!';
+              setTimeout(() => { try { if (!addMode) addBtn.textContent = 'Adicionar'; } catch (e) {} }, 900);
+            } catch (e) {}
+          }).catch(() => {
             try { window.prompt('Copie e cole no JSON:', snippetHotspot); } catch (e) {}
-          }
-        } catch (e) {
-          try { window.prompt('Copie e cole no JSON:', snippetHotspot); } catch (e2) {}
+          });
+        } else {
+          try { window.prompt('Copie e cole no JSON:', snippetHotspot); } catch (e) {}
         }
+      } catch (e) {
+        try { window.prompt('Copie e cole no JSON:', snippetHotspot); } catch (e2) {}
       }
     } catch (e) {}
 
