@@ -1551,6 +1551,18 @@ body.final-summary-open .footer {
   pointer-events: auto;
 }
 
+/* Modo prática: o balão NÃO deve bloquear hotspots/lista do caderno.
+   (No jogo, o balão é informativo; o clique deve ir para a UI do card.) */
+body.mode-pratica #assistente-fixo #balao-fala,
+body.mode-pratica #assistente-fixo #balao-fala * {
+  pointer-events: none !important;
+}
+
+/* Modo prática: evitar que camadas do SVG (ex.: braços) capturem cliques fora do avatar. */
+body.mode-pratica #assistente-fixo .bracos_frente_content {
+  pointer-events: none !important;
+}
+
 /* Mobile/tablet: evitar que balão/assistente atrapalhem cliques e não “selecionar para copiar” */
 @media (max-width: 900px) {
   /* O balão pode ficar por cima visualmente, mas não deve bloquear hotspots/menus */
