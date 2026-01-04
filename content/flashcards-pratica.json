@@ -17,8 +17,8 @@
             { "id": 2, "label": "Câmbio interfascicular" }
           ],
           "hotspots": [
-            { "id": "h1", "top": "48%", "left": "52%", "correctRefId": 1 },
-            { "id": "h2", "top": "50%", "left": "66%", "correctRefId": 2 }
+            { "id": "h1", "top": "45%", "left": "46%", "correctRefId": 1 },
+            { "id": "h2", "top": "58%", "left": "76%", "correctRefId": 2 }
           ]
         },
         {
@@ -32,11 +32,11 @@
             { "id": 5, "label": "Floema primário" }
           ],
           "hotspots": [
-            { "id": "h1", "top": "48%", "left": "52%", "correctRefId": 1 },
-            { "id": "h2", "top": "50%", "left": "66%", "correctRefId": 2 },
-            { "id": "h3", "top": "15%", "left": "55%", "correctRefId": 3 },
-            { "id": "h4", "top": "52%", "left": "51%", "correctRefId": 4 },
-            { "id": "h5", "top": "60%", "left": "58%", "correctRefId": 5 }
+            { "id": "h1", "top": "42%", "left": "41%", "correctRefId": 1 },
+            { "id": "h2", "top": "54%", "left": "89%", "correctRefId": 2 },
+            { "id": "h3", "top": "60%", "left": "63%", "correctRefId": 3 },
+            { "id": "h4", "top": "42%", "left": "63%", "correctRefId": 4 },
+            { "id": "h5", "top": "34%", "left": "48%", "correctRefId": 5 },
           ]
         },
         {
