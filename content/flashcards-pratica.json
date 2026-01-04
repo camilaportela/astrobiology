@@ -84,17 +84,21 @@
           ]
         },
         {
-          "img": "",
+          "img": "https://i.imgur.com/d2Steml.png",
           "anadixSpeech": "",
           "references": [
-            { "id": 1, "label": "" },
-            { "id": 2, "label": "" },
-            { "id": 3, "label": "" }
+            { "id": 1, "label": "Câmbio vascular" },
+            { "id": 2, "label": "Floema primário" },
+            { "id": 3, "label": "Floema secundário" },
+            { "id": 4, "label": "Xilema secundário" },
+            { "id": 5, "label": "Parênquima cortical" }
           ],
           "hotspots": [
             { "id": "h1", "top": "48%", "left": "52%", "correctRefId": 1 },
             { "id": "h2", "top": "50%", "left": "66%", "correctRefId": 2 },
-            { "id": "h3", "top": "58%", "left": "49%", "correctRefId": 3 }
+            { "id": "h3", "top": "58%", "left": "49%", "correctRefId": 3 },
+            { "id": "h4", "top": "60%", "left": "52%", "correctRefId": 4 }, 
+            { "id": "h5", "top": "65%", "left": "45%", "correctRefId": 5 }  
           ]
         }
         ]

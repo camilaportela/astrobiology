@@ -2056,7 +2056,36 @@ function renderGame(card) {
   const hotspotElements = {};
   // cache das dimensões da imagem/container para evitar muitos getBoundingClientRect()
   let imgRectCache = null;
+  let renderedImgRectCache = null;
   let leftRectCache = null;
+
+  function clamp(n, min, max) {
+    return Math.max(min, Math.min(max, n));
+  }
+
+  // Retângulo da ÁREA RENDERIZADA da imagem dentro do elemento <img>
+  // (importante quando o <img> cresce via flex e usa object-fit: contain)
+  function getRenderedImageRect(imgEl) {
+    const rect = imgEl.getBoundingClientRect();
+    const iw = Number(imgEl.naturalWidth) || 0;
+    const ih = Number(imgEl.naturalHeight) || 0;
+    if (!iw || !ih || !rect.width || !rect.height) return rect;
+
+    const scale = Math.min(rect.width / iw, rect.height / ih);
+    const rw = iw * scale;
+    const rh = ih * scale;
+    const ox = (rect.width - rw) / 2;
+    const oy = (rect.height - rh) / 2;
+
+    return {
+      left: rect.left + ox,
+      top: rect.top + oy,
+      width: rw,
+      height: rh,
+      right: rect.left + ox + rw,
+      bottom: rect.top + oy + rh
+    };
+  }
 
   // helper: seleciona um item de referência pelo id (marca visualmente e define selectedRefId)
   function selectRefById(refId) {
@@ -2156,7 +2185,7 @@ function renderGame(card) {
     // posicionar o hotspot em pixels relativo ao container `left`, calculando
     // a partir das porcentagens armazenadas (se existirem) usando as dimensões atuais da imagem
     try {
-      const imgRect = imgRectCache || img.getBoundingClientRect();
+      const imgRect = renderedImgRectCache || imgRectCache || getRenderedImageRect(img);
       const leftRect = leftRectCache || left.getBoundingClientRect();
       if (typeof h.left === 'string' && h.left.includes('%')) {
         const pctX = parseFloat(h.left) / 100;
@@ -2282,9 +2311,11 @@ function renderGame(card) {
   function updateRects() {
     try {
       imgRectCache = img.getBoundingClientRect();
+      renderedImgRectCache = getRenderedImageRect(img);
       leftRectCache = left.getBoundingClientRect();
     } catch (e) {
       imgRectCache = null;
+      renderedImgRectCache = null;
       leftRectCache = null;
     }
   }
@@ -2294,7 +2325,7 @@ function renderGame(card) {
       const el = hotspotElements[h.id];
       if (!el) return;
       try {
-        const imgRect = imgRectCache || img.getBoundingClientRect();
+        const imgRect = renderedImgRectCache || imgRectCache || getRenderedImageRect(img);
         const leftRect = leftRectCache || left.getBoundingClientRect();
         if (typeof h.left === 'string' && h.left.includes('%')) {
           const pctX = parseFloat(h.left) / 100;
@@ -2360,13 +2391,15 @@ function renderGame(card) {
   // clique na área da imagem para criar ponto quando em addMode
   left.addEventListener('click', (ev) => {
     if (!addMode) return;
-    // calcula posição relativa dentro da imagem (precisa usar bounding rect do IMG)
-    const rect = img.getBoundingClientRect();
+    // calcula posição relativa dentro da ÁREA RENDERIZADA (evita erro com object-fit: contain)
+    const rect = renderedImgRectCache || getRenderedImageRect(img);
     const x = ev.clientX - rect.left;
     const y = ev.clientY - rect.top;
     if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
-    const leftPct = ((x / rect.width) * 100).toFixed(1) + '%';
-    const topPct = ((y / rect.height) * 100).toFixed(1) + '%';
+    const leftPctNum = clamp((x / rect.width) * 100, 0, 100);
+    const topPctNum = clamp((y / rect.height) * 100, 0, 100);
+    const leftPct = leftPctNum.toFixed(0) + '%';
+    const topPct = topPctNum.toFixed(0) + '%';
     const newId = 'h' + Date.now();
     const newHot = { id: newId, top: topPct, left: leftPct };
     card.hotspots = card.hotspots || [];
@@ -2378,6 +2411,31 @@ function renderGame(card) {
     const newRefId = maxRefId + 1;
     const newRef = { id: newRefId, label: '' };
     card.references.push(newRef);
+
+    // por padrão, amarra o hotspot ao novo item criado (vira um "gabarito" pronto)
+    newHot.correctRefId = newRefId;
+
+    // copia dois objetos JSON "limpos" (um para references, outro para hotspots)
+    // Observação: você ainda cola cada linha no array correspondente.
+    const snippetRef = `{ "id": ${newRefId}, "label": "" },`;
+    const snippetHotspot = `{ "id": "${newId}", "top": "${topPct}", "left": "${leftPct}", "correctRefId": ${newRefId} },`;
+    const snippet = `${snippetRef}\n${snippetHotspot}`;
+    try {
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        navigator.clipboard.writeText(snippet).then(() => {
+          try {
+            addBtn.textContent = 'Copiado!';
+            setTimeout(() => { try { if (!addMode) addBtn.textContent = 'Adicionar'; } catch (e) {} }, 900);
+          } catch (e) {}
+        }).catch(() => {
+          try { window.prompt('Copie e cole no JSON:', snippet); } catch (e) {}
+        });
+      } else {
+        try { window.prompt('Copie e cole no JSON:', snippet); } catch (e) {}
+      }
+    } catch (e) {
+      try { window.prompt('Copie e cole no JSON:', snippet); } catch (e2) {}
+    }
     const newRefItem = createRefItem(newRef);
     list.appendChild(newRefItem);
     // atualizar numeração após adicionar novo item
@@ -2385,6 +2443,7 @@ function renderGame(card) {
 
     // cria o hotspot (atribuição é livre via menu/seleção)
     createHotspotElement(newHot);
+    try { updateRects(); repositionHotspots(); } catch (e) {}
     addMode = false;
     addBtn.textContent = 'Adicionar';
 
