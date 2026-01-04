@@ -2405,62 +2405,40 @@ function renderGame(card) {
     card.hotspots = card.hotspots || [];
     card.hotspots.push(newHot);
 
-    // criar automaticamente uma nova referência vazia e abrir espaço para digitar
-    card.references = card.references || [];
-    const maxRefId = (card.references.reduce((m, rr) => Math.max(m, Number(rr.id) || 0), 0) || 0);
-    const newRefId = maxRefId + 1;
-    const newRef = { id: newRefId, label: '' };
-    card.references.push(newRef);
-
-    // por padrão, amarra o hotspot ao novo item criado (vira um "gabarito" pronto)
-    newHot.correctRefId = newRefId;
-
-    // copia dois objetos JSON "limpos" (um para references, outro para hotspots)
-    // Observação: você ainda cola cada linha no array correspondente.
-    const snippetRef = `{ "id": ${newRefId}, "label": "" },`;
-    const snippetHotspot = `{ "id": "${newId}", "top": "${topPct}", "left": "${leftPct}", "correctRefId": ${newRefId} },`;
-    const snippet = `${snippetRef}\n${snippetHotspot}`;
+    // MODO DUPLO:
+    // - Jogador (padrão): cria hotspot independente (sem correctRefId, sem alterar references)
+    // - Admin: se houver uma referência selecionada, amarra e copia a linha do hotspot para colar no JSON
     try {
-      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-        navigator.clipboard.writeText(snippet).then(() => {
-          try {
-            addBtn.textContent = 'Copiado!';
-            setTimeout(() => { try { if (!addMode) addBtn.textContent = 'Adicionar'; } catch (e) {} }, 900);
-          } catch (e) {}
-        }).catch(() => {
-          try { window.prompt('Copie e cole no JSON:', snippet); } catch (e) {}
-        });
-      } else {
-        try { window.prompt('Copie e cole no JSON:', snippet); } catch (e) {}
+      const refs = card.references || [];
+      const hasSelectedRef = (selectedRefId != null) && refs.some(r => String(r.id) === String(selectedRefId));
+      if (hasSelectedRef) {
+        newHot.correctRefId = selectedRefId;
+        const snippetHotspot = `{ "id": "${newId}", "top": "${topPct}", "left": "${leftPct}", "correctRefId": ${selectedRefId} },`;
+
+        try {
+          if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+            navigator.clipboard.writeText(snippetHotspot).then(() => {
+              try {
+                addBtn.textContent = 'Copiado!';
+                setTimeout(() => { try { if (!addMode) addBtn.textContent = 'Adicionar'; } catch (e) {} }, 900);
+              } catch (e) {}
+            }).catch(() => {
+              try { window.prompt('Copie e cole no JSON:', snippetHotspot); } catch (e) {}
+            });
+          } else {
+            try { window.prompt('Copie e cole no JSON:', snippetHotspot); } catch (e) {}
+          }
+        } catch (e) {
+          try { window.prompt('Copie e cole no JSON:', snippetHotspot); } catch (e2) {}
+        }
       }
-    } catch (e) {
-      try { window.prompt('Copie e cole no JSON:', snippet); } catch (e2) {}
-    }
-    const newRefItem = createRefItem(newRef);
-    list.appendChild(newRefItem);
-    // atualizar numeração após adicionar novo item
-    refreshRefsUI();
+    } catch (e) {}
 
     // cria o hotspot (atribuição é livre via menu/seleção)
     createHotspotElement(newHot);
     try { updateRects(); repositionHotspots(); } catch (e) {}
     addMode = false;
     addBtn.textContent = 'Adicionar';
-
-    // seleciona e foca o novo item para que o usuário digite imediatamente
-    setTimeout(() => {
-      newRefItem.classList.add('selected');
-      selectedRefId = newRefId;
-      const range = document.createRange();
-      range.selectNodeContents(newRefItem);
-      range.collapse(false);
-      const sel = window.getSelection();
-      sel.removeAllRanges();
-      sel.addRange(range);
-      newRefItem.focus();
-      // rolar lista para exibir o novo item se necessário
-      newRefItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 60);
 
     refreshHotspotsUI();
   });
