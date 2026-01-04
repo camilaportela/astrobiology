@@ -2403,6 +2403,9 @@ function renderGame(card) {
     addMode = !addMode;
     // atualizar texto do botão simples (não tem .text span)
     addBtn.textContent = addMode ? 'Clique na imagem para adicionar' : 'Adicionar';
+
+    // Durante o modo adicionar, permitir clicar mesmo se o balão da Anadix estiver por cima.
+    try { document.body.classList.toggle('hotspot-add-mode', !!addMode); } catch (e) {}
   });
 
   
@@ -2458,6 +2461,7 @@ function renderGame(card) {
     try { updateRects(); repositionHotspots(); } catch (e) {}
     addMode = false;
     addBtn.textContent = 'Adicionar';
+    try { document.body.classList.remove('hotspot-add-mode'); } catch (e) {}
 
     refreshHotspotsUI();
   });

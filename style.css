@@ -188,6 +188,12 @@ html.mode-pratica {
   overflow: hidden !important;
 }
 
+/* Modo construtor de hotspots: deixar clicar através do balão/assistente */
+body.mode-pratica.hotspot-add-mode #assistente-fixo,
+body.mode-pratica.hotspot-add-mode #balao-fala {
+  pointer-events: none !important;
+}
+
 /* Reset seguro: padroniza box-sizing e ajuda responsividade */
 *, *::before, *::after { box-sizing: border-box; }
 
