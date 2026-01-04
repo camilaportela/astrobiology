@@ -1545,6 +1545,12 @@ body.final-summary-open .footer {
   pointer-events: auto;
 }
 
+/* No modo prática, o balão não deve bloquear cliques (ex.: botão Avançar/Continuar). */
+body.mode-pratica #assistente-fixo #balao-fala,
+body.mode-pratica #assistente-fixo #balao-fala * {
+  pointer-events: none;
+}
+
 /* Mobile/tablet: evitar que balão/assistente atrapalhem cliques e não “selecionar para copiar” */
 @media (max-width: 900px) {
   /* O balão pode ficar por cima visualmente, mas não deve bloquear hotspots/menus */
