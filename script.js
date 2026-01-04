@@ -1639,6 +1639,7 @@ function renderCurrentCard() {
     const anadix = window.__anadixBalloon;
     const assistenteEl = document.getElementById('assistente-fixo');
     const isMicroscopeWelcome = !!(card && card.isWelcome && card.type === 'microscope');
+    const isPlayableGameCard = !!(card && !card.isWelcome && currentMode === 'pratica');
 
     // A partir do 2º card: mover Anadix e balão para a direita (aproveitar área em branco)
     try {
@@ -1658,6 +1659,8 @@ function renderCurrentCard() {
         const microscopeMsg = "Este é um microscópio interativo.<br>Você pode clicar, mover e ajustar cada detalhe.<br><br>Explore com calma. Está preparado?";
         const perCardMsg = (card && typeof card.anadixSpeech === 'string' && card.anadixSpeech.trim()) ? card.anadixSpeech : '';
         const msg = isMicroscopeWelcome ? microscopeMsg : (perCardMsg || defaultMsg);
+        // Nos cards de jogo: balão fica oculto e só abre ao clicar na Anadix.
+        try { if (typeof anadix.setManualOnly === 'function') anadix.setManualOnly(isPlayableGameCard); } catch (e) {}
         anadix.forceReappear(msg);
       }
     } catch (e) {}
@@ -2660,6 +2663,7 @@ function renderGame(card) {
           ? resultCfg.anadixSpeech
           : __PRACTICA_RESULT_DEFAULT.anadixSpeech;
         if (window.__anadixBalloon && typeof window.__anadixBalloon.forceReappear === 'function') {
+          try { if (typeof window.__anadixBalloon.setManualOnly === 'function') window.__anadixBalloon.setManualOnly(false); } catch (_) {}
           window.__anadixBalloon.forceReappear(msg);
         }
       } catch (e) {}
@@ -3811,6 +3815,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const SHOW_MS = 17000;
       const PAUSE_MS = 2000;
       let lastActivateAt = 0;
+      let manualOnly = false;
 
       function setTextoComEfeito(html) {
         balao.style.opacity = '0';
@@ -3832,12 +3837,21 @@ document.addEventListener('DOMContentLoaded', () => {
         balao.classList.remove('visivel');
       }
 
+      function setManualOnlyMode(flag) {
+        try { manualOnly = !!flag; } catch (_) { manualOnly = false; }
+        if (manualOnly) {
+          try { clearCycleTimers(); } catch (_) {}
+          try { hideBalloon(); } catch (_) {}
+        }
+      }
+
       function clearCycleTimers() {
         if (cycleTimer) { window.clearTimeout(cycleTimer); cycleTimer = 0; }
         if (pauseTimer) { window.clearTimeout(pauseTimer); pauseTimer = 0; }
       }
 
       function scheduleNextCycle() {
+        if (manualOnly) return;
         clearCycleTimers();
 
         // mantém a mensagem atual visível por SHOW_MS
@@ -3859,6 +3873,19 @@ document.addEventListener('DOMContentLoaded', () => {
         // debounce: evita reativar várias vezes ao mover o mouse entre partes do avatar/balão
         if (now - lastActivateAt < 250) return;
         lastActivateAt = now;
+
+        // Modo manual (cards de jogo): só abre/fecha por clique.
+        if (manualOnly) {
+          try { clearCycleTimers(); } catch (_) {}
+          const isVisible = balao.classList.contains('visivel');
+          if (isVisible) {
+            hideBalloon();
+            return;
+          }
+          showBalloon();
+          try { setTextoComEfeito(conteudos[indiceTexto] || ''); } catch (_) {}
+          return;
+        }
 
         const wasVisible = balao.classList.contains('visivel');
         showBalloon();
@@ -3898,6 +3925,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // “reaparecer”: fecha e abre rapidamente para ficar evidente em cada card
             try { clearCycleTimers(); } catch (_) {}
+            // No modo manual (cards de jogo), atualiza o texto mas mantém oculto.
+            if (manualOnly) {
+              try { hideBalloon(); } catch (_) {}
+              try { textoBalao.innerHTML = conteudos[indiceTexto] || ''; } catch (_) {}
+              return;
+            }
+
             try { hideBalloon(); } catch (_) {}
             window.setTimeout(() => {
               try {
@@ -3916,6 +3950,7 @@ document.addEventListener('DOMContentLoaded', () => {
               try { textoBalao.innerHTML = conteudos[0] || ''; } catch (_) {}
               try { clearCycleTimers(); } catch (_) {}
               try { hideBalloon(); } catch (_) {}
+              try { setManualOnlyMode(false); } catch (_) {}
             } catch (_) {}
           },
           activate: () => {
@@ -3923,6 +3958,9 @@ document.addEventListener('DOMContentLoaded', () => {
           },
           hide: () => {
             try { hideBalloon(); } catch (_) {}
+          },
+          setManualOnly: (flag) => {
+            try { setManualOnlyMode(flag); } catch (_) {}
           }
         };
       } catch (e) {}
@@ -3955,15 +3993,23 @@ document.addEventListener('DOMContentLoaded', () => {
         // Mouse/toque: ativa e mantém por 17s, independente de tirar o mouse
         triggers.forEach((el) => {
           el.addEventListener('pointerenter', () => {
+            if (manualOnly) return;
             activateBalloon();
           });
 
           // Toque: mostra ao encostar; some logo após soltar
           el.addEventListener('pointerdown', (ev) => {
+            if (manualOnly) return;
             const pt = ev.pointerType;
             if (pt && pt !== 'mouse') {
               activateBalloon();
             }
+          });
+
+          // Clique/toque: sempre (inclusive mobile) — no modo manual, é o ÚNICO gatilho.
+          el.addEventListener('click', (ev) => {
+            try { ev.preventDefault(); } catch (_) {}
+            try { activateBalloon(); } catch (_) {}
           });
 
           // Acessibilidade: teclado em cima do avatar
@@ -3982,7 +4028,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // abrir automaticamente ao carregar a página (com atraso)
         window.setTimeout(() => {
-          try { activateBalloon(); } catch (_) {}
+          try { if (!manualOnly) activateBalloon(); } catch (_) {}
         }, 3000);
 
         container.dataset.melissaAttached = '1';
