@@ -2411,13 +2411,14 @@ function renderGame(card) {
   
 
   // clique na área da imagem para criar ponto quando em addMode
-  left.addEventListener('click', (ev) => {
-    if (!addMode) return;
+  function __tryAddHotspotAtClientPoint(clientX, clientY) {
+    if (!addMode) return false;
     // calcula posição relativa dentro da ÁREA RENDERIZADA (evita erro com object-fit: contain)
     const rect = renderedImgRectCache || getRenderedImageRect(img);
-    const x = ev.clientX - rect.left;
-    const y = ev.clientY - rect.top;
-    if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+    if (x < 0 || y < 0 || x > rect.width || y > rect.height) return false;
+
     const leftPctNum = clamp((x / rect.width) * 100, 0, 100);
     const topPctNum = clamp((y / rect.height) * 100, 0, 100);
     const leftPct = leftPctNum.toFixed(0) + '%';
@@ -2464,6 +2465,31 @@ function renderGame(card) {
     try { document.body.classList.remove('hotspot-add-mode'); } catch (e) {}
 
     refreshHotspotsUI();
+    return true;
+  }
+
+  // Captura em nível global (fase capture) para funcionar mesmo se o clique cair no balão/Anadix.
+  try {
+    if (window.__hotspot_add_capture_handler) {
+      document.removeEventListener('click', window.__hotspot_add_capture_handler, true);
+    }
+  } catch (e) {}
+
+  window.__hotspot_add_capture_handler = (ev) => {
+    try {
+      if (!addMode) return;
+      const handled = __tryAddHotspotAtClientPoint(ev.clientX, ev.clientY);
+      if (!handled) return;
+      try { ev.preventDefault(); } catch (e) {}
+      try { ev.stopPropagation(); } catch (e) {}
+      try { if (typeof ev.stopImmediatePropagation === 'function') ev.stopImmediatePropagation(); } catch (e) {}
+    } catch (e) {}
+  };
+  document.addEventListener('click', window.__hotspot_add_capture_handler, true);
+
+  // Fallback local (caso algum browser não dispare o capture como esperado)
+  left.addEventListener('click', (ev) => {
+    try { __tryAddHotspotAtClientPoint(ev.clientX, ev.clientY); } catch (e) {}
   });
 
   // rotina de verificação compartilhada: marca hotspots, mostra feedback e retorna se está tudo correto
