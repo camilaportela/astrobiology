@@ -3816,6 +3816,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const PAUSE_MS = 2000;
       let lastActivateAt = 0;
       let manualOnly = false;
+      let manualIntroPending = false;
+      let manualHideTimer = 0;
+      const MANUAL_SHOW_MS = 10000;
 
       function setTextoComEfeito(html) {
         balao.style.opacity = '0';
@@ -3837,11 +3840,31 @@ document.addEventListener('DOMContentLoaded', () => {
         balao.classList.remove('visivel');
       }
 
+      function clearManualTimer() {
+        if (manualHideTimer) { window.clearTimeout(manualHideTimer); manualHideTimer = 0; }
+      }
+
+      function manualShowThenAutoHide() {
+        try { clearManualTimer(); } catch (_) {}
+        try { showBalloon(); } catch (_) {}
+        try { setTextoComEfeito(conteudos[indiceTexto] || ''); } catch (_) {}
+        manualHideTimer = window.setTimeout(() => {
+          manualHideTimer = 0;
+          try { hideBalloon(); } catch (_) {}
+        }, MANUAL_SHOW_MS);
+      }
+
       function setManualOnlyMode(flag) {
         try { manualOnly = !!flag; } catch (_) { manualOnly = false; }
         if (manualOnly) {
           try { clearCycleTimers(); } catch (_) {}
           try { hideBalloon(); } catch (_) {}
+          try { clearManualTimer(); } catch (_) {}
+          // Em cards de jogo: permitir um “intro” automático por 10s após o texto do card ser aplicado.
+          manualIntroPending = true;
+        } else {
+          manualIntroPending = false;
+          try { clearManualTimer(); } catch (_) {}
         }
       }
 
@@ -3877,13 +3900,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Modo manual (cards de jogo): só abre/fecha por clique.
         if (manualOnly) {
           try { clearCycleTimers(); } catch (_) {}
+          try { clearManualTimer(); } catch (_) {}
+          manualIntroPending = false;
           const isVisible = balao.classList.contains('visivel');
           if (isVisible) {
             hideBalloon();
             return;
           }
-          showBalloon();
-          try { setTextoComEfeito(conteudos[indiceTexto] || ''); } catch (_) {}
+          try { manualShowThenAutoHide(); } catch (_) {}
           return;
         }
 
@@ -3929,6 +3953,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (manualOnly) {
               try { hideBalloon(); } catch (_) {}
               try { textoBalao.innerHTML = conteudos[indiceTexto] || ''; } catch (_) {}
+              // Intro automático por 10s ao entrar no card de jogo.
+              if (manualIntroPending) {
+                manualIntroPending = false;
+                try { manualShowThenAutoHide(); } catch (_) {}
+              }
               return;
             }
 
