@@ -122,8 +122,8 @@
           ]
         },
         {
-          "img": "",
-        "anadixSpeech": "https://i.imgur.com/7f6RPrb.png",
+          "img": "https://i.imgur.com/7f6RPrb.png",
+        "anadixSpeech": "",
           "references": [
             { "id": 1, "label": "" },
             { "id": 2, "label": "" }
