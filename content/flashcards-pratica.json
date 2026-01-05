@@ -100,6 +100,182 @@
             { "id": "h4", "top": "50%", "left": "36%", "correctRefId": 4 },
             { "id": "h5", "top": "79%", "left": "76%", "correctRefId": 5 }
           ]
+        },
+        {
+          "img": "https://i.imgur.com/CoykjtY.png",
+        "anadixSpeech": "",
+          "references": [
+            { "id": 1, "label": "Xilema secundário" },
+            { "id": 2, "label": "Floema secundário" },
+            { "id": 3, "label": "Raios dilatados" },
+            { "id": 4, "label": "Câmbio vascular" },
+            { "id": 5, "label": "Iniciais radiais" },
+            { "id": 6, "label": "Iniciais fusiformes" },
+            { "id": 7, "label": "Anéis de crescimento" },
+            { "id": 8, "label": "Raios no xilema secundário" }
+           
+            
+          ],
+          "hotspots": [
+            { "id": "h1", "top": "45%", "left": "46%", "correctRefId": 1 }
+            
+          ]
+        },
+        {
+          "img": "",
+        "anadixSpeech": "https://i.imgur.com/7f6RPrb.png",
+          "references": [
+            { "id": 1, "label": "" },
+            { "id": 2, "label": "" }
+          ],
+          "hotspots": [
+            { "id": "h1", "top": "45%", "left": "46%", "correctRefId": 1 },
+            { "id": "h2", "top": "58%", "left": "76%", "correctRefId": 2 }
+          ]
+        },
+        {
+          "img": "https://i.imgur.com/7f6RPrb.png",
+        "anadixSpeech": "",
+          "references": [
+            { "id": 1, "label": "" },
+            { "id": 2, "label": "" }
+          ],
+          "hotspots": [
+            { "id": "h1", "top": "45%", "left": "46%", "correctRefId": 1 },
+            { "id": "h2", "top": "58%", "left": "76%", "correctRefId": 2 }
+          ]
+        },
+        {
+          "img": "https://i.imgur.com/lHPo59h.png",
+        "anadixSpeech": "",
+          "references": [
+            { "id": 1, "label": "" },
+            { "id": 2, "label": "" }
+          ],
+          "hotspots": [
+            { "id": "h1", "top": "45%", "left": "46%", "correctRefId": 1 },
+            { "id": "h2", "top": "58%", "left": "76%", "correctRefId": 2 }
+          ]
+        },
+        {
+          "img": "https://i.imgur.com/unGFjQn.png",
+        "anadixSpeech": "",
+          "references": [
+            { "id": 1, "label": "" },
+            { "id": 2, "label": "" }
+          ],
+          "hotspots": [
+            { "id": "h1", "top": "45%", "left": "46%", "correctRefId": 1 },
+            { "id": "h2", "top": "58%", "left": "76%", "correctRefId": 2 }
+          ]
+        },
+        {
+          "img": "https://i.imgur.com/2OvN8JP.png",
+        "anadixSpeech": "",
+          "references": [
+            { "id": 1, "label": "" },
+            { "id": 2, "label": "" }
+          ],
+          "hotspots": [
+            { "id": "h1", "top": "45%", "left": "46%", "correctRefId": 1 },
+            { "id": "h2", "top": "58%", "left": "76%", "correctRefId": 2 }
+          ]
+        },
+        {
+          "img": "",
+        "anadixSpeech": "",
+          "references": [
+            { "id": 1, "label": "" },
+            { "id": 2, "label": "" }
+          ],
+          "hotspots": [
+            { "id": "h1", "top": "45%", "left": "46%", "correctRefId": 1 },
+            { "id": "h2", "top": "58%", "left": "76%", "correctRefId": 2 }
+          ]
+        },
+        {
+          "img": "",
+        "anadixSpeech": "",
+          "references": [
+            { "id": 1, "label": "" },
+            { "id": 2, "label": "" }
+          ],
+          "hotspots": [
+            { "id": "h1", "top": "45%", "left": "46%", "correctRefId": 1 },
+            { "id": "h2", "top": "58%", "left": "76%", "correctRefId": 2 }
+          ]
+        },
+        {
+          "img": "",
+        "anadixSpeech": "",
+          "references": [
+            { "id": 1, "label": "" },
+            { "id": 2, "label": "" }
+          ],
+          "hotspots": [
+            { "id": "h1", "top": "45%", "left": "46%", "correctRefId": 1 },
+            { "id": "h2", "top": "58%", "left": "76%", "correctRefId": 2 }
+          ]
+        },
+        {
+          "img": "",
+        "anadixSpeech": "",
+          "references": [
+            { "id": 1, "label": "" },
+            { "id": 2, "label": "" }
+          ],
+          "hotspots": [
+            { "id": "h1", "top": "45%", "left": "46%", "correctRefId": 1 },
+            { "id": "h2", "top": "58%", "left": "76%", "correctRefId": 2 }
+          ]
+        },
+        {
+          "img": "",
+        "anadixSpeech": "",
+          "references": [
+            { "id": 1, "label": "" },
+            { "id": 2, "label": "" }
+          ],
+          "hotspots": [
+            { "id": "h1", "top": "45%", "left": "46%", "correctRefId": 1 },
+            { "id": "h2", "top": "58%", "left": "76%", "correctRefId": 2 }
+          ]
+        },
+        {
+          "img": "",
+        "anadixSpeech": "",
+          "references": [
+            { "id": 1, "label": "" },
+            { "id": 2, "label": "" }
+          ],
+          "hotspots": [
+            { "id": "h1", "top": "45%", "left": "46%", "correctRefId": 1 },
+            { "id": "h2", "top": "58%", "left": "76%", "correctRefId": 2 }
+          ]
+        },
+        {
+          "img": "",
+        "anadixSpeech": "",
+          "references": [
+            { "id": 1, "label": "" },
+            { "id": 2, "label": "" }
+          ],
+          "hotspots": [
+            { "id": "h1", "top": "45%", "left": "46%", "correctRefId": 1 },
+            { "id": "h2", "top": "58%", "left": "76%", "correctRefId": 2 }
+          ]
+        },
+        {
+          "img": "",
+        "anadixSpeech": "",
+          "references": [
+            { "id": 1, "label": "" },
+            { "id": 2, "label": "" }
+          ],
+          "hotspots": [
+            { "id": "h1", "top": "45%", "left": "46%", "correctRefId": 1 },
+            { "id": "h2", "top": "58%", "left": "76%", "correctRefId": 2 }
+          ]
         }
         ]
       }
