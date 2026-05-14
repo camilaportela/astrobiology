@@ -1,0 +1,163 @@
+@import url("https://giscus.app/themes/noborder_light.css");
+
+/* Tema transparente e minimalista para Giscus */
+/* Pensado para integrar o widget ao fundo claro do astrobiology.me */
+
+:root {
+  color-scheme: light;
+
+  --color-canvas-default: transparent !important;
+  --color-canvas-subtle: transparent !important;
+  --color-canvas-inset: transparent !important;
+
+  --color-border-default: transparent !important;
+  --color-border-muted: transparent !important;
+
+  --color-fg-default: #2b2b2b !important;
+  --color-fg-muted: #6f6f6f !important;
+  --color-accent-fg: #4a4a4a !important;
+}
+
+/* Fundo transparente geral */
+html,
+body,
+main,
+.gsc-main,
+.gsc-timeline,
+.gsc-comments,
+.gsc-comment-box,
+.gsc-comment,
+.gsc-replies,
+.gsc-reply {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* Remove a barra superior:
+   contador de comentários, "distribuído por giscus",
+   botões "Mais antigo" e "Mais novo" */
+.gsc-header {
+  display: none !important;
+}
+
+/* Remove o badge "Membro", "Dono", "Owner", etc. */
+.gsc-comment-author .Label,
+.gsc-comment-author .label,
+.gsc-comment-author-association,
+.author-association-badge,
+.Label--secondary {
+  display: none !important;
+}
+
+/* Remove bordas, sombras e aparência de cartão */
+.gsc-comment-box,
+.gsc-comment,
+.gsc-reply-box,
+.gsc-reply,
+.gsc-comment-content,
+.gsc-comment-box-tabs,
+.gsc-comment-box-bottom,
+.gsc-comment-box-textarea,
+.gsc-comment-box-textarea-extras {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* Remove linhas separadoras */
+hr,
+.gsc-comment-separator,
+.gsc-comment-box-separator {
+  display: none !important;
+  border: none !important;
+}
+
+/* Comentários mais limpos */
+.gsc-comment {
+  padding: 0 !important;
+  margin: 1.4rem 0 !important;
+}
+
+/* Corpo do comentário */
+.gsc-comment-content {
+  padding: 0.4rem 0 0.6rem 0 !important;
+}
+
+/* Caixa de escrita transparente */
+textarea,
+.form-control,
+.input-contrast,
+.gsc-comment-box-textarea {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #2b2b2b !important;
+}
+
+/* Placeholder */
+textarea::placeholder {
+  color: #8a8a8a !important;
+}
+
+/* Abas "Escreva" e "Prévia" discretas */
+.gsc-comment-box-tabs {
+  border: none !important;
+}
+
+.gsc-comment-box-tab {
+  background: transparent !important;
+  border: none !important;
+  color: #666 !important;
+}
+
+/* Botões discretos */
+button,
+.btn,
+.btn-primary,
+.btn-secondary {
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* Botão de comentar */
+.btn-primary {
+  background: #2b2b2b !important;
+  color: #ffffff !important;
+  border-radius: 6px !important;
+}
+
+/* Links */
+a {
+  color: #555 !important;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Markdown dos comentários */
+.markdown-body {
+  background: transparent !important;
+  color: #2b2b2b !important;
+}
+
+/* Avatares sem borda/sombra extra */
+.avatar,
+.gsc-comment-author-avatar img {
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* Remove fundos e bordas herdados do GitHub */
+.color-bg-default,
+.color-bg-subtle,
+.color-bg-muted,
+.color-border-default,
+.color-border-muted,
+.Box,
+.Box-row {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
