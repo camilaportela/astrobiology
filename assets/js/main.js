@@ -128,10 +128,10 @@ $(document).ready(function () {
     $.fn.fullpage.moveSectionDown();
   });
 
-  // ensure solar system fits inside the stripe: compute scale from stripe height (40vh) and base size (1560px)
+  // ensure solar system fits inside the stripe: compute scale from stripe height (32vh) and base size (1560px)
   function updateSolarScale() {
     try {
-      var stripePercent = 40; // must match CSS .aboutme height (40vh)
+      var stripePercent = 32; // must match CSS .aboutme height (32vh)
       var stripePx = window.innerHeight * (stripePercent / 100);
       var baseSize = 1560; // the unscaled solar-syst size in px
       var scale = stripePx / baseSize;
