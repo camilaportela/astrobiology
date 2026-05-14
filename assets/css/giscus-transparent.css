@@ -1,7 +1,6 @@
 @import url("https://giscus.app/themes/noborder_light.css");
 
-/* Tema transparente e minimalista para Giscus */
-/* Pensado para integrar o widget ao fundo claro do astrobiology.me */
+/* Tema editorial transparente para Giscus - astrobiology.me */
 
 :root {
   color-scheme: light;
@@ -13,12 +12,26 @@
   --color-border-default: transparent !important;
   --color-border-muted: transparent !important;
 
-  --color-fg-default: #2b2b2b !important;
-  --color-fg-muted: #6f6f6f !important;
-  --color-accent-fg: #4a4a4a !important;
+  --color-fg-default: #2f2f2f !important;
+  --color-fg-muted: #777777 !important;
+  --color-fg-subtle: #999999 !important;
+
+  --color-accent-fg: #4f6478 !important;
+  --color-accent-emphasis: #4f6478 !important;
+  --color-accent-muted: rgba(79, 100, 120, 0.18) !important;
+  --color-accent-subtle: rgba(79, 100, 120, 0.08) !important;
+
+  --color-btn-bg: transparent !important;
+  --color-btn-border: transparent !important;
+  --color-btn-hover-bg: rgba(0, 0, 0, 0.04) !important;
+  --color-btn-hover-border: transparent !important;
+
+  --color-btn-primary-bg: #333333 !important;
+  --color-btn-primary-hover-bg: #111111 !important;
+  --color-btn-primary-text: #ffffff !important;
 }
 
-/* Fundo transparente geral */
+/* Fundo totalmente transparente */
 html,
 body,
 main,
@@ -28,32 +41,33 @@ main,
 .gsc-comment-box,
 .gsc-comment,
 .gsc-replies,
-.gsc-reply {
+.gsc-reply,
+.markdown-body {
   background: transparent !important;
   background-color: transparent !important;
 }
 
 /* Remove a barra superior:
-   contador de comentários, "distribuído por giscus",
-   botões "Mais antigo" e "Mais novo" */
+   contador, "distribuído por giscus", Mais antigo/Mais novo */
 .gsc-header {
   display: none !important;
 }
 
-/* Remove o badge "Membro", "Dono", "Owner", etc. */
+/* Remove selo "Membro", "Dono", "Owner", etc. */
+.author-association-badge,
+.gsc-comment-author-association,
 .gsc-comment-author .Label,
 .gsc-comment-author .label,
-.gsc-comment-author-association,
-.author-association-badge,
+.Label,
 .Label--secondary {
   display: none !important;
 }
 
-/* Remove bordas, sombras e aparência de cartão */
-.gsc-comment-box,
+/* Remove aparência de cartão/borda pesada */
 .gsc-comment,
-.gsc-reply-box,
+.gsc-comment-box,
 .gsc-reply,
+.gsc-reply-box,
 .gsc-comment-content,
 .gsc-comment-box-tabs,
 .gsc-comment-box-bottom,
@@ -65,43 +79,64 @@ main,
   background-color: transparent !important;
 }
 
-/* Remove linhas separadoras */
-hr,
-.gsc-comment-separator,
-.gsc-comment-box-separator {
-  display: none !important;
-  border: none !important;
-}
-
-/* Comentários mais limpos */
+/* Comentário individual: integrado ao texto, sem caixa fechada */
 .gsc-comment {
   padding: 0 !important;
-  margin: 1.4rem 0 !important;
+  margin: 1.7rem 0 !important;
+}
+
+/* Cabeçalho do comentário */
+.gsc-comment-header {
+  border: none !important;
+  background: transparent !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 /* Corpo do comentário */
 .gsc-comment-content {
-  padding: 0.4rem 0 0.6rem 0 !important;
+  padding: 0.35rem 0 0.8rem 0 !important;
 }
 
-/* Caixa de escrita transparente */
+/* Linhas internas mais delicadas */
+.markdown-body h1,
+.markdown-body h2 {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Remove separadores fortes */
+hr,
+.gsc-comment-separator,
+.gsc-comment-box-separator {
+  border: none !important;
+  background: transparent !important;
+}
+
+/* Caixa de escrever comentário */
 textarea,
 .form-control,
 .input-contrast,
 .gsc-comment-box-textarea {
   background: transparent !important;
   background-color: transparent !important;
-  border: none !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
   box-shadow: none !important;
-  color: #2b2b2b !important;
+  color: #2f2f2f !important;
+  border-radius: 6px !important;
 }
 
-/* Placeholder */
+textarea:focus,
+.form-control:focus,
+.gsc-comment-box-textarea:focus {
+  border-color: rgba(0, 0, 0, 0.28) !important;
+  box-shadow: none !important;
+}
+
 textarea::placeholder {
   color: #8a8a8a !important;
 }
 
-/* Abas "Escreva" e "Prévia" discretas */
+/* Abas "Escreva" e "Prévia" */
 .gsc-comment-box-tabs {
   border: none !important;
 }
@@ -109,46 +144,70 @@ textarea::placeholder {
 .gsc-comment-box-tab {
   background: transparent !important;
   border: none !important;
-  color: #666 !important;
+  color: #777777 !important;
 }
 
-/* Botões discretos */
+.gsc-comment-box-tab[aria-selected="true"] {
+  color: #222222 !important;
+  font-weight: 600 !important;
+}
+
+/* Botões */
 button,
 .btn,
 .btn-primary,
 .btn-secondary {
   box-shadow: none !important;
+  border-radius: 6px !important;
+}
+
+.btn {
+  background: transparent !important;
   border: none !important;
 }
 
-/* Botão de comentar */
+.btn:hover {
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Botão principal de comentar */
 .btn-primary {
-  background: #2b2b2b !important;
+  background: #333333 !important;
   color: #ffffff !important;
-  border-radius: 6px !important;
+  border: none !important;
+}
+
+.btn-primary:hover {
+  background: #111111 !important;
 }
 
 /* Links */
 a {
-  color: #555 !important;
+  color: #4f6478 !important;
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
-/* Markdown dos comentários */
+/* Texto markdown */
 .markdown-body {
-  background: transparent !important;
-  color: #2b2b2b !important;
+  color: #2f2f2f !important;
 }
 
-/* Avatares sem borda/sombra extra */
+/* Código, se alguém usar markdown */
+.markdown-body code {
+  background: rgba(0, 0, 0, 0.05) !important;
+  color: #333333 !important;
+  border-radius: 4px !important;
+}
+
+/* Avatar limpo */
 .avatar,
 .gsc-comment-author-avatar img {
   box-shadow: none !important;
   border: none !important;
 }
 
-/* Remove fundos e bordas herdados do GitHub */
+/* Remove fundos herdados do GitHub */
 .color-bg-default,
 .color-bg-subtle,
 .color-bg-muted,
@@ -158,6 +217,14 @@ a {
 .Box-row {
   background: transparent !important;
   background-color: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Reações mais discretas */
+.gsc-reactions,
+.gsc-reactions-button {
+  background: transparent !important;
   border: none !important;
   box-shadow: none !important;
 }
