@@ -42,11 +42,6 @@ layout: null
     <!-- begin section: galeria horizontal de posts -->
     <div class="section posts-expand-gallery-section" data-anchor="news">
       <div class="posts-expand-gallery">
-        <header class="posts-expand-gallery__header">
-          <h2 class="posts-expand-gallery__heading">Notícias em Destaque</h2>
-          <p class="posts-expand-gallery__description">Uma faixa contínua com os posts mais recentes e destacados do site.</p>
-        </header>
-
         <div class="posts-expand-gallery__track" aria-label="Galeria de notícias">
           {% for post in site.posts %}
             {% assign post_image = post.banner | default: "/assets/img/posts/default.jpg" %}
