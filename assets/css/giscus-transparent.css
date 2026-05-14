@@ -1,4 +1,16 @@
-﻿@import url("https://giscus.app/themes/noborder_light.css");
+﻿@import url("https://giscus.app/themes/light.css");
+
+/* Ajustes de acento para preto/cinza escuro mantendo o visual base light */
+:root {
+  --color-accent-fg: #111111 !important;
+  --color-accent-emphasis: #111111 !important;
+  --color-btn-primary-bg: #111111 !important;
+  --color-btn-primary-hover-bg: #1f1f1f !important;
+  --color-btn-primary-selected-bg: #1f1f1f !important;
+  --color-btn-primary-border: #111111 !important;
+  --color-btn-primary-text: #ffffff !important;
+  --color-focus: #444444 !important;
+}
 
 /* Remove somente "distribuído por giscus" */
 .gsc-header em,
@@ -54,4 +66,21 @@ a[aria-label*="Markdown"] {
 .gsc-comment-author .label,
 .Label--secondary {
   display: none !important;
+}
+
+/* Botao "Entre com GitHub" em preto/cinza escuro */
+.gsc-comment-box-bottom .btn-primary,
+.gsc-comment-box-bottom .btn-primary:visited {
+  background-color: #111111 !important;
+  border-color: #111111 !important;
+  color: #ffffff !important;
+}
+
+.gsc-comment-box-bottom .btn-primary:hover,
+.gsc-comment-box-bottom .btn-primary:focus,
+.gsc-comment-box-bottom .btn-primary:active {
+  background-color: #1f1f1f !important;
+  border-color: #1f1f1f !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 0 2px rgba(31, 31, 31, 0.25) !important;
 }
