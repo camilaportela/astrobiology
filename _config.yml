@@ -1,0 +1,39 @@
+title: Astrobiologia
+description: "Explorando vida no universo"
+baseurl: ""
+url: "https://astrobiology.me"
+author: "Camila Portela"
+language: "pt"
+
+# Jekyll settings
+theme: minima
+markdown: kramdown
+future: false
+permalink: /:year/:month/:day/:slug/
+
+# Collections
+collections:
+  posts:
+    output: true
+    permalink: /:year/:month/:day/:slug/
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Exclude files from Jekyll build
+exclude:
+  - .git/
+  - node_modules/
+  - Gemfile
+  - Gemfile.lock

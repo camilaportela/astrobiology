@@ -1,0 +1,34 @@
+---
+layout: default
+---
+
+<div class="section article-section" data-anchor="post">
+  <article class="main-article">
+    <header>
+      <h3 class="byline">
+        Posted by <a href="#">{{ page.author }}</a> | 
+        <time datetime="{{ page.date | date: '%Y-%m-%d' }}">
+          {{ page.date | date: "%B %d, %Y" }}
+        </time>
+      </h3>
+      <h1 class="article__headline">{{ page.title }}</h1>
+      {% if page.subtitle %}
+        <h2 class="lead">{{ page.subtitle }}</h2>
+      {% endif %}
+    </header>
+
+    <article class="article-content">
+      {{ content }}
+    </article>
+
+    <aside class="author-bio">
+      <img class="profile-pic" src="http://fillmurray.com/120/120" alt="Author profile">
+      <div class="author-bio-text">
+        <p class="author-bio-name">{{ page.author }}</p>
+        <p class="author-bio-info">Pesquisadora em astrobiologia.</p>
+      </div>
+    </aside>
+
+    {% include giscus.html %}
+  </article>
+</div>
