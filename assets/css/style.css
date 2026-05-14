@@ -1033,6 +1033,13 @@ label {
   color: #efefef;
 }
 
+/* fullPage.js tableCell: force gallery section content to align to top */
+#fullpage .posts-expand-gallery-section .fp-tableCell {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+}
+
 .posts-expand-gallery {
   width: 100%;
   max-width: 100%;
