@@ -80,6 +80,8 @@ layout: null
           <h1 class="article__headline">{{ latest_post.title }}</h1>
           {% if latest_post.subtitle %}
           <h2 class="lead">{{ latest_post.subtitle }}</h2>
+          {% else %}
+          <h2 class="lead">{{ latest_post.excerpt }}</h2>
           {% endif %}
         </header>
 
@@ -87,47 +89,7 @@ layout: null
           {{ latest_post.excerpt }}
         </article>
 
-        <aside class="author-bio">
-          <img class="profile-pic" src="http://fillmurray.com/120/120" alt="Perfil de {{ latest_post.author }}">
-          <div class="author-bio-text">
-            <p class="author-bio-name">{{ latest_post.author }}</p>
-            <p class="author-bio-info">Texto em destaque na homepage, selecionado automaticamente a partir da postagem mais recente.</p>
-          </div>
-        </aside>
-
-        <a href="{{ latest_post.url | relative_url }}" class="latest-read-link">Ler artigo completo →</a>
-
-        <section class="discussion" aria-labelledby="discussion-title">
-          <h3 class="section-heading" id="discussion-title">Discussão</h3>
-          <p class="discussion__lead">Comentários são bem-vindos, especialmente perguntas, correções, referências e hipóteses bem delimitadas. Especulação é permitida; pseudociência, não.</p>
-
-          <div class="discussion__widget">
-            <script
-              src="https://giscus.app/client.js"
-              data-repo="camilaportela/astrobiology"
-              data-repo-id="R_kgDOQteLLw"
-              data-category="Comentários"
-              data-category-id="DIC_kwDOQteLL84C9Aad"
-              data-mapping="pathname"
-              data-strict="0"
-              data-reactions-enabled="0"
-              data-emit-metadata="0"
-              data-input-position="bottom"
-              data-theme="https://astrobiology.me/assets/css/giscus-transparent.css?v=9"
-              data-lang="pt"
-              data-loading="lazy"
-              crossorigin="anonymous"
-              async>
-              </script>
-
-            <p class="giscus-note">
-              Os comentários são gerenciados pelo giscus/GitHub Discussions.
-              Para editar, remover seus comentários ou acessar recursos adicionais, clique em
-              <a href="https://github.com/camilaportela/astrobiology/discussions" target="_blank" rel="noopener noreferrer">GitHub Discussions</a>.
-            </p>
-
-            </div>
-        </section>
+        <a href="{{ latest_post.url | relative_url }}" class="latest-read-link">Ler postagem completa e discutir →</a>
       </article>
     </div>
     {% endif %}
