@@ -1,6 +1,4 @@
-@import url("https://giscus.app/themes/noborder_light.css");
-
-/* Tema totalmente translúcido e sem bordas para Giscus */
+/* Tema transparente agressivo para Giscus */
 
 :root {
   color-scheme: light;
@@ -8,226 +6,244 @@
   --color-canvas-default: transparent !important;
   --color-canvas-subtle: transparent !important;
   --color-canvas-inset: transparent !important;
+  --color-canvas-overlay: transparent !important;
 
   --color-border-default: transparent !important;
   --color-border-muted: transparent !important;
+  --color-border-subtle: transparent !important;
 
-  --color-fg-default: #2f2f2f !important;
-  --color-fg-muted: #7a7a7a !important;
-  --color-fg-subtle: #9a9a9a !important;
+  --color-fg-default: #2b2b2b !important;
+  --color-fg-muted: #666666 !important;
+  --color-fg-subtle: #8a8a8a !important;
 
-  --color-accent-fg: #4f6478 !important;
-  --color-accent-emphasis: #4f6478 !important;
+  --color-accent-fg: #2b2b2b !important;
+  --color-accent-emphasis: #2b2b2b !important;
   --color-accent-muted: transparent !important;
   --color-accent-subtle: transparent !important;
 
   --color-btn-bg: transparent !important;
   --color-btn-border: transparent !important;
-  --color-btn-hover-bg: rgba(0, 0, 0, 0.04) !important;
+  --color-btn-hover-bg: transparent !important;
+  --color-btn-text: #2b2b2b !important;
 
-  --color-btn-primary-bg: #2d2d2d !important;
-  --color-btn-primary-hover-bg: #111111 !important;
-  --color-btn-primary-text: #ffffff !important;
+  --color-btn-primary-bg: transparent !important;
+  --color-btn-primary-hover-bg: transparent !important;
+  --color-btn-primary-text: #2b2b2b !important;
 }
 
-/* Fundo totalmente transparente em tudo */
 html,
 body,
 main,
 iframe,
 .gsc-main,
-.gsc-timeline,
+.gsc-main *,
 .gsc-comments,
+.gsc-comments *,
+.gsc-timeline,
+.gsc-timeline *,
 .gsc-comment-box,
+.gsc-comment-box *,
 .gsc-comment,
-.gsc-replies,
+.gsc-comment *,
 .gsc-reply,
+.gsc-reply *,
 .gsc-homepage-bg,
+.gsc-homepage-bg *,
 .gsc-comment-content,
+.gsc-comment-content *,
 .gsc-comment-box-tabs,
+.gsc-comment-box-tabs *,
 .gsc-comment-box-bottom,
+.gsc-comment-box-bottom *,
 .gsc-comment-box-textarea,
+.gsc-comment-box-textarea *,
 .gsc-comment-box-textarea-extras,
+.gsc-comment-box-textarea-extras *,
+.gsc-comment-box-header,
+.gsc-comment-box-footer,
 .markdown-body,
+.markdown-body *,
 .Box,
+.Box *,
 .Box-row,
-.color-bg-default,
-.color-bg-subtle,
-.color-bg-muted,
-.color-shadow-small,
-.color-shadow-medium,
-.color-shadow-large {
+.Box-row * {
   background: transparent !important;
   background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
 }
 
-/* Remove qualquer borda/sombra residual */
-*,
-.gsc-comment,
+* {
+  border-color: transparent !important;
+  outline-color: transparent !important;
+  text-shadow: none !important;
+}
+
+.gsc-main,
+.gsc-comments,
+.gsc-timeline,
 .gsc-comment-box,
+.gsc-comment,
 .gsc-reply,
-.gsc-reply-box,
 .gsc-comment-content,
-.gsc-comment-header,
-.gsc-comment-box-tabs,
-.gsc-comment-box-bottom,
-.gsc-comment-box-textarea,
-.gsc-comment-box-textarea-extras,
+.markdown-body,
 .Box,
 .Box-row,
 .form-control,
 .input-contrast,
-textarea {
-  border-color: transparent !important;
+textarea,
+button,
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-outline,
+.btn-sm,
+.btn-block,
+.btn-with-count {
+  border: 0 !important;
+  border-radius: 0 !important;
   box-shadow: none !important;
-  outline: none !important;
 }
 
-/* Remove a barra superior inteira */
-.gsc-header {
-  display: none !important;
-}
-
-/* Remove selo Dono / Membro / Owner */
-.author-association-badge,
-.gsc-comment-author-association,
-.Label,
-.Label--secondary,
-[class*="authorAssociation"],
-[class*="AuthorAssociation"] {
-  display: none !important;
-}
-
-/* Remove as reações, se quiser visual mais limpo */
+.gsc-header,
+.gsc-header-text,
+.gsc-header-actions,
+.gsc-header-ajax,
+.gsc-homepage-bg,
+.gsc-header-divider,
 .gsc-reactions,
 .gsc-social-reaction-summary,
-.gsc-comment__reactions,
 .gsc-reaction-button,
-button[aria-label*="reaction"],
-button[aria-label*="Reação"] {
+.gsc-comment-replies-count,
+.gsc-reply-count,
+.gsc-comment-replies,
+.gsc-comment-replies-header,
+.gsc-comment-replies-link,
+.gsc-comments-count,
+.gsc-load-more,
+.gsc-load-more-button,
+.gsc-comment-author-association,
+.author-association-badge,
+[class*="authorAssociation"],
+[class*="AuthorAssociation"],
+[class*="associationBadge"],
+[class*="AssociationBadge"],
+[aria-label*="reaction" i],
+[aria-label*="Reação" i],
+[aria-label*="owner" i],
+[aria-label*="membro" i],
+[aria-label*="member" i],
+[title*="owner" i],
+[title*="membro" i],
+[title*="member" i] {
   display: none !important;
 }
 
-/* Remove contagem de respostas na lateral */
-.gsc-comment-replies-count {
-  display: none !important;
-}
-
-/* Remove linhas horizontais */
-hr,
-.gsc-comment-separator,
-.gsc-comment-box-separator,
-.markdown-body hr {
-  display: none !important;
-  border: none !important;
-}
-
-/* Comentário sem caixa */
 .gsc-comment,
 .gsc-reply {
+  margin: 1rem 0 !important;
   padding: 0 !important;
-  margin: 1.2rem 0 !important;
-  border: none !important;
-  border-radius: 0 !important;
 }
 
-/* Cabeçalho do comentário */
-.gsc-comment-header {
-  padding: 0 !important;
-  margin-bottom: 0.35rem !important;
+.gsc-comment-header,
+.gsc-comment-header * {
   background: transparent !important;
-  border: none !important;
+  border: 0 !important;
 }
 
-/* Corpo do comentário */
+.gsc-comment-header {
+  margin: 0 0 0.35rem !important;
+  padding: 0 !important;
+}
+
 .gsc-comment-content,
 .markdown-body {
-  padding: 0 !important;
   margin: 0 !important;
-  color: #2f2f2f !important;
+  padding: 0 !important;
+  color: #2b2b2b !important;
 }
 
-/* Área de escrever */
+.gsc-comment-box {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.gsc-comment-box-tabs {
+  display: none !important;
+}
+
+.gsc-comment-box-textarea,
+.gsc-comment-box-textarea-extras,
+.gsc-comment-box-bottom,
+.gsc-comment-box-header,
+.gsc-comment-box-footer,
+.gsc-comment-box-actions {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
 textarea,
 .form-control,
 .input-contrast,
 .gsc-comment-box-textarea,
-.gsc-comment-box-textarea-extras {
+.gsc-comment-box-textarea textarea,
+input,
+select {
   background: transparent !important;
   background-color: transparent !important;
-  border: none !important;
+  border: 0 !important;
   box-shadow: none !important;
-  color: #2f2f2f !important;
-  border-radius: 0 !important;
+  color: #2b2b2b !important;
 }
 
-/* Se quiser uma linha bem sutil só no campo, use isso.
-   Se quiser ZERO linha, deixe transparente como já está. */
+textarea::placeholder,
+input::placeholder {
+  color: #8c8c8c !important;
+  opacity: 1 !important;
+}
+
 textarea:focus,
+input:focus,
+select:focus,
 .form-control:focus,
-.gsc-comment-box-textarea:focus {
-  border: none !important;
-  outline: none !important;
+.gsc-comment-box-textarea:focus,
+.gsc-comment-box-textarea textarea:focus {
+  outline: 0 !important;
   box-shadow: none !important;
 }
 
-/* Placeholder */
-textarea::placeholder {
-  color: #8f8f8f !important;
-}
-
-/* Abas Escreva / Prévia */
-.gsc-comment-box-tabs {
-  border: none !important;
-  margin-bottom: 0.5rem !important;
-}
-
-.gsc-comment-box-tab {
-  background: transparent !important;
-  border: none !important;
-  color: #666666 !important;
-  padding-left: 0 !important;
-}
-
-.gsc-comment-box-tab[aria-selected="true"] {
-  color: #222222 !important;
-  font-weight: 600 !important;
-}
-
-/* Botões */
 button,
 .btn,
 .btn-primary,
-.btn-secondary {
-  border: none !important;
-  box-shadow: none !important;
+.btn-secondary,
+.btn-outline,
+.btn-sm {
+  background: transparent !important;
+  color: #2b2b2b !important;
 }
 
-.btn {
+button:hover,
+.btn:hover,
+.btn-primary:hover,
+.btn-secondary:hover,
+.btn-outline:hover {
   background: transparent !important;
 }
 
-.btn:hover {
-  background: rgba(0, 0, 0, 0.04) !important;
-}
-
-/* Botão principal */
-.btn-primary {
-  background: #2d2d2d !important;
-  color: #ffffff !important;
-  border-radius: 6px !important;
-}
-
-/* Links */
-a {
-  color: #4f6478 !important;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-/* Avatar limpo */
 .avatar,
-.gsc-comment-author-avatar img {
+.gsc-comment-author-avatar,
+.gsc-comment-author-avatar img,
+.avatar-user,
+.avatar-circle {
+  border: 0 !important;
   box-shadow: none !important;
-  border: none !important;
+}
+
+a {
+  color: #2b2b2b !important;
+  text-decoration: none !important;
+}
+
+a:hover {
+  text-decoration: underline !important;
 }
