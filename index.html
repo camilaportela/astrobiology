@@ -1,3 +1,6 @@
+---
+layout: null
+---
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -6,19 +9,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.1.2/fullpage.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link rel="stylesheet" href="assets/css/style.css">
-  <link rel="stylesheet" href="assets/css/solar.css">
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/css/solar.css' | relative_url }}">
 </head>
 <body>
-  <!-- Header com navegação -->
-  <header class="site-header">
-    <nav class="site-nav">
-      <ul class="nav-links">
-        <li><a href="/noticias/" class="nav-link">Notícias</a></li>
-      </ul>
-    </nav>
-  </header>
-
   <!-- begin fullpage -->
 
   <div id="fullpage">
@@ -43,7 +37,63 @@
     </div>
     <!-- end section -->
 
-    <!-- begin section -->
+    <!-- begin section: notícias em destaque -->
+    {% assign featured_posts = site.posts | where: "featured", true %}
+    {% if featured_posts.size > 0 %}
+    <div class="section news-section" data-anchor="news">
+      <div class="news-container">
+        <h2 class="news-title">Notícias em Destaque</h2>
+        <div class="news-grid">
+          {% for post in featured_posts limit: 3 %}
+          <article class="news-card">
+            {% if post.banner %}
+            <div class="news-card-image">
+              <img src="{{ post.banner | relative_url }}" alt="{{ post.title }}" onerror="this.style.display='none'">
+            </div>
+            {% endif %}
+            <div class="news-card-content">
+              <h3 class="news-card-title">{{ post.title }}</h3>
+              <p class="news-card-meta">
+                <time>{{ post.date | date: "%d de %b de %Y" }}</time>
+              </p>
+              <p class="news-card-excerpt">{{ post.excerpt }}</p>
+              <a href="{{ post.url | relative_url }}" class="news-card-link">Ler artigo →</a>
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+        <p class="news-footer"><a href="/noticias/" class="news-all-link">Ver todas as notícias →</a></p>
+      </div>
+    </div>
+    {% endif %}
+    <!-- end section: notícias -->
+
+    <!-- begin section: postagem mais recente -->
+    {% if site.posts.size > 0 %}
+    {% assign latest_post = site.posts.first %}
+    <div class="section latest-section" data-anchor="latest">
+      <div class="latest-container">
+        <h2 class="latest-title">Postagem Mais Recente</h2>
+        <article class="latest-article">
+          <header class="latest-header">
+            <h3 class="latest-byline">
+              Por <span class="latest-author">{{ latest_post.author }}</span> | 
+              <time>{{ latest_post.date | date: "%d de %B de %Y" }}</time>
+            </h3>
+            <h2 class="latest-headline">{{ latest_post.title }}</h2>
+            {% if latest_post.subtitle %}
+            <p class="latest-lead">{{ latest_post.subtitle }}</p>
+            {% endif %}
+          </header>
+          <div class="latest-excerpt">
+            {{ latest_post.excerpt }}
+          </div>
+          <a href="{{ latest_post.url | relative_url }}" class="latest-read-link">Ler artigo completo →</a>
+        </article>
+      </div>
+    </div>
+    {% endif %}
+    <!-- end section: postagem recente -->
 
     <div class="section article-section" data-anchor="skills">
       <article class="main-article">

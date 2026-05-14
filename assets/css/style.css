@@ -30,53 +30,6 @@ p {
   cursor: pointer;
 }
 
-/* ===== HEADER E NAVEGAÇÃO ===== */
-
-.site-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  background: rgba(255, 255, 255, 0.95);
-  border-bottom: 1px solid #e6e6e6;
-  z-index: 200;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.site-nav {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
-.nav-links {
-  display: flex;
-  gap: 1.5rem;
-  padding: 0.75rem 0;
-  margin: 0;
-  list-style: none;
-}
-
-.nav-link {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #333;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  transition: color 0.3s ease;
-  text-decoration: none !important;
-}
-
-.nav-link:hover {
-  color: #ff6363;
-}
-
-/* Ajuste do fullpage para compensar header fixo */
-#fullpage {
-  margin-top: 0;
-}
-}
-
 .hide {
   display: none;
 }
@@ -1066,6 +1019,208 @@ label {
   line-height: 1.8;
   font-family: Georgia, serif;
   text-align: center;
+}
+
+/* ===== SEÇÕES DE NOTÍCIAS NA HOMEPAGE ===== */
+
+/* Seção: Notícias em Destaque */
+.news-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: #fafafa;
+  font-family: Georgia, serif;
+  color: #222;
+  text-align: left;
+}
+
+.news-container {
+  max-width: 900px;
+  width: 100%;
+}
+
+.news-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #222;
+  margin-bottom: 2rem;
+  text-align: center;
+  font-family: Georgia, serif;
+}
+
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.news-card {
+  background: #fff;
+  border: 1px solid #e6e6e6;
+  border-radius: 6px;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  cursor: pointer;
+}
+
+.news-card:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.news-card-image {
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  background: #f0f0f0;
+}
+
+.news-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.news-card-content {
+  padding: 1.2rem;
+}
+
+.news-card-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #222;
+  margin-bottom: 0.5rem;
+  font-family: Georgia, serif;
+  line-height: 1.4;
+}
+
+.news-card-meta {
+  font-size: 0.8rem;
+  color: #999;
+  margin-bottom: 0.8rem;
+}
+
+.news-card-excerpt {
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.news-card-link {
+  color: #ff6363;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.3s ease;
+}
+
+.news-card-link:hover {
+  color: #333;
+}
+
+.news-footer {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.news-all-link {
+  color: #ff6363;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: color 0.3s ease;
+}
+
+.news-all-link:hover {
+  color: #333;
+}
+
+/* Seção: Postagem Mais Recente */
+.latest-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: #fff;
+  font-family: Georgia, serif;
+  color: #222;
+  text-align: left;
+}
+
+.latest-container {
+  max-width: 800px;
+  width: 100%;
+}
+
+.latest-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #222;
+  margin-bottom: 2rem;
+  text-align: center;
+  font-family: Georgia, serif;
+}
+
+.latest-article {
+  background: #fcfcfc;
+  padding: 1.8rem;
+  border-left: 4px solid #ff6363;
+  border-radius: 4px;
+}
+
+.latest-header {
+  margin-bottom: 1.2rem;
+}
+
+.latest-byline {
+  font-size: 0.8rem;
+  color: #999;
+  font-family: "Trebuchet MS", sans-serif;
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+}
+
+.latest-author {
+  color: #333;
+  font-weight: 600;
+}
+
+.latest-headline {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #222;
+  font-family: Georgia, serif;
+  line-height: 1.4;
+  margin-bottom: 0.8rem;
+}
+
+.latest-lead {
+  font-size: 1.2rem;
+  color: #888;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.latest-excerpt {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.8;
+  margin: 1.2rem 0;
+  font-family: Georgia, serif;
+}
+
+.latest-read-link {
+  color: #ff6363;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color 0.3s ease;
+}
+
+.latest-read-link:hover {
+  color: #333;
 }
 
 /* Responsividade */
