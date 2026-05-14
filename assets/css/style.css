@@ -265,82 +265,35 @@ p {
   color: #777;
 }
 
-.article-section .comments__meta {
-  display: flex;
-  justify-content: space-around;
-  align-items: flex-start;
-  font-family: "Trebuchet MS", Trebuchet MS, sans-serif;
-  font-size: 0.8em;
-  color: #999;
+.article-section .discussion {
+  margin: 60px 0 80px;
+  padding: 24px 22px 28px;
+  border: 1px solid #e6e6e6;
+  border-radius: 16px;
+  background: #fcfcfc;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
 }
 
-.article-section .comments__meta span {
-  display: none;
+.article-section .discussion .section-heading {
+  margin-top: 0;
+  margin-bottom: 16px;
 }
 
-.article-section .comments__meta p {
-  margin: 0;
+.article-section .discussion__lead {
+  margin: 0 0 20px;
+  color: #666;
+  font-size: 0.95em;
+  line-height: 1.6;
+  max-width: 72ch;
 }
 
-.article-section .comment__group {
-  font-size: 0.9em;
-  margin: 60px 0;
-  color: #777;
-  font-weight: normal;
-  text-align: center;
+.article-section .discussion__widget {
+  width: 100%;
+  overflow-x: auto;
 }
 
-.article-section .comment__author-name a {
-  color: #444;
-  text-decoration: none;
-}
-
-.article-section .comment__author-name a:hover {
-  text-decoration: underline;
-}
-
-.article-section .comment__author-name h5 {
-  padding: 0;
-  margin: 0;
-  font-weight: normal;
-  font-size: 1em;
-}
-
-.article-section .comment__text {
-  margin-top: 10px;
-  font-size: 0.9em;
-}
-
-.article-section .comment__text p {
-  margin: 0 0 1em 0;
-  padding: 0;
-  line-height: 1.4;
-  word-spacing: 1px;
-}
-
-.article-section .comment__text p:last-child {
-  margin-bottom: 0;
-}
-
-.article-section .comment__text--meta {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 0.8em;
-  font-family: "Trebuchet MS", Trebuchet MS, sans-serif;
-}
-
-.article-section .comment__text--meta p {
-  margin-right: 15px;
-}
-
-.article-section .comment__text--meta a {
-  color: #999;
-  text-decoration: none;
-}
-
-.article-section .comment__text--meta a:hover {
-  color: #444;
+.article-section .discussion__widget iframe {
+  max-width: 100%;
 }
 
 @media screen and (min-width: 475px) {
@@ -354,48 +307,8 @@ p {
     text-align: left;
   }
 
-  .article-section .social-icons {
-    flex-direction: column;
-    flex: 0 1 50px;
-    border-left: 1px solid #ddd;
-    margin-left: 10px;
-    font-size: inherit;
-
-.article-section .comment__text--meta .fa-heart.liked {
-  color: #e53935;
-}
-  }
-
-  .article-section .social-icons p {
-    padding: 10px;
-    margin: 0;
-    text-align: center;
-  }
-
-  .article-section .comments__meta {
-    justify-content: flex-start;
-  }
-
-  .article-section .comments__meta span {
-    display: inline-block;
-  }
-
-  .article-section .comment__group {
-    display: flex;
-    text-align: left;
-  }
-
-  .article-section .comment__text {
-    text-align: left;
-  }
-
-  .article-section .comment__text--meta {
-    justify-content: flex-start;
-  }
-
-  .article-section .comment__indented {
-    margin-left: 7%;
-    margin-top: -10px;
+  .article-section .discussion {
+    padding: 30px 32px 34px;
   }
 }
 
