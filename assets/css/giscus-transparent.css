@@ -1,97 +1,352 @@
-/* Tema personalizado baseado em NoBorder Light do Giscus */
-@import url("https://giscus.app/themes/noborder_light.css");
+/* Tema transparente agressivo para Giscus */
 
-/* Override de cores: verde → preto/cinza escuro */
 :root {
-  --color-btn-primary-bg: #000000 !important;
-  --color-btn-primary-hover-bg: #1a1a1a !important;
-  --color-btn-primary-text: #ffffff !important;
-  --color-btn-primary-border: #000000 !important;
-  
+  color-scheme: light;
+
+  --color-canvas-default: transparent !important;
+  --color-canvas-subtle: transparent !important;
+  --color-canvas-inset: transparent !important;
+  --color-canvas-overlay: transparent !important;
+
+  --color-border-default: transparent !important;
+  --color-border-muted: transparent !important;
+  --color-border-subtle: transparent !important;
+
+  --color-fg-default: #000000 !important;
+  --color-fg-muted: #000000 !important;
+  --color-fg-subtle: #000000 !important;
+
   --color-accent-fg: #000000 !important;
   --color-accent-emphasis: #000000 !important;
+  --color-accent-muted: transparent !important;
+  --color-accent-subtle: transparent !important;
+
+  --color-btn-bg: transparent !important;
+  --color-btn-border: transparent !important;
+
+  --color-btn-hover-bg: transparent !important;
+  --color-btn-text: #000000 !important;
+
+  --color-btn-primary-bg: transparent !important;
+  --color-btn-primary-hover-bg: transparent !important;
+  --color-btn-primary-text: #000000 !important;
 }
 
-/* Botão "Entre com GitHub" em preto */
-button[type="submit"],
+html,
+body,
+main,
+iframe,
+.gsc-main,
+.gsc-main *,
+.gsc-comments,
+.gsc-comments *,
+.gsc-timeline,
+.gsc-timeline *,
+.gsc-comment-box,
+.gsc-comment-box *,
+.gsc-comment,
+.gsc-comment *,
+.gsc-reply,
+.gsc-reply *,
+.gsc-homepage-bg,
+.gsc-homepage-bg *,
+.gsc-comment-content,
+.gsc-comment-content *,
+.gsc-comment-box-tabs,
+.gsc-comment-box-tabs *,
+.gsc-comment-box-bottom,
+.gsc-comment-box-bottom *,
+.gsc-comment-box-textarea,
+.gsc-comment-box-textarea *,
+.gsc-comment-box-textarea-extras,
+.gsc-comment-box-textarea-extras *,
+.gsc-comment-box-header,
+.gsc-comment-box-footer,
+.markdown-body,
+.markdown-body *,
+.Box,
+.Box *,
+.Box-row,
+.Box-row * {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+* {
+  border-color: transparent !important;
+  outline-color: transparent !important;
+  text-shadow: none !important;
+}
+
+.gsc-main,
+.gsc-comments,
+.gsc-timeline,
+.gsc-comment-box,
+.gsc-comment,
+.gsc-reply,
+.gsc-comment-content,
+.markdown-body,
+.Box,
+.Box-row,
+.form-control,
+.input-contrast,
+textarea,
+button,
+.btn,
 .btn-primary,
-[class*="primary"] button {
-  background-color: #000000 !important;
-  border-color: #000000 !important;
-  color: #ffffff !important;
+.btn-secondary,
+.btn-outline,
+.btn-sm,
+.btn-block,
+.btn-with-count {
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
 }
 
-button[type="submit"]:hover,
+.gsc-header,
+.gsc-header-text,
+.gsc-header-actions,
+.gsc-header-ajax,
+.gsc-homepage-bg,
+.gsc-header-divider,
+.gsc-reactions,
+.gsc-social-reaction-summary,
+.gsc-reaction-button,
+.gsc-comment-replies-count,
+.gsc-reply-count,
+.gsc-comment-replies,
+.gsc-comment-replies-header,
+.gsc-comment-replies-link,
+.gsc-comments-count,
+.gsc-load-more,
+.gsc-load-more-button,
+.gsc-comment-author-association,
+.author-association-badge,
+[class*="authorAssociation"],
+[class*="AuthorAssociation"],
+[class*="associationBadge"],
+[class*="AssociationBadge"],
+[aria-label*="reaction" i],
+[aria-label*="Reação" i],
+[aria-label*="owner" i],
+[aria-label*="membro" i],
+[aria-label*="member" i],
+[title*="owner" i],
+[title*="membro" i],
+[title*="member" i] {
+  display: none !important;
+}
+
+.gsc-comment,
+.gsc-reply {
+  margin: 1rem 0 !important;
+  padding: 0 !important;
+}
+
+.gsc-comment-header,
+.gsc-comment-header * {
+  background: transparent !important;
+  border: 0 !important;
+}
+
+.gsc-comment-header {
+  margin: 0 0 0.35rem !important;
+  padding: 0 !important;
+}
+
+.gsc-comment-content,
+.markdown-body {
+  margin: 0 !important;
+  padding: 0 !important;
+  color: #000000 !important;
+}
+
+.gsc-comment-box {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.gsc-comment-box-tabs {
+  display: none !important;
+}
+
+.gsc-comment-box-textarea,
+.gsc-comment-box-textarea-extras,
+.gsc-comment-box-bottom,
+.gsc-comment-box-header,
+.gsc-comment-box-footer,
+.gsc-comment-box-actions {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+textarea,
+.form-control,
+.input-contrast,
+.gsc-comment-box-textarea,
+.gsc-comment-box-textarea textarea,
+input,
+select {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  color: #000000 !important;
+}
+
+textarea::placeholder,
+input::placeholder {
+  color: #000000 !important;
+  opacity: 1 !important;
+}
+
+textarea:focus,
+input:focus,
+select:focus,
+.form-control:focus,
+.gsc-comment-box-textarea:focus,
+.gsc-comment-box-textarea textarea:focus {
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+button,
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-outline,
+.btn-sm {
+  background: transparent !important;
+  color: #000000 !important;
+}
+
+button:hover,
+.btn:hover,
 .btn-primary:hover,
-[class*="primary"] button:hover {
-  background-color: #1a1a1a !important;
+.btn-secondary:hover,
+.btn-outline:hover {
+  background: transparent !important;
 }
 
-button[type="submit"]:focus,
-.btn-primary:focus,
-[class*="primary"] button:focus {
-  background-color: #000000 !important;
-  outline: 2px solid #333333 !important;
+.avatar,
+.gsc-comment-author-avatar,
+.gsc-comment-author-avatar img,
+.avatar-user,
+.avatar-circle {
+  border: 0 !important;
+  box-shadow: none !important;
 }
 
-/* Esconder a seta de upvote do comentário */
-button[aria-label*="upvote" i],
-button[aria-label*="vote" i]:not([aria-label*="heart" i]),
-button[aria-label*="like" i]:not([aria-label*="heart" i]),
-button[title*="upvote"],
-[class*="upvote"],
-[class*="vote-up"] {
+html *,
+html *::before,
+html *::after,
+body *,
+body *::before,
+body *::after {
+  border-top: 0 !important;
+  border-right: 0 !important;
+  border-bottom: 0 !important;
+  border-left: 0 !important;
+  box-shadow: none !important;
+  background-clip: padding-box !important;
+}
+
+.gsc-main > *,
+.gsc-comments > *,
+.gsc-timeline > *,
+.gsc-comment-box > *,
+.gsc-comment > *,
+.gsc-reply > *,
+.markdown-body > *,
+.Box > *,
+.Box-row > * {
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+hr,
+[role="separator"],
+[data-testid*="separator"],
+[class*="separator"],
+[class*="Separator"],
+[class*="divider"],
+[class*="Divider"],
+.gsc-comment-separator,
+.gsc-comment-box-separator,
+.gsc-horizontal-separator,
+.gsc-divider,
+.gsc-comment-box::before,
+.gsc-comment-box::after,
+.gsc-comment::before,
+.gsc-comment::after,
+.gsc-reply::before,
+.gsc-reply::after,
+.Box-header::before,
+.Box-header::after,
+.Box-body::before,
+.Box-body::after {
+  display: none !important;
+  border: 0 !important;
+}
+
+.gsc-comment-replies-count,
+.gsc-reply-count,
+.gsc-comment-replies,
+.gsc-comment-replies-header,
+.gsc-comment-replies-link,
+.gsc-comments-count,
+[aria-label*="resposta" i],
+[aria-label*="respostas" i],
+[title*="resposta" i],
+[title*="respostas" i] {
   display: none !important;
 }
 
-/* Esconder o botão para adicionar reação (emoji adder) */
-button[aria-label*="add reaction" i],
-button[aria-label*="adicionar reação" i],
-button[aria-label*="add emoji" i],
-button[title*="add reaction"],
-button[title*="emoji"],
-[class*="add-reaction"],
-[class*="add-emoji"] {
-  display: none !important;
+.gsc-comment-box,
+.gsc-comment,
+.gsc-reply,
+.gsc-comment-header,
+.gsc-comment-content,
+.gsc-comment-box-header,
+.gsc-comment-box-footer,
+.gsc-comment-box-bottom,
+.gsc-comment-box-textarea,
+.gsc-comment-box-textarea-extras,
+.gsc-timeline,
+.markdown-body,
+.Box,
+.Box-header,
+.Box-body,
+.Box-row {
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
 }
 
-/* Esconder reações que não sejam coração (riso, confusão, foguete, olhos) */
-button[aria-label*="laugh" i],
-button[aria-label*="grin" i],
-button[aria-label*="confused" i],
-button[aria-label*="rocket" i],
-button[aria-label*="eyes" i],
-button[title*="laugh"],
-button[title*="grin"],
-button[title*="confused"],
-button[title*="rocket"],
-button[title*="eyes"],
-/* português */
-button[aria-label*="gargalhada" i],
-button[aria-label*="sorriso" i],
-button[aria-label*="confuso" i],
-button[aria-label*="foguete" i],
-button[aria-label*="olhos" i] {
-  display: none !important;
+.gsc-comment-box,
+.gsc-comment-box *,
+.gsc-comment-box *:before,
+.gsc-comment-box *:after,
+.gsc-comment,
+.gsc-comment *,
+.gsc-comment *:before,
+.gsc-comment *:after,
+.gsc-reply,
+.gsc-reply *,
+.gsc-reply *:before,
+.gsc-reply *:after {
+  background-image: none !important;
 }
 
-/* Coração em preto/cinza escuro */
-button[aria-label*="heart" i],
-button[aria-label*="coração" i],
-button[title*="heart"],
-button[title*="coração"],
-[class*="heart"] {
+a {
   color: #000000 !important;
+  text-decoration: none !important;
 }
 
-button[aria-label*="heart" i] svg,
-button[aria-label*="coração" i] svg {
-  fill: #000000 !important;
-  color: #000000 !important;
-  stroke: #000000 !important;
-}
-
-button[aria-label*="heart" i]:hover,
-button[aria-label*="coração" i]:hover {
-  background-color: rgba(0, 0, 0, 0.05) !important;
+a:hover {
+  text-decoration: underline !important;
 }
