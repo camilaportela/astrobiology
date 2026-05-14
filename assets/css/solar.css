@@ -1,0 +1,365 @@
+.aboutme,
+.aboutme.fp-section,
+.section.aboutme {
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(ellipse at bottom, #1c2837 0%, #050608 100%) !important;
+  height: 40vh !important;
+  min-height: 40vh !important;
+}
+
+/* fullPage.js tableCell override: force the visible cell height to our stripe */
+.fp-section .aboutme .fp-tableCell,
+.aboutme .fp-tableCell {
+  height: 40vh !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* ensure fullpage anchors and fp-wrapper don't stretch first section */
+#fullpage .fp-section:first-child,
+#fullpage .fp-section:first-child .aboutme {
+  height: 40vh !important;
+}
+
+.hero-solar {
+  position: relative;
+  width: 100%;
+  height: 40vh;
+  min-height: 40vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* scale so the whole solar system fits inside the stripe */
+  --solar-scale: 0.45;
+  --solar-shift-x: 0%;
+}
+
+
+.solar-syst {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1560px;
+  height: 1560px;
+  transform: translate(-50%, -50%) scale(var(--solar-scale));
+  transform-origin: center center;
+  z-index: 9;
+}
+
+.solar-syst::after {
+  content: "";
+  position: absolute;
+  height: 2px;
+  width: 2px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #ffffff;
+  border-radius: 100px;
+  box-shadow:
+    74px 122px 0 0 rgba(255, 255, 255, 0.71),
+    220px 240px 0 0 rgba(255, 255, 255, 0.55),
+    318px 145px 0 0 rgba(255, 255, 255, 0.64),
+    412px 305px 0 0 rgba(255, 255, 255, 0.43),
+    558px 190px 0 0 rgba(255, 255, 255, 0.66),
+    610px 360px 0 0 rgba(255, 255, 255, 0.39),
+    755px 118px 0 0 rgba(255, 255, 255, 0.58),
+    884px 276px 0 0 rgba(255, 255, 255, 0.77),
+    1010px 140px 0 0 rgba(255, 255, 255, 0.4),
+    1138px 302px 0 0 rgba(255, 255, 255, 0.69),
+    1270px 165px 0 0 rgba(255, 255, 255, 0.46),
+    1384px 348px 0 0 rgba(255, 255, 255, 0.62),
+    1516px 210px 0 0 rgba(255, 255, 255, 0.49),
+    1640px 386px 0 0 rgba(255, 255, 255, 0.73),
+    1764px 250px 0 0 rgba(255, 255, 255, 0.52),
+    96px 520px 0 0 rgba(255, 255, 255, 0.6),
+    224px 640px 0 0 rgba(255, 255, 255, 0.42),
+    350px 560px 0 0 rgba(255, 255, 255, 0.74),
+    480px 712px 0 0 rgba(255, 255, 255, 0.51),
+    604px 596px 0 0 rgba(255, 255, 255, 0.63),
+    736px 748px 0 0 rgba(255, 255, 255, 0.57),
+    860px 622px 0 0 rgba(255, 255, 255, 0.45),
+    986px 774px 0 0 rgba(255, 255, 255, 0.67),
+    1114px 646px 0 0 rgba(255, 255, 255, 0.48),
+    1242px 800px 0 0 rgba(255, 255, 255, 0.7),
+    1368px 676px 0 0 rgba(255, 255, 255, 0.41),
+    1496px 828px 0 0 rgba(255, 255, 255, 0.56),
+    1620px 702px 0 0 rgba(255, 255, 255, 0.65),
+    1748px 856px 0 0 rgba(255, 255, 255, 0.53),
+    84px 958px 0 0 rgba(255, 255, 255, 0.68),
+    212px 1088px 0 0 rgba(255, 255, 255, 0.44),
+    336px 980px 0 0 rgba(255, 255, 255, 0.58),
+    466px 1140px 0 0 rgba(255, 255, 255, 0.76),
+    590px 1032px 0 0 rgba(255, 255, 255, 0.47),
+    722px 1192px 0 0 rgba(255, 255, 255, 0.63),
+    846px 1084px 0 0 rgba(255, 255, 255, 0.54),
+    972px 1244px 0 0 rgba(255, 255, 255, 0.42),
+    1104px 1136px 0 0 rgba(255, 255, 255, 0.69),
+    1230px 1296px 0 0 rgba(255, 255, 255, 0.52),
+    1358px 1188px 0 0 rgba(255, 255, 255, 0.61),
+    1484px 1348px 0 0 rgba(255, 255, 255, 0.46),
+    1612px 1238px 0 0 rgba(255, 255, 255, 0.74),
+    1736px 1398px 0 0 rgba(255, 255, 255, 0.5),
+    1864px 1288px 0 0 rgba(255, 255, 255, 0.66);
+}
+
+.solar-syst div {
+  border-radius: 1000px;
+  top: 50%;
+  left: 50%;
+  position: absolute;
+  z-index: 9;
+}
+
+.solar-syst div:not(.sun) {
+  border: 1px solid rgba(102, 166, 229, 0.12);
+}
+
+.solar-syst div:not(.sun)::before {
+  left: 50%;
+  border-radius: 100px;
+  content: "";
+  position: absolute;
+  box-shadow: inset 0 6px 0 -2px rgba(0, 0, 0, 0.25);
+}
+
+.sun {
+  background: radial-gradient(ellipse at center, #ffd000 1%, #f9b700 39%, #f9b700 39%, #e06317 100%);
+  height: 40px;
+  width: 40px;
+  margin-top: -20px;
+  margin-left: -20px;
+  background-clip: padding-box;
+  border: 0 !important;
+  background-position: -28px -103px;
+  background-size: 175%;
+  box-shadow: 0 0 10px 2px rgba(255, 107, 0, 0.4), 0 0 22px 11px rgba(255, 203, 0, 0.13);
+}
+
+.mercury {
+  height: 70px;
+  width: 70px;
+  margin-top: -35px;
+  margin-left: -35px;
+  animation: orb 7.19s linear infinite;
+}
+
+.mercury::before {
+  height: 4px;
+  width: 4px;
+  background: #9f5e26;
+  margin-top: -2px;
+  margin-left: -2px;
+}
+
+.venus {
+  height: 100px;
+  width: 100px;
+  margin-top: -50px;
+  margin-left: -50px;
+  animation: orb 18.45s linear infinite;
+}
+
+.venus::before {
+  height: 8px;
+  width: 8px;
+  background: #beb768;
+  margin-top: -4px;
+  margin-left: -4px;
+}
+
+.earth {
+  height: 145px;
+  width: 145px;
+  margin-top: -72.5px;
+  margin-left: -72.5px;
+  animation: orb 30s linear infinite;
+}
+
+.earth::before {
+  height: 6px;
+  width: 6px;
+  background: #11abe9;
+  margin-top: -3px;
+  margin-left: -3px;
+}
+
+.earth::after {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 50%;
+  top: 0;
+  margin-left: -9px;
+  margin-top: -9px;
+  border-radius: 100px;
+  box-shadow: 0 -10px 0 -8px #808080;
+  animation: orb 2.24s linear infinite;
+}
+
+.mars {
+  height: 190px;
+  width: 190px;
+  margin-top: -95px;
+  margin-left: -95px;
+  animation: orb 56.43s linear infinite;
+}
+
+.mars::before {
+  height: 6px;
+  width: 6px;
+  background: #cf3921;
+  margin-top: -3px;
+  margin-left: -3px;
+}
+
+.jupiter {
+  height: 340px;
+  width: 340px;
+  margin-top: -170px;
+  margin-left: -170px;
+  animation: orb 355.8s linear infinite;
+}
+
+.jupiter::before {
+  height: 18px;
+  width: 18px;
+  background: #c76e2a;
+  margin-top: -9px;
+  margin-left: -9px;
+}
+
+.saturn {
+  height: 440px;
+  width: 440px;
+  margin-top: -220px;
+  margin-left: -220px;
+  animation: orb 882.8s linear infinite;
+}
+
+.saturn::before {
+  height: 12px;
+  width: 12px;
+  background: #e7c194;
+  margin-top: -6px;
+  margin-left: -6px;
+}
+
+.saturn::after {
+  position: absolute;
+  content: "";
+  height: 2.34%;
+  width: 4.676%;
+  left: 50%;
+  top: 0;
+  transform: rotateZ(-52deg);
+  margin-left: -2.3%;
+  margin-top: -1.2%;
+  border-radius: 50%;
+  box-shadow: 0 1px 0 1px #987641, 3px 1px 0 #987641, -3px 1px 0 #987641;
+  animation: orb 882.8s linear infinite reverse;
+  transform-origin: 52% 60%;
+}
+
+.uranus {
+  height: 520px;
+  width: 520px;
+  margin-top: -260px;
+  margin-left: -260px;
+  animation: orb 2512.8s linear infinite;
+}
+
+.uranus::before {
+  height: 10px;
+  width: 10px;
+  background: #b5e3e3;
+  margin-top: -5px;
+  margin-left: -5px;
+}
+
+.neptune {
+  height: 630px;
+  width: 630px;
+  margin-top: -315px;
+  margin-left: -315px;
+  animation: orb 4912.5s linear infinite;
+}
+
+.neptune::before {
+  height: 10px;
+  width: 10px;
+  background: #175e9e;
+  margin-top: -5px;
+  margin-left: -5px;
+}
+
+.aboutme #moveDown {
+  z-index: 20;
+}
+
+
+@keyframes orb {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+/* Star field overlay for entire stripe */
+.hero-solar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(1px 1px at 10% 15%, white, rgba(255,255,255,0)),
+    radial-gradient(1px 1px at 20% 30%, white, rgba(255,255,255,0)),
+    radial-gradient(1px 1px at 35% 10%, white, rgba(255,255,255,0)),
+    radial-gradient(1px 1px at 50% 50%, white, rgba(255,255,255,0)),
+    radial-gradient(1px 1px at 65% 25%, white, rgba(255,255,255,0)),
+    radial-gradient(1px 1px at 75% 60%, white, rgba(255,255,255,0)),
+    radial-gradient(1px 1px at 85% 15%, white, rgba(255,255,255,0)),
+    radial-gradient(1px 1px at 15% 80%, white, rgba(255,255,255,0)),
+    radial-gradient(1px 1px at 45% 85%, white, rgba(255,255,255,0)),
+    radial-gradient(1px 1px at 70% 75%, white, rgba(255,255,255,0)),
+    radial-gradient(1px 1px at 90% 80%, white, rgba(255,255,255,0)),
+    radial-gradient(1px 1px at 25% 50%, white, rgba(255,255,255,0)),
+    radial-gradient(1px 1px at 60% 40%, white, rgba(255,255,255,0)),
+    radial-gradient(1px 1px at 80% 50%, white, rgba(255,255,255,0));
+  background-size: 100% 100%;
+  background-position: 0 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.8;
+}
+
+@media screen and (max-width: 900px) {
+  .hero-solar {
+    height: 40vh;
+    --solar-scale: 0.38;
+    --solar-shift-x: 0%;
+  }
+
+  .solar-syst {
+    transform: translateX(var(--solar-shift-x)) scale(var(--solar-scale));
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .hero-solar {
+    --solar-scale: 0.32;
+    --solar-shift-x: 0%;
+  }
+
+  .solar-syst {
+    transform: translateX(var(--solar-shift-x)) scale(var(--solar-scale));
+  }
+}
