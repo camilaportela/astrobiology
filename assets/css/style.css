@@ -1028,7 +1028,7 @@ label {
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  padding: 0.9rem 2rem 1.5rem;
+  padding: 0.6rem 2rem 1.2rem; /* reduzido top para aproximar da seção anterior */
   background: #fafafa;
   color: #efefef;
 }
@@ -1036,7 +1036,7 @@ label {
 .posts-expand-gallery {
   width: 100%;
   max-width: 100%;
-  margin: 0.25rem auto 0;
+  margin: 0 auto 0; /* removeu margem superior para subir a galeria */
   font-family: Georgia, serif;
   color: #222;
 }
@@ -1075,7 +1075,7 @@ label {
   -webkit-overflow-scrolling: touch;
   border-radius: 6px;
   background: #222;
-  margin-top: 0;
+  margin-top: 0; /* garantir sem deslocamento extra */
 }
 
 .posts-expand-gallery__track::-webkit-scrollbar {
