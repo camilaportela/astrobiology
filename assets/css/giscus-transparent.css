@@ -12,12 +12,12 @@
   --color-border-muted: transparent !important;
   --color-border-subtle: transparent !important;
 
-  --color-fg-default: transparent !important;
-  --color-fg-muted: transparent !important;
-  --color-fg-subtle: transparent !important;
+  --color-fg-default: #000000 !important;
+  --color-fg-muted: #000000 !important;
+  --color-fg-subtle: #000000 !important;
 
-  --color-accent-fg: #2b2b2b !important;
-  --color-accent-emphasis: #2b2b2b !important;
+  --color-accent-fg: #000000 !important;
+  --color-accent-emphasis: #000000 !important;
   --color-accent-muted: transparent !important;
   --color-accent-subtle: transparent !important;
 
@@ -25,11 +25,11 @@
   --color-btn-border: transparent !important;
 
   --color-btn-hover-bg: transparent !important;
-  --color-btn-text: #2b2b2b !important;
+  --color-btn-text: #000000 !important;
 
   --color-btn-primary-bg: transparent !important;
   --color-btn-primary-hover-bg: transparent !important;
-  --color-btn-primary-text: #2b2b2b !important;
+  --color-btn-primary-text: #000000 !important;
 }
 
 html,
@@ -161,7 +161,7 @@ button,
 .markdown-body {
   margin: 0 !important;
   padding: 0 !important;
-  color: #2b2b2b !important;
+  color: #000000 !important;
 }
 
 .gsc-comment-box {
@@ -194,12 +194,12 @@ select {
   background-color: transparent !important;
   border: 0 !important;
   box-shadow: none !important;
-  color: #2b2b2b !important;
+  color: #000000 !important;
 }
 
 textarea::placeholder,
 input::placeholder {
-  color: #8c8c8c !important;
+  color: #000000 !important;
   opacity: 1 !important;
 }
 
@@ -220,7 +220,7 @@ button,
 .btn-outline,
 .btn-sm {
   background: transparent !important;
-  color: #2b2b2b !important;
+  color: #000000 !important;
 }
 
 button:hover,
@@ -343,7 +343,7 @@ hr,
 }
 
 a {
-  color: #2b2b2b !important;
+  color: #000000 !important;
   text-decoration: none !important;
 }
 
