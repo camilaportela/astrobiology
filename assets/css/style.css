@@ -692,9 +692,9 @@ label {
   padding: 1em;
   margin-bottom: 0.75rem;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
-  color: #468847;
-  background-color: #dff0d8;
-  border: 1px solid #d6e9c6;
+  color: #000000;
+  background-color: #fdfdfd;
+  border: 1px solid #ffffff;
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   border-radius: 4px;
@@ -710,4 +710,22 @@ label {
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   border-radius: 4px;
+}
+
+/* Nota discreta abaixo do widget Giscus */
+.giscus-note {
+  margin-top: 0.75rem;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: #777;
+}
+
+.giscus-note a {
+  color: #333;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.giscus-note a:hover {
+  color: #000;
 }
