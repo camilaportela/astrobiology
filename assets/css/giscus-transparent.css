@@ -239,6 +239,108 @@ button:hover,
   box-shadow: none !important;
 }
 
+html *,
+html *::before,
+html *::after,
+body *,
+body *::before,
+body *::after {
+  border-top: 0 !important;
+  border-right: 0 !important;
+  border-bottom: 0 !important;
+  border-left: 0 !important;
+  box-shadow: none !important;
+  background-clip: padding-box !important;
+}
+
+.gsc-main > *,
+.gsc-comments > *,
+.gsc-timeline > *,
+.gsc-comment-box > *,
+.gsc-comment > *,
+.gsc-reply > *,
+.markdown-body > *,
+.Box > *,
+.Box-row > * {
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+hr,
+[role="separator"],
+[data-testid*="separator"],
+[class*="separator"],
+[class*="Separator"],
+[class*="divider"],
+[class*="Divider"],
+.gsc-comment-separator,
+.gsc-comment-box-separator,
+.gsc-horizontal-separator,
+.gsc-divider,
+.gsc-comment-box::before,
+.gsc-comment-box::after,
+.gsc-comment::before,
+.gsc-comment::after,
+.gsc-reply::before,
+.gsc-reply::after,
+.Box-header::before,
+.Box-header::after,
+.Box-body::before,
+.Box-body::after {
+  display: none !important;
+  border: 0 !important;
+}
+
+.gsc-comment-replies-count,
+.gsc-reply-count,
+.gsc-comment-replies,
+.gsc-comment-replies-header,
+.gsc-comment-replies-link,
+.gsc-comments-count,
+[aria-label*="resposta" i],
+[aria-label*="respostas" i],
+[title*="resposta" i],
+[title*="respostas" i] {
+  display: none !important;
+}
+
+.gsc-comment-box,
+.gsc-comment,
+.gsc-reply,
+.gsc-comment-header,
+.gsc-comment-content,
+.gsc-comment-box-header,
+.gsc-comment-box-footer,
+.gsc-comment-box-bottom,
+.gsc-comment-box-textarea,
+.gsc-comment-box-textarea-extras,
+.gsc-timeline,
+.markdown-body,
+.Box,
+.Box-header,
+.Box-body,
+.Box-row {
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.gsc-comment-box,
+.gsc-comment-box *,
+.gsc-comment-box *:before,
+.gsc-comment-box *:after,
+.gsc-comment,
+.gsc-comment *,
+.gsc-comment *:before,
+.gsc-comment *:after,
+.gsc-reply,
+.gsc-reply *,
+.gsc-reply *:before,
+.gsc-reply *:after {
+  background-image: none !important;
+}
+
 a {
   color: #2b2b2b !important;
   text-decoration: none !important;
