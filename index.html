@@ -70,56 +70,32 @@ layout: null
     {% endif %}
     <!-- end section: notícias -->
 
-    <!-- begin section: postagem mais recente -->
+    <!-- begin section: artigo editorial dinâmico -->
     {% if site.posts.size > 0 %}
     {% assign latest_post = site.posts.first %}
-    <div class="section latest-section" data-anchor="latest">
-      <div class="latest-container">
-        <h2 class="latest-title">Postagem Mais Recente</h2>
-        <article class="latest-article">
-          <header class="latest-header">
-            <h3 class="latest-byline">
-              Por <span class="latest-author">{{ latest_post.author }}</span> | 
-              <time>{{ latest_post.date | date: "%d de %B de %Y" }}</time>
-            </h3>
-            <h2 class="latest-headline">{{ latest_post.title }}</h2>
-            {% if latest_post.subtitle %}
-            <p class="latest-lead">{{ latest_post.subtitle }}</p>
-            {% endif %}
-          </header>
-          <div class="latest-excerpt">
-            {{ latest_post.excerpt }}
-          </div>
-          <a href="{{ latest_post.url | relative_url }}" class="latest-read-link">Ler artigo completo →</a>
-        </article>
-      </div>
-    </div>
-    {% endif %}
-    <!-- end section: postagem recente -->
-
     <div class="section article-section" data-anchor="skills">
       <article class="main-article">
         <header>
-          <h3 class="byline">Posted by <a href="#">Author Name</a> | <a href="#">October 11, 2016</a></h3>
-          <h1 class="article__headline">Article headline lorem ipsum dolor sit amet, consectetur adipisicing elit</h1>
-          <h2 class="lead">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsum sunt placeat, omnis provident eius sapiente fugiat sequi officiis laboriosam dolor</h2>
+          <h3 class="byline">Posted by <a href="#">{{ latest_post.author }}</a> | <a href="#">{{ latest_post.date | date: "%B %d, %Y" }}</a></h3>
+          <h1 class="article__headline">{{ latest_post.title }}</h1>
+          {% if latest_post.subtitle %}
+          <h2 class="lead">{{ latest_post.subtitle }}</h2>
+          {% endif %}
         </header>
 
         <article class="article-content">
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aspernatur deserunt odio soluta tenetur doloribus eligendi sint, delectus sunt recusandae id maxime praesentium consectetur incidunt quam omnis officia, voluptatem nostrum in!</p>
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Pariatur corporis harum quaerat. Qui aliquam nostrum laborum dicta et, soluta suscipit autem, mollitia, eveniet blanditiis ipsa! Cum beatae aspernatur iure laborum quibusdam, facere natus odit ex, inventore illo laboriosam tempora asperiores. Harum illo odit, nostrum veritatis, voluptate ea deleniti ipsa alias!</p>
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aspernatur ipsa perferendis provident ducimus aliquam esse tenetur ex eveniet animi in.</p>
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aspernatur ipsa perferendis provident ducimus aliquam esse tenetur ex eveniet animi in.</p>
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquid praesentium similique soluta in facilis quidem dicta inventore odio. Nisi debitis, itaque at in suscipit quisquam iusto veritatis officia doloremque praesentium harum voluptas ducimus animi, aspernatur repellendus dolor delectus expedita esse minus laborum? Consequatur veniam magni expedita tempore aperiam iste, culpa? &nbsp;&spades;</p>
+          {{ latest_post.excerpt }}
         </article>
 
         <aside class="author-bio">
-          <img class="profile-pic" src="http://fillmurray.com/120/120" alt="Author profile">
+          <img class="profile-pic" src="http://fillmurray.com/120/120" alt="Perfil de {{ latest_post.author }}">
           <div class="author-bio-text">
-            <p class="author-bio-name">Author Name</p>
-            <p class="author-bio-info">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quibusdam saepe ab aliquam. Illo consectetur, eaque consequatur atque quod impedit adipisci.</p>
+            <p class="author-bio-name">{{ latest_post.author }}</p>
+            <p class="author-bio-info">Texto em destaque na homepage, selecionado automaticamente a partir da postagem mais recente.</p>
           </div>
         </aside>
+
+        <a href="{{ latest_post.url | relative_url }}" class="latest-read-link">Ler artigo completo →</a>
 
         <section class="discussion" aria-labelledby="discussion-title">
           <h3 class="section-heading" id="discussion-title">Discussão</h3>
@@ -154,7 +130,8 @@ layout: null
         </section>
       </article>
     </div>
-    <!-- end section -->
+    {% endif %}
+    <!-- end section: artigo editorial dinâmico -->
 
   </div>
   <!-- end fullpage -->
