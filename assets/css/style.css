@@ -1093,7 +1093,7 @@ label {
   min-height: 28rem;
   display: block;
   background-color: #222;
-  background-image: var(--post-bg);
+  background-image: linear-gradient(rgba(10, 10, 10, .65), rgba(10, 10, 10, .65));
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -1145,10 +1145,14 @@ label {
 .posts-expand-gallery__info {
   position: relative;
   z-index: 2;
-  width: 80%;
-  height: 100%;
+  width: min(80%, 42rem);
+  min-height: 100%;
   margin: 0 auto;
-  padding-top: 24%;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
 }
 
@@ -1219,6 +1223,14 @@ label {
 .posts-expand-gallery__track:has(.posts-expand-gallery__item:only-child) .posts-expand-gallery__item {
   flex: 1 0 100%;
   min-width: 100%;
+}
+
+.posts-expand-gallery__track:has(.posts-expand-gallery__item:only-child) .posts-expand-gallery__info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 0;
 }
 
 /* Seção: Postagem Mais Recente */
@@ -1328,8 +1340,7 @@ label {
   }
 
   .posts-expand-gallery__info {
-    width: 84%;
-    padding-top: 22%;
+    width: min(88%, 34rem);
   }
 
   .posts-expand-gallery__title {

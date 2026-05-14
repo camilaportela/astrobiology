@@ -44,10 +44,15 @@ layout: null
       <div class="posts-expand-gallery">
         <div class="posts-expand-gallery__track" aria-label="Galeria de notícias">
           {% for post in site.posts %}
-            {% assign post_image = post.banner | default: "/assets/img/posts/default.jpg" %}
+            {% assign post_banner = post.banner | default: "/assets/img/posts/default.jpg" %}
+            {% if post_banner contains "http" %}
+              {% assign banner_url = post_banner %}
+            {% else %}
+              {% assign banner_url = post_banner | relative_url %}
+            {% endif %}
             <a class="posts-expand-gallery__item"
                href="{{ post.url | relative_url }}"
-               style="--post-bg: linear-gradient(rgba(10, 10, 10, .68), rgba(10, 10, 10, .68)), url('{{ post_image | relative_url }}');">
+               style="background-image: linear-gradient(rgba(10,10,10,.65), rgba(10,10,10,.65)), url('{{ banner_url }}');">
               <span class="posts-expand-gallery__chip">
                 {{ post.date | date: "%d %b %Y" }}
               </span>

@@ -5,7 +5,7 @@ subtitle: "Este é um subtítulo de teste para validar o layout editorial do sit
 date: 2026-05-14
 author: "Camila Portela"
 category: noticias
-banner: /assets/img/posts/exemplo.jpg
+banner: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1600&q=80"
 excerpt: "Esta é uma postagem de teste para validar a estrutura editorial do site."
 featured: true
 ---
