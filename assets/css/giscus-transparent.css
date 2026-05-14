@@ -1,6 +1,6 @@
 @import url("https://giscus.app/themes/noborder_light.css");
 
-/* Tema editorial transparente para Giscus - astrobiology.me */
+/* Tema totalmente translúcido e sem bordas para Giscus */
 
 :root {
   color-scheme: light;
@@ -13,28 +13,28 @@
   --color-border-muted: transparent !important;
 
   --color-fg-default: #2f2f2f !important;
-  --color-fg-muted: #777777 !important;
-  --color-fg-subtle: #999999 !important;
+  --color-fg-muted: #7a7a7a !important;
+  --color-fg-subtle: #9a9a9a !important;
 
   --color-accent-fg: #4f6478 !important;
   --color-accent-emphasis: #4f6478 !important;
-  --color-accent-muted: rgba(79, 100, 120, 0.18) !important;
-  --color-accent-subtle: rgba(79, 100, 120, 0.08) !important;
+  --color-accent-muted: transparent !important;
+  --color-accent-subtle: transparent !important;
 
   --color-btn-bg: transparent !important;
   --color-btn-border: transparent !important;
   --color-btn-hover-bg: rgba(0, 0, 0, 0.04) !important;
-  --color-btn-hover-border: transparent !important;
 
-  --color-btn-primary-bg: #333333 !important;
+  --color-btn-primary-bg: #2d2d2d !important;
   --color-btn-primary-hover-bg: #111111 !important;
   --color-btn-primary-text: #ffffff !important;
 }
 
-/* Fundo totalmente transparente */
+/* Fundo totalmente transparente em tudo */
 html,
 body,
 main,
+iframe,
 .gsc-main,
 .gsc-timeline,
 .gsc-comments,
@@ -42,109 +42,151 @@ main,
 .gsc-comment,
 .gsc-replies,
 .gsc-reply,
-.markdown-body {
+.gsc-homepage-bg,
+.gsc-comment-content,
+.gsc-comment-box-tabs,
+.gsc-comment-box-bottom,
+.gsc-comment-box-textarea,
+.gsc-comment-box-textarea-extras,
+.markdown-body,
+.Box,
+.Box-row,
+.color-bg-default,
+.color-bg-subtle,
+.color-bg-muted,
+.color-shadow-small,
+.color-shadow-medium,
+.color-shadow-large {
   background: transparent !important;
   background-color: transparent !important;
 }
 
-/* Remove a barra superior:
-   contador, "distribuído por giscus", Mais antigo/Mais novo */
-.gsc-header {
-  display: none !important;
-}
-
-/* Remove selo "Membro", "Dono", "Owner", etc. */
-.author-association-badge,
-.gsc-comment-author-association,
-.gsc-comment-author .Label,
-.gsc-comment-author .label,
-.Label,
-.Label--secondary {
-  display: none !important;
-}
-
-/* Remove aparência de cartão/borda pesada */
+/* Remove qualquer borda/sombra residual */
+*,
 .gsc-comment,
 .gsc-comment-box,
 .gsc-reply,
 .gsc-reply-box,
 .gsc-comment-content,
+.gsc-comment-header,
 .gsc-comment-box-tabs,
 .gsc-comment-box-bottom,
 .gsc-comment-box-textarea,
-.gsc-comment-box-textarea-extras {
-  border: none !important;
+.gsc-comment-box-textarea-extras,
+.Box,
+.Box-row,
+.form-control,
+.input-contrast,
+textarea {
+  border-color: transparent !important;
   box-shadow: none !important;
-  background: transparent !important;
-  background-color: transparent !important;
+  outline: none !important;
 }
 
-/* Comentário individual: integrado ao texto, sem caixa fechada */
-.gsc-comment {
+/* Remove a barra superior inteira */
+.gsc-header {
+  display: none !important;
+}
+
+/* Remove selo Dono / Membro / Owner */
+.author-association-badge,
+.gsc-comment-author-association,
+.Label,
+.Label--secondary,
+[class*="authorAssociation"],
+[class*="AuthorAssociation"] {
+  display: none !important;
+}
+
+/* Remove as reações, se quiser visual mais limpo */
+.gsc-reactions,
+.gsc-social-reaction-summary,
+.gsc-comment__reactions,
+.gsc-reaction-button,
+button[aria-label*="reaction"],
+button[aria-label*="Reação"] {
+  display: none !important;
+}
+
+/* Remove contagem de respostas na lateral */
+.gsc-comment-replies-count {
+  display: none !important;
+}
+
+/* Remove linhas horizontais */
+hr,
+.gsc-comment-separator,
+.gsc-comment-box-separator,
+.markdown-body hr {
+  display: none !important;
+  border: none !important;
+}
+
+/* Comentário sem caixa */
+.gsc-comment,
+.gsc-reply {
   padding: 0 !important;
-  margin: 1.7rem 0 !important;
+  margin: 1.2rem 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
 }
 
 /* Cabeçalho do comentário */
 .gsc-comment-header {
-  border: none !important;
+  padding: 0 !important;
+  margin-bottom: 0.35rem !important;
   background: transparent !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
+  border: none !important;
 }
 
 /* Corpo do comentário */
-.gsc-comment-content {
-  padding: 0.35rem 0 0.8rem 0 !important;
+.gsc-comment-content,
+.markdown-body {
+  padding: 0 !important;
+  margin: 0 !important;
+  color: #2f2f2f !important;
 }
 
-/* Linhas internas mais delicadas */
-.markdown-body h1,
-.markdown-body h2 {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
-}
-
-/* Remove separadores fortes */
-hr,
-.gsc-comment-separator,
-.gsc-comment-box-separator {
-  border: none !important;
-  background: transparent !important;
-}
-
-/* Caixa de escrever comentário */
+/* Área de escrever */
 textarea,
 .form-control,
 .input-contrast,
-.gsc-comment-box-textarea {
+.gsc-comment-box-textarea,
+.gsc-comment-box-textarea-extras {
   background: transparent !important;
   background-color: transparent !important;
-  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  border: none !important;
   box-shadow: none !important;
   color: #2f2f2f !important;
-  border-radius: 6px !important;
+  border-radius: 0 !important;
 }
 
+/* Se quiser uma linha bem sutil só no campo, use isso.
+   Se quiser ZERO linha, deixe transparente como já está. */
 textarea:focus,
 .form-control:focus,
 .gsc-comment-box-textarea:focus {
-  border-color: rgba(0, 0, 0, 0.28) !important;
+  border: none !important;
+  outline: none !important;
   box-shadow: none !important;
 }
 
+/* Placeholder */
 textarea::placeholder {
-  color: #8a8a8a !important;
+  color: #8f8f8f !important;
 }
 
-/* Abas "Escreva" e "Prévia" */
+/* Abas Escreva / Prévia */
 .gsc-comment-box-tabs {
   border: none !important;
+  margin-bottom: 0.5rem !important;
 }
 
 .gsc-comment-box-tab {
   background: transparent !important;
   border: none !important;
-  color: #777777 !important;
+  color: #666666 !important;
+  padding-left: 0 !important;
 }
 
 .gsc-comment-box-tab[aria-selected="true"] {
@@ -157,28 +199,23 @@ button,
 .btn,
 .btn-primary,
 .btn-secondary {
+  border: none !important;
   box-shadow: none !important;
-  border-radius: 6px !important;
 }
 
 .btn {
   background: transparent !important;
-  border: none !important;
 }
 
 .btn:hover {
   background: rgba(0, 0, 0, 0.04) !important;
 }
 
-/* Botão principal de comentar */
+/* Botão principal */
 .btn-primary {
-  background: #333333 !important;
+  background: #2d2d2d !important;
   color: #ffffff !important;
-  border: none !important;
-}
-
-.btn-primary:hover {
-  background: #111111 !important;
+  border-radius: 6px !important;
 }
 
 /* Links */
@@ -188,43 +225,9 @@ a {
   text-underline-offset: 2px;
 }
 
-/* Texto markdown */
-.markdown-body {
-  color: #2f2f2f !important;
-}
-
-/* Código, se alguém usar markdown */
-.markdown-body code {
-  background: rgba(0, 0, 0, 0.05) !important;
-  color: #333333 !important;
-  border-radius: 4px !important;
-}
-
 /* Avatar limpo */
 .avatar,
 .gsc-comment-author-avatar img {
   box-shadow: none !important;
   border: none !important;
-}
-
-/* Remove fundos herdados do GitHub */
-.color-bg-default,
-.color-bg-subtle,
-.color-bg-muted,
-.color-border-default,
-.color-border-muted,
-.Box,
-.Box-row {
-  background: transparent !important;
-  background-color: transparent !important;
-  border-color: transparent !important;
-  box-shadow: none !important;
-}
-
-/* Reações mais discretas */
-.gsc-reactions,
-.gsc-reactions-button {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
 }
