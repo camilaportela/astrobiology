@@ -12,9 +12,9 @@
   --color-border-muted: transparent !important;
   --color-border-subtle: transparent !important;
 
-  --color-fg-default: #2b2b2b !important;
-  --color-fg-muted: #666666 !important;
-  --color-fg-subtle: #8a8a8a !important;
+  --color-fg-default: transparent !important;
+  --color-fg-muted: transparent !important;
+  --color-fg-subtle: transparent !important;
 
   --color-accent-fg: #2b2b2b !important;
   --color-accent-emphasis: #2b2b2b !important;
@@ -23,6 +23,7 @@
 
   --color-btn-bg: transparent !important;
   --color-btn-border: transparent !important;
+
   --color-btn-hover-bg: transparent !important;
   --color-btn-text: #2b2b2b !important;
 
