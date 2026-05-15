@@ -86,40 +86,8 @@ layout: default
         {{ latest_post.content }}
       </div>
 
-      <!-- Inclusão da seção de discussão específica para esta postagem
-           Usamos mapping 'specific' com term igual ao caminho da postagem para
-           garantir que os comentários pertençam exclusivamente a este post. -->
-      <section class="discussion" aria-labelledby="discussion-title">
-        <h3 class="section-heading" id="discussion-title">Discussão</h3>
-        <p class="discussion__lead">Comentários são bem-vindos, especialmente perguntas, correções, referências e hipóteses bem delimitadas.</p>
-
-        <div class="discussion__widget">
-          <script
-            src="https://giscus.app/client.js"
-            data-repo="camilaportela/astrobiology"
-            data-repo-id="R_kgDOQteLLw"
-            data-category="Comentários"
-            data-category-id="DIC_kwDOQteLL84C9Aad"
-            data-mapping="specific"
-            data-term="{{ latest_post.url | relative_url }}"
-            data-strict="0"
-            data-reactions-enabled="0"
-            data-emit-metadata="0"
-            data-input-position="bottom"
-            data-theme="https://astrobiology.me/assets/css/giscus-transparent.css?v=9"
-            data-lang="pt"
-            data-loading="lazy"
-            crossorigin="anonymous"
-            async>
-          </script>
-
-          <p class="giscus-note">
-            Os comentários são gerenciados pelo giscus/GitHub Discussions.
-            Para editar ou remover seus comentários, acesse
-            <a href="https://github.com/camilaportela/astrobiology/discussions" target="_blank" rel="noopener noreferrer">GitHub Discussions</a>.
-          </p>
-        </div>
-      </section>
+      {% assign latest_post_term = latest_post.url %}
+      {% include giscus.html mapping="specific" term=latest_post_term %}
     </article>
   </div>
 </section>

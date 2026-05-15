@@ -1,6 +1,9 @@
+{% assign giscus_mapping = include.mapping | default: "pathname" %}
+{% assign giscus_term = include.term %}
+
 <section class="discussion" aria-labelledby="discussion-title">
   <h3 class="section-heading" id="discussion-title">Discussão</h3>
-  <p class="discussion__lead">Comentários são bem-vindos, especialmente perguntas, correções, referências e hipóteses bem delimitadas. Especulação é permitida; pseudociência, não.</p>
+  <p class="discussion__lead">Comentários são bem-vindos, especialmente perguntas, correções, referências e hipóteses bem delimitadas.</p>
 
   <div class="discussion__widget">
     <script
@@ -9,7 +12,8 @@
       data-repo-id="R_kgDOQteLLw"
       data-category="Comentários"
       data-category-id="DIC_kwDOQteLL84C9Aad"
-      data-mapping="pathname"
+      data-mapping="{{ giscus_mapping }}"
+      {% if giscus_term %}data-term="{{ giscus_term }}"{% endif %}
       data-strict="0"
       data-reactions-enabled="0"
       data-emit-metadata="0"
@@ -22,8 +26,7 @@
     </script>
 
     <p class="giscus-note">
-      Os comentários são gerenciados pelo giscus/GitHub Discussions.
-      Para editar, remover seus comentários ou acessar recursos adicionais, clique em
+      Os comentários são gerenciados pelo giscus/GitHub Discussions. Para editar ou remover seus comentários, acesse
       <a href="https://github.com/camilaportela/astrobiology/discussions" target="_blank" rel="noopener noreferrer">GitHub Discussions</a>.
     </p>
   </div>
