@@ -2,7 +2,7 @@
 layout: post
 title: "Sexta postagem de teste"
 subtitle: "Checando a visibilidade do quinto item e comportamento das setas."
-date: 2026-05-14 12:40:00
+date: 2026-05-10 12:00:00
 author: "Camila Portela"
 category: noticias
 banner: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1350&q=80"

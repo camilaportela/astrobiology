@@ -2,7 +2,7 @@
 layout: post
 title: "Segunda postagem de teste"
 subtitle: "Este é um segundo post temporário para testar a galeria horizontal de notícias."
-date: 2026-05-15
+date: 2026-05-09 12:00:00
 author: "Camila Portela"
 category: noticias
 banner: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1600&q=80"
