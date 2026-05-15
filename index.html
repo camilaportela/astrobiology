@@ -41,7 +41,9 @@ layout: null
 
     <!-- begin section: galeria horizontal de posts -->
     <div class="section posts-expand-gallery-section" data-anchor="news">
-      {% assign posts_count = site.posts | size %}
+      {% assign latest_post = site.posts.first %}
+      {% assign gallery_posts = site.posts | where_exp: "post", "post.url != latest_post.url" %}
+      {% assign posts_count = gallery_posts | size %}
       {% if posts_count == 1 %}
         {% assign gallery_count_class = "posts-expand-gallery--one" %}
       {% elsif posts_count == 2 %}
@@ -60,7 +62,7 @@ layout: null
 
         <div class="posts-expand-gallery__viewport">
           <div class="posts-expand-gallery__track" aria-label="Galeria de notícias">
-            {% for post in site.posts %}
+            {% for post in gallery_posts %}
             {% assign post_banner = post.banner | default: "/assets/img/posts/default.jpg" %}
             {% if post_banner contains "http" %}
               {% assign banner_url = post_banner %}
@@ -101,7 +103,6 @@ layout: null
 
     <!-- begin section: artigo editorial dinâmico -->
     {% if site.posts.size > 0 %}
-    {% assign latest_post = site.posts.first %}
     <div class="section article-section" data-anchor="skills">
       <article class="main-article">
         <header>
