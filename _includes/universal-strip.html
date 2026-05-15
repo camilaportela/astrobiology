@@ -45,7 +45,9 @@
              style="background-image: linear-gradient(rgba(10,10,10,.65), rgba(10,10,10,.65)), url('{{ banner_url }}');">
             <span class="posts-expand-gallery__chip">{{ post.date | date: "%d %b %Y" }}</span>
             <div class="posts-expand-gallery__info">
-              <span class="posts-expand-gallery__title">{{ post.title }}</span>
+              {% comment %} Calculate global rank (1 = most recent) by searching site.posts {% endcomment %}
+              {% capture rank %}{% for p in site.posts %}{% if p.url == post.url %}{{ forloop.index }}{% break %}{% endif %}{% endfor %}{% endcapture %}
+              <span class="posts-expand-gallery__title">Postagem {{ rank | strip }} — {{ post.title }}</span>
               <strong class="posts-expand-gallery__excerpt">{% if post.subtitle %}{{ post.subtitle | strip_html | truncate: 140 }}{% else %}{{ post.excerpt | strip_html | truncate: 140 }}{% endif %}</strong>
               <span class="posts-expand-gallery__button">+</span>
             </div>
