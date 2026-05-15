@@ -1,0 +1,62 @@
+{% if site.posts.size > 0 %}
+{% assign latest_post = site.posts.first %}
+{% assign gallery_posts = site.posts | where_exp: "post", "post.url != latest_post.url" %}
+{% assign posts_count = gallery_posts | size %}
+
+<div class="section posts-expand-gallery-section" data-anchor="news">
+  {% if posts_count == 1 %}
+    {% assign gallery_count_class = "posts-expand-gallery--one" %}
+  {% elsif posts_count == 2 %}
+    {% assign gallery_count_class = "posts-expand-gallery--two" %}
+  {% elsif posts_count == 3 %}
+    {% assign gallery_count_class = "posts-expand-gallery--three" %}
+  {% else %}
+    {% assign gallery_count_class = "posts-expand-gallery--four" %}
+  {% endif %}
+
+  <div class="posts-expand-gallery {{ gallery_count_class }}" data-posts-count="{{ posts_count }}">
+    {% if posts_count > 4 %}
+      <button class="posts-expand-gallery__arrow posts-expand-gallery__arrow--prev" type="button" aria-label="Mostrar posts anteriores">&#10094;</button>
+      <button class="posts-expand-gallery__arrow posts-expand-gallery__arrow--next" type="button" aria-label="Mostrar próximos posts">&#10095;</button>
+    {% endif %}
+
+    <div class="posts-expand-gallery__viewport">
+      <div class="posts-expand-gallery__track" aria-label="Galeria de notícias">
+        {% for post in gallery_posts %}
+        {% assign post_banner = post.banner | default: "/assets/img/posts/default.jpg" %}
+        {% if post_banner contains "http" %}
+          {% assign banner_url = post_banner %}
+        {% else %}
+          {% assign banner_url = post_banner | relative_url %}
+        {% endif %}
+          <a class="posts-expand-gallery__item"
+             href="{{ post.url | relative_url }}"
+             style="background-image: linear-gradient(rgba(10,10,10,.65), rgba(10,10,10,.65)), url('{{ banner_url }}');">
+          <span class="posts-expand-gallery__chip">
+            {{ post.date | date: "%d %b %Y" }}
+          </span>
+
+            <div class="posts-expand-gallery__info">
+              <span class="posts-expand-gallery__title">{{ post.title }}</span>
+
+              <strong class="posts-expand-gallery__excerpt">
+                {% if post.subtitle %}
+                  {{ post.subtitle | strip_html | truncate: 140 }}
+                {% else %}
+                  {{ post.excerpt | strip_html | truncate: 140 }}
+                {% endif %}
+              </strong>
+
+              <span class="posts-expand-gallery__button">+</span>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+
+    <p class="posts-expand-gallery__footer">
+      <a href="/noticias/" class="posts-expand-gallery__link">Ver todas as notícias →</a>
+    </p>
+  </div>
+</div>
+{% endif %}
