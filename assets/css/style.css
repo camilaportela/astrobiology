@@ -971,6 +971,8 @@ label {
   font-family: Georgia, serif;
   margin-bottom: 0.8rem; /* espaço reduzido, link logo abaixo */
   display: -webkit-box; /* truncar por linhas (WebKit) */
+  display: box;
+  line-clamp: 6; /* padrão não prefixado (compatibilidade) */
   -webkit-line-clamp: 6; /* mostrar até ~6 linhas do preview */
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -1001,6 +1003,7 @@ label {
 
 @media (max-width: 768px) {
   .latest-post-excerpt {
+    line-clamp: 4; /* padrão não prefixado (compatibilidade) */
     -webkit-line-clamp: 4; /* reduzir linhas em telas pequenas */
   }
 }
