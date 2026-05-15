@@ -1220,18 +1220,7 @@ label {
 }
 
 .posts-expand-gallery__button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0.9rem auto 0;
-  padding: 0.3em 0.6em;
-  background: rgba(0, 0, 0, 0.5);
-  color: #444;
-  font-weight: 700;
-  font-size: 1.5rem;
-  line-height: 1;
-  transform: rotate(45deg);
-  transition: all 0.4s ease-out;
+  display: none !important; /* ocultar o botão '+' dentro de cada card */
 }
 
 .posts-expand-gallery__item:hover .posts-expand-gallery__button,
@@ -1246,11 +1235,11 @@ label {
 }
 
 .posts-expand-gallery__footer {
-  display: block; /* mostrar o link "Ver todas as notícias" abaixo da galeria */
+  display: none !important; /* ocultar visualmente o rodapé/link conforme solicitado */
   margin: 0;
-  padding: 0.9rem 0 1.25rem;
-  text-align: center;
-  background: #080d14; /* manter fundo escuro contínuo */
+  padding: 0;
+  height: 0;
+  overflow: hidden;
 }
 
 .posts-expand-gallery__link {
