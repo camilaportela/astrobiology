@@ -1031,9 +1031,9 @@ label {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  align-items: center;
-  min-height: 60vh;
-  height: 60vh;
+  align-items: stretch;
+  min-height: 0;
+  height: auto;
   padding: 0;
   background: #fafafa;
   color: #efefef;
@@ -1042,6 +1042,7 @@ label {
 /* fullPage.js tableCell: force gallery section content to align to top */
 #fullpage .posts-expand-gallery-section .fp-tableCell {
   display: flex !important;
+  flex-direction: column;
   align-items: stretch !important;
   justify-content: flex-start !important;
   height: 100% !important;
@@ -1052,17 +1053,19 @@ label {
   position: relative;
   width: 100%;
   max-width: 100%;
-  height: 100%;
+  height: auto;
   margin: 0;
   display: flex;
   flex-direction: column;
   font-family: Georgia, serif;
   color: #222;
+  overflow: visible;
 }
 
 .posts-expand-gallery__viewport {
   position: relative;
-  flex: 1 1 auto;
+  width: 100%;
+  height: clamp(280px, 34vh, 380px);
   min-height: 0;
   overflow: hidden;
 }
@@ -1122,8 +1125,11 @@ label {
   position: relative;
   flex: 0 0 25%;
   min-width: 25%;
-  min-height: 100%;
-  display: block;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background-color: #222;
   background-image: linear-gradient(rgba(10, 10, 10, .65), rgba(10, 10, 10, .65));
   background-size: cover;
@@ -1177,10 +1183,10 @@ label {
 .posts-expand-gallery__info {
   position: relative;
   z-index: 2;
-  width: min(82%, 42rem);
-  min-height: 100%;
+  width: min(82%, 34rem);
+  min-height: 0;
   margin: 0 auto;
-  padding: 0.5rem 1rem 0;
+  padding: 0 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1191,18 +1197,18 @@ label {
 .posts-expand-gallery__title {
   display: block;
   width: 100%;
-  margin: 0 auto;
-  min-height: 2.7rem;
+  margin: 0;
+  min-height: 0;
   line-height: 1.15;
   color: #efefef;
   font-weight: 700;
-  font-size: clamp(1.8rem, 3vw, 2.35rem);
+  font-size: clamp(1.5rem, 2.3vw, 2rem);
 }
 
 .posts-expand-gallery__excerpt {
   display: block;
   width: 100%;
-  margin: 0.85rem auto 0;
+  margin: 0.7rem auto 0;
   color: #c7c7c7;
   font-weight: 400;
   font-style: italic;
@@ -1214,7 +1220,7 @@ label {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin: 1rem auto 0;
+  margin: 0.9rem auto 0;
   padding: 0.3em 0.6em;
   background: rgba(0, 0, 0, 0.5);
   color: #444;
@@ -1238,7 +1244,7 @@ label {
 
 .posts-expand-gallery__footer {
   margin: 0;
-  padding: 0.55rem 1rem 0.75rem;
+  padding: 0.45rem 1rem 0.6rem;
   text-align: center;
   background: #fafafa;
 }
@@ -1400,9 +1406,11 @@ label {
 /* Responsividade */
 @media (max-width: 768px) {
   .posts-expand-gallery-section {
-    min-height: 55vh;
-    height: 55vh;
     padding: 0;
+  }
+
+  .posts-expand-gallery__viewport {
+    height: clamp(260px, 34vh, 380px);
   }
 
   .posts-expand-gallery__heading {
@@ -1416,7 +1424,8 @@ label {
 
   .posts-expand-gallery__item {
     min-width: 82vw;
-    min-height: 100%;
+    height: 100%;
+    min-height: 0;
     flex: 0 0 82vw;
   }
 
@@ -1425,7 +1434,7 @@ label {
   }
 
   .posts-expand-gallery__info {
-    width: min(88%, 34rem);
+    width: min(88%, 30rem);
   }
 
   .posts-expand-gallery__title {
