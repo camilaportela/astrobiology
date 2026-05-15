@@ -175,6 +175,15 @@ $(document).ready(function () {
       nextBtn.addEventListener('click', function () {
         track.scrollBy({ left: getStep(), behavior: 'smooth' });
       });
+
+      // prevent manual wheel/touch scrolling so only arrows control navigation
+      track.addEventListener('wheel', function (e) {
+        e.preventDefault();
+      }, { passive: false });
+
+      track.addEventListener('touchmove', function (e) {
+        e.preventDefault();
+      }, { passive: false });
     });
   }
 

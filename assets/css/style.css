@@ -1106,7 +1106,7 @@ label {
   gap: 0;
   width: 100%;
   height: 100%;
-  overflow-x: auto;
+  overflow-x: hidden; /* bloquear rolagem manual; navegação via setas JS */
   overflow-y: hidden;
   scrollbar-width: thin;
   scroll-snap-type: x proximity;
@@ -1117,7 +1117,7 @@ label {
 }
 
 .posts-expand-gallery__track::-webkit-scrollbar {
-  height: 10px;
+  height: 0; /* esconder barra quando presente */
 }
 
 .posts-expand-gallery__track::-webkit-scrollbar-track {
@@ -1251,10 +1251,7 @@ label {
 }
 
 .posts-expand-gallery__footer {
-  margin: 0;
-  padding: 0.45rem 1rem 0.6rem;
-  text-align: center;
-  background: #fafafa;
+  display: none; /* removido: navegação controlada apenas por setas */
 }
 
 .posts-expand-gallery__link {
