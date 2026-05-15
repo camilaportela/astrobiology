@@ -2,9 +2,70 @@
 layout: default
 ---
 
-{% if site.posts.size > 0 %}
-{% assign latest_post = site.posts.first %}
+<!-- Hero section com sistema solar -->
+<div id="fullpage">
+  <div class="section aboutme" data-anchor="aboutme">
+    <div class="hero-solar">
+      <div class="solar-syst" aria-label="Sistema solar animado">
+        <div class="sun"></div>
+        <div class="mercury"></div>
+        <div class="venus"></div>
+        <div class="earth"></div>
+        <div class="mars"></div>
+        <div class="jupiter"></div>
+        <div class="saturn"></div>
+        <div class="uranus"></div>
+        <div class="neptune"></div>
+      </div>
+    </div>
+    <i id="moveDown" class="fa-solid fa-chevron-down fa-3x bounce"></i>
+  </div>
+</div>
 
+<!-- Menu de navegação -->
+<nav class="home-nav">
+  <ul class="nav-list">
+    <li><a href="#noticias" class="nav-link">Notícias</a></li>
+    <li><a href="#sobre" class="nav-link">Sobre nós</a></li>
+  </ul>
+</nav>
+
+{% assign latest_post = site.posts.first %}
+{% assign noticias_posts = site.posts %}
+
+<!-- Seção de artigos em destaque -->
+{% assign featured_posts = noticias_posts | where: "featured", true %}
+{% if featured_posts.size > 0 %}
+<section class="featured-section" id="noticias">
+  <div class="featured-container">
+    <h2 class="section-title">Em Destaque</h2>
+    <div class="featured-grid">
+      {% for post in featured_posts limit: 3 %}
+      <article class="featured-card">
+        {% if post.banner %}
+        <div class="featured-card-image">
+          <img src="{{ post.banner | relative_url }}" alt="{{ post.title }}" onerror="this.style.display='none'">
+        </div>
+        {% endif %}
+        <div class="featured-card-content">
+          <h3 class="featured-card-title">{{ post.title }}</h3>
+          <p class="featured-card-meta">
+            <time datetime="{{ post.date | date: '%Y-%m-%d' }}">
+              {{ post.date | date: "%d de %b de %Y" }}
+            </time>
+          </p>
+          <p class="featured-card-excerpt">{{ post.excerpt }}</p>
+          <a href="{{ post.url | relative_url }}" class="featured-card-link">Ler artigo →</a>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Seção: Postagem mais recente -->
+{% if noticias_posts.size > 0 %}
 <section class="latest-section">
   <div class="latest-container">
     <h2 class="section-title">Postagem Mais Recente</h2>
@@ -21,7 +82,6 @@ layout: default
         <p class="latest-post-lead">{{ latest_post.subtitle }}</p>
         {% endif %}
       </header>
-
       <div class="latest-post-excerpt latest-post-full">
         {{ latest_post.content }}
       </div>
@@ -32,3 +92,44 @@ layout: default
   </div>
 </section>
 {% endif %}
+
+<!-- Seção: Lista de posts recentes -->
+<section class="posts-list-section">
+  <div class="posts-list-container">
+    <h2 class="section-title">Artigos Recentes</h2>
+    <div class="posts-list">
+      {% for post in noticias_posts limit: 10 %}
+      <article class="post-list-item">
+        <div class="post-list-meta">
+          <time class="post-list-date" datetime="{{ post.date | date: '%Y-%m-%d' }}">
+            {{ post.date | date: "%d de %b" }}
+          </time>
+        </div>
+        <div class="post-list-content">
+          <h3 class="post-list-title">
+            <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+          </h3>
+          <p class="post-list-author">Por {{ post.author }}</p>
+          {% if post.excerpt %}
+          <p class="post-list-excerpt">{{ post.excerpt }}</p>
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Seção: Sobre nós (placeholder) -->
+<section class="about-section" id="sobre">
+  <div class="about-container">
+    <h2 class="section-title">Sobre Nós</h2>
+    <div class="about-content">
+      <p>
+        O site Astrobiologia é um espaço dedicado à exploração e divulgação científica
+        sobre a vida no universo. Aqui compartilhamos artigos, pesquisas e discussões
+        sobre os mistérios da astrobiologia.
+      </p>
+    </div>
+  </div>
+</section>
