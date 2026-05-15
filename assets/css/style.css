@@ -968,8 +968,25 @@ label {
   font-size: 1rem;
   color: #555;
   line-height: 1.8;
-  margin-bottom: 2rem; /* mais espaço antes do link */
   font-family: Georgia, serif;
+  margin-bottom: 0.8rem; /* espaço reduzido, link logo abaixo */
+  display: -webkit-box; /* truncar por linhas (WebKit) */
+  -webkit-line-clamp: 6; /* mostrar até ~6 linhas do preview */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  position: relative;
+}
+
+/* gradiente no final do trecho para indicar conteúdo oculto */
+.latest-post-excerpt::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2.5rem;
+  background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%);
+  pointer-events: none;
 }
 
 .latest-post-link {
@@ -979,7 +996,13 @@ label {
   font-size: 0.95rem;
   transition: color 0.3s ease;
   display: inline-block;
-  margin-top: 1.75rem; /* empurra o botão de ler mais para baixo */
+  margin-top: 0.5rem; /* manter o link próximo ao preview truncado */
+}
+
+@media (max-width: 768px) {
+  .latest-post-excerpt {
+    -webkit-line-clamp: 4; /* reduzir linhas em telas pequenas */
+  }
 }
 
 .latest-post-link:hover {
