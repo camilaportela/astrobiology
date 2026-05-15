@@ -1373,7 +1373,7 @@ label {
 
 /* Título que fica no início da seção de artigos (abaixo da galeria)
    Aplicado dentro de `.main-article` para garantir alinhamento com o conteúdo */
-.article-section .main-article::before {
+.show-noticias .article-section .main-article::before {
   content: "NOTÍCIAS RECENTES";
   display: block;
   width: 100%;
