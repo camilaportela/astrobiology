@@ -1108,7 +1108,8 @@ label {
   height: 100%;
   overflow-x: auto; /* permitir touch-drag e arraste, bloquear roda via JS */
   overflow-y: hidden;
-  scrollbar-width: thin;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
   scroll-snap-type: x proximity;
   -webkit-overflow-scrolling: touch;
   border-radius: 0;
@@ -1117,16 +1118,8 @@ label {
 }
 
 .posts-expand-gallery__track::-webkit-scrollbar {
-  height: 0; /* esconder barra quando presente */
-}
-
-.posts-expand-gallery__track::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.posts-expand-gallery__track::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.28);
-  border-radius: 999px;
+  height: 0; /* esconder barra no WebKit/Blink */
+  display: none;
 }
 
 .posts-expand-gallery__item {
