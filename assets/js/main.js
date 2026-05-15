@@ -180,10 +180,6 @@ $(document).ready(function () {
       track.addEventListener('wheel', function (e) {
         e.preventDefault();
       }, { passive: false });
-
-      track.addEventListener('touchmove', function (e) {
-        e.preventDefault();
-      }, { passive: false });
     });
   }
 
