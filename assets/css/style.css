@@ -1320,7 +1320,12 @@ label {
 
 .posts-expand-gallery__arrow--next {
   right: 0.65rem;
-  top: 62% !important; /* abaixa um pouco a seta direita para não sobrepor o texto */
+  top: 70% !important; /* abaixa um pouco a seta direita para não sobrepor o texto */
+}
+
+/* alinhar ambas as setas na mesma altura para consistência */
+.posts-expand-gallery__arrow--prev {
+  top: 70% !important;
 }
 
 /* Seção: Postagem Mais Recente */
