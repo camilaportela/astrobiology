@@ -1065,7 +1065,7 @@ label {
 .posts-expand-gallery__viewport {
   position: relative;
   width: 100%;
-  height: clamp(280px, 34vh, 380px);
+  height: clamp(300px, 36vh, 400px);
   min-height: 0;
   overflow: hidden;
 }
@@ -1410,7 +1410,7 @@ label {
   }
 
   .posts-expand-gallery__viewport {
-    height: clamp(260px, 34vh, 380px);
+    height: clamp(280px, 36vh, 400px);
   }
 
   .posts-expand-gallery__heading {
