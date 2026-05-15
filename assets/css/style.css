@@ -1268,13 +1268,15 @@ label {
 .article-section::before {
   content: "NOTÍCIAS RECENTES";
   display: block;
-  text-align: center;
+  max-width: 800px; /* mesmo max-width do .main-article */
+  margin: 1.25rem auto 0.75rem; /* centraliza o bloco e o posiciona verticalmente */
+  text-align: left; /* alinhar com o conteúdo do artigo */
+  padding-left: 0.25rem; /* pequeno espaçamento interno */
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: #111;
   font-size: 1rem;
-  margin: 1.25rem auto 0.75rem;
 }
 
 .posts-expand-gallery__link {
