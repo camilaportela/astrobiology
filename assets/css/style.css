@@ -1032,7 +1032,8 @@ label {
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  min-height: 100vh;
+  min-height: 60vh;
+  height: 60vh;
   padding: 0;
   background: #fafafa;
   color: #efefef;
@@ -1048,6 +1049,7 @@ label {
 }
 
 .posts-expand-gallery {
+  position: relative;
   width: 100%;
   max-width: 100%;
   height: 100%;
@@ -1056,6 +1058,13 @@ label {
   flex-direction: column;
   font-family: Georgia, serif;
   color: #222;
+}
+
+.posts-expand-gallery__viewport {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .posts-expand-gallery__header {
@@ -1085,8 +1094,7 @@ label {
   align-items: stretch;
   gap: 0;
   width: 100%;
-  flex: 1 1 auto;
-  min-height: 0;
+  height: 100%;
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: thin;
@@ -1112,8 +1120,8 @@ label {
 
 .posts-expand-gallery__item {
   position: relative;
-  flex: 1 0 0;
-  min-width: clamp(18rem, 25vw, 25rem);
+  flex: 0 0 25%;
+  min-width: 25%;
   min-height: 100%;
   display: block;
   background-color: #222;
@@ -1230,7 +1238,7 @@ label {
 
 .posts-expand-gallery__footer {
   margin: 0;
-  padding: 0.7rem 1rem 0.9rem;
+  padding: 0.55rem 1rem 0.75rem;
   text-align: center;
   background: #fafafa;
 }
@@ -1246,14 +1254,24 @@ label {
   color: #333;
 }
 
-.posts-expand-gallery__track:has(.posts-expand-gallery__item:only-child) .posts-expand-gallery__item {
-  flex: 1 0 100%;
+.posts-expand-gallery--one .posts-expand-gallery__item {
+  flex: 0 0 100%;
   min-width: 100%;
 }
 
-.posts-expand-gallery__track:has(.posts-expand-gallery__item:nth-child(2):last-child) .posts-expand-gallery__item {
+.posts-expand-gallery--two .posts-expand-gallery__item {
   flex: 0 0 50%;
   min-width: 50%;
+}
+
+.posts-expand-gallery--three .posts-expand-gallery__item {
+  flex: 0 0 33.3333%;
+  min-width: 33.3333%;
+}
+
+.posts-expand-gallery--four .posts-expand-gallery__item {
+  flex: 0 0 25%;
+  min-width: 25%;
 }
 
 .posts-expand-gallery__track:has(.posts-expand-gallery__item:only-child) .posts-expand-gallery__info {
@@ -1262,6 +1280,35 @@ label {
   align-items: center;
   justify-content: center;
   padding-top: 0;
+}
+
+.posts-expand-gallery__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 2.35rem;
+  height: 2.35rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.58);
+  color: #fff;
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.25s ease, transform 0.25s ease;
+}
+
+.posts-expand-gallery__arrow:hover {
+  background: rgba(0, 0, 0, 0.78);
+}
+
+.posts-expand-gallery__arrow--prev {
+  left: 0.65rem;
+}
+
+.posts-expand-gallery__arrow--next {
+  right: 0.65rem;
 }
 
 /* Seção: Postagem Mais Recente */
@@ -1353,7 +1400,8 @@ label {
 /* Responsividade */
 @media (max-width: 768px) {
   .posts-expand-gallery-section {
-    min-height: 100vh;
+    min-height: 55vh;
+    height: 55vh;
     padding: 0;
   }
 
@@ -1369,6 +1417,11 @@ label {
   .posts-expand-gallery__item {
     min-width: 82vw;
     min-height: 100%;
+    flex: 0 0 82vw;
+  }
+
+  .posts-expand-gallery__arrow {
+    display: none;
   }
 
   .posts-expand-gallery__info {

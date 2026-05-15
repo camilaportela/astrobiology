@@ -148,6 +148,38 @@ $(document).ready(function () {
   updateSolarScale();
   window.addEventListener('resize', updateSolarScale);
 
+  // gallery arrows: enabled only when the section renders arrows (>4 posts)
+  function initPostsGalleryArrows() {
+    var galleries = document.querySelectorAll('.posts-expand-gallery[data-posts-count]');
+    galleries.forEach(function (gallery) {
+      var postsCount = parseInt(gallery.getAttribute('data-posts-count') || '0', 10);
+      if (postsCount <= 4) return;
+
+      var track = gallery.querySelector('.posts-expand-gallery__track');
+      var prevBtn = gallery.querySelector('.posts-expand-gallery__arrow--prev');
+      var nextBtn = gallery.querySelector('.posts-expand-gallery__arrow--next');
+      if (!track || !prevBtn || !nextBtn) return;
+
+      function getStep() {
+        var firstCard = track.querySelector('.posts-expand-gallery__item');
+        if (firstCard) {
+          return firstCard.getBoundingClientRect().width;
+        }
+        return Math.max(track.clientWidth / 4, 220);
+      }
+
+      prevBtn.addEventListener('click', function () {
+        track.scrollBy({ left: -getStep(), behavior: 'smooth' });
+      });
+
+      nextBtn.addEventListener('click', function () {
+        track.scrollBy({ left: getStep(), behavior: 'smooth' });
+      });
+    });
+  }
+
+  initPostsGalleryArrows();
+
   // fullpage.js link navigation
   $(document).on("click", "#skills", function () {
     $.fn.fullpage.moveTo(2);
