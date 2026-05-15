@@ -86,6 +86,24 @@ p {
   }
 }
 
+/* Mostrar apenas duas bolinhas no indicador do fullPage
+   1 = faixa do topo (sistema solar) + galeria
+   2 = notícias recentes (postagem) */
+#fp-nav ul li:nth-child(n+3) {
+  display: none !important;
+}
+
+/* Garantir que tooltip/labels das bolinhas ocultas não apareçam */
+#fp-nav ul li:nth-child(n+3) .fp-tooltip {
+  display: none !important;
+}
+
+/* Ajuste de posicionamento: manter os pontos visíveis alinhados verticalmente */
+#fp-nav {
+  top: 50% !important;
+  transform: translateY(-50%);
+}
+
 /* main header section */
 
 
