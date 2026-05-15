@@ -32,8 +32,11 @@ layout: default
   </ul>
 </nav>
 
+{% assign latest_post = site.posts.first %}
+{% assign homepage_posts = site.posts | where_exp: "post", "post.url != latest_post.url" %}
+
 <!-- Seção de artigos em destaque -->
-{% assign featured_posts = site.posts | where: "featured", true %}
+{% assign featured_posts = homepage_posts | where: "featured", true %}
 {% if featured_posts.size > 0 %}
 <section class="featured-section" id="noticias">
   <div class="featured-container">
@@ -65,7 +68,6 @@ layout: default
 
 <!-- Seção: Postagem mais recente -->
 {% if site.posts.size > 0 %}
-{% assign latest_post = site.posts.first %}
 <section class="latest-section">
   <div class="latest-container">
     <h2 class="section-title">Postagem Mais Recente</h2>
@@ -98,7 +100,7 @@ layout: default
   <div class="posts-list-container">
     <h2 class="section-title">Artigos Recentes</h2>
     <div class="posts-list">
-      {% for post in site.posts limit: 10 %}
+      {% for post in homepage_posts limit: 10 %}
       <article class="post-list-item">
         <div class="post-list-meta">
           <time class="post-list-date" datetime="{{ post.date | date: '%Y-%m-%d' }}">
