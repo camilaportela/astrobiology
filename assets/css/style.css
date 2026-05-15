@@ -64,12 +64,12 @@ p {
 
 /* Position dos pontinhos laterais do fullPage (mais abaixo para não sobrepor as setas) */
 #fp-nav {
-  top: 78% !important;
+  top: 84% !important;
 }
 
 @media (max-width: 768px) {
   #fp-nav {
-    top: 88% !important;
+    top: 94% !important;
     right: 0.6rem !important;
   }
 }
