@@ -1,7 +1,16 @@
 {% if site.posts.size > 0 %}
-{% assign latest_post = site.posts.first %}
-{% assign gallery_posts = site.posts | where_exp: "post", "post.url != latest_post.url" %}
-{% assign posts_count = gallery_posts | size %}
+  {% assign latest_post = site.posts.first %}
+
+  {% comment %} If we are on a post page (and it's NOT the latest), include the latest post first and exclude the current post. Otherwise (homepage or latest post page) exclude the latest post from the gallery. {% endcomment %}
+  {% if page.layout == 'post' and page.url != latest_post.url %}
+    {% assign posts_for_gallery = site.posts | where_exp: "post", "post.url != page.url" %}
+    {% assign posts_count = posts_for_gallery | size %}
+    {% assign include_latest_first = true %}
+  {% else %}
+    {% assign posts_for_gallery = site.posts | where_exp: "post", "post.url != latest_post.url" %}
+    {% assign posts_count = posts_for_gallery | size %}
+    {% assign include_latest_first = false %}
+  {% endif %}
 
 <div class="section posts-expand-gallery-section" data-anchor="news">
   {% if posts_count == 1 %}
@@ -22,31 +31,45 @@
 
     <div class="posts-expand-gallery__viewport">
       <div class="posts-expand-gallery__track" aria-label="Galeria de notícias">
-        {% for post in gallery_posts %}
-        {% assign post_banner = post.banner | default: "/assets/img/posts/default.jpg" %}
-        {% if post_banner contains "http" %}
-          {% assign banner_url = post_banner %}
-        {% else %}
-          {% assign banner_url = post_banner | relative_url %}
-        {% endif %}
+        {% if include_latest_first %}
+          {% comment %} Render latest post first (we already ensured current post is excluded from posts_for_gallery) {% endcomment %}
+          {% assign post = latest_post %}
+          {% assign post_banner = post.banner | default: "/assets/img/posts/default.jpg" %}
+          {% if post_banner contains "http" %}
+            {% assign banner_url = post_banner %}
+          {% else %}
+            {% assign banner_url = post_banner | relative_url %}
+          {% endif %}
           <a class="posts-expand-gallery__item"
              href="{{ post.url | relative_url }}"
              style="background-image: linear-gradient(rgba(10,10,10,.65), rgba(10,10,10,.65)), url('{{ banner_url }}');">
-          <span class="posts-expand-gallery__chip">
-            {{ post.date | date: "%d %b %Y" }}
-          </span>
-
+            <span class="posts-expand-gallery__chip">{{ post.date | date: "%d %b %Y" }}</span>
             <div class="posts-expand-gallery__info">
               <span class="posts-expand-gallery__title">{{ post.title }}</span>
+              <strong class="posts-expand-gallery__excerpt">{% if post.subtitle %}{{ post.subtitle | strip_html | truncate: 140 }}{% else %}{{ post.excerpt | strip_html | truncate: 140 }}{% endif %}</strong>
+              <span class="posts-expand-gallery__button">+</span>
+            </div>
+          </a>
+        {% endif %}
 
-              <strong class="posts-expand-gallery__excerpt">
-                {% if post.subtitle %}
-                  {{ post.subtitle | strip_html | truncate: 140 }}
-                {% else %}
-                  {{ post.excerpt | strip_html | truncate: 140 }}
-                {% endif %}
-              </strong>
-
+        {% for post in posts_for_gallery %}
+          {% comment %} Skip rendering latest again when we already rendered it first {% endcomment %}
+          {% if include_latest_first and post.url == latest_post.url %}
+            {% continue %}
+          {% endif %}
+          {% assign post_banner = post.banner | default: "/assets/img/posts/default.jpg" %}
+          {% if post_banner contains "http" %}
+            {% assign banner_url = post_banner %}
+          {% else %}
+            {% assign banner_url = post_banner | relative_url %}
+          {% endif %}
+          <a class="posts-expand-gallery__item"
+             href="{{ post.url | relative_url }}"
+             style="background-image: linear-gradient(rgba(10,10,10,.65), rgba(10,10,10,.65)), url('{{ banner_url }}');">
+            <span class="posts-expand-gallery__chip">{{ post.date | date: "%d %b %Y" }}</span>
+            <div class="posts-expand-gallery__info">
+              <span class="posts-expand-gallery__title">{{ post.title }}</span>
+              <strong class="posts-expand-gallery__excerpt">{% if post.subtitle %}{{ post.subtitle | strip_html | truncate: 140 }}{% else %}{{ post.excerpt | strip_html | truncate: 140 }}{% endif %}</strong>
               <span class="posts-expand-gallery__button">+</span>
             </div>
           </a>
