@@ -1048,6 +1048,24 @@ label {
   overflow: hidden;
 }
 
+/* Override para fullPage.js: permitir que a seção da galeria tenha altura automática
+   em vez de forçar 100vh, evitando o grande bloco vazio abaixo da faixa */
+.fp-section.posts-expand-gallery-section,
+#fullpage .fp-section.posts-expand-gallery-section {
+  height: auto !important;
+  min-height: 0 !important;
+}
+
+#fullpage .posts-expand-gallery-section .fp-tableCell,
+.posts-expand-gallery-section .fp-tableCell {
+  display: block !important;
+  height: auto !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  vertical-align: top !important;
+  background: inherit !important;
+}
+
 /* fullPage.js tableCell: force gallery section content to align to top */
 #fullpage .posts-expand-gallery-section .fp-tableCell {
   display: flex !important;
