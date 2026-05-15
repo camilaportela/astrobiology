@@ -115,10 +115,40 @@ layout: null
         </header>
 
         <article class="article-content">
-          {{ latest_post.excerpt }}
+          {{ latest_post.content }}
         </article>
 
-        <a href="{{ latest_post.url | relative_url }}" class="latest-read-link">Ler postagem completa e discutir →</a>
+        <!-- Discussão específica para esta postagem (giscus - mapping specific) -->
+        <section class="discussion" aria-labelledby="discussion-title">
+          <h3 class="section-heading" id="discussion-title">Discussão</h3>
+          <p class="discussion__lead">Comentários são bem-vindos, especialmente perguntas, correções e referências.</p>
+
+          <div class="discussion__widget">
+            <script
+              src="https://giscus.app/client.js"
+              data-repo="camilaportela/astrobiology"
+              data-repo-id="R_kgDOQteLLw"
+              data-category="Comentários"
+              data-category-id="DIC_kwDOQteLL84C9Aad"
+              data-mapping="specific"
+              data-term="{{ latest_post.url | relative_url }}"
+              data-strict="0"
+              data-reactions-enabled="0"
+              data-emit-metadata="0"
+              data-input-position="bottom"
+              data-theme="https://astrobiology.me/assets/css/giscus-transparent.css?v=9"
+              data-lang="pt"
+              data-loading="lazy"
+              crossorigin="anonymous"
+              async>
+            </script>
+
+            <p class="giscus-note">
+              Os comentários são gerenciados pelo giscus/GitHub Discussions. Para editar ou remover seus comentários, acesse
+              <a href="https://github.com/camilaportela/astrobiology/discussions" target="_blank" rel="noopener noreferrer">GitHub Discussions</a>.
+            </p>
+          </div>
+        </section>
       </article>
     </div>
     {% endif %}
