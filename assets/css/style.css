@@ -1043,8 +1043,9 @@ label {
   min-height: 0;
   height: auto;
   padding: 0;
-  background: #fafafa;
+  background: #080d14; /* fundo escuro para integrar visualmente */
   color: #efefef;
+  overflow: hidden;
 }
 
 /* fullPage.js tableCell: force gallery section content to align to top */
@@ -1055,6 +1056,7 @@ label {
   justify-content: flex-start !important;
   height: 100% !important;
   padding-top: 0 !important;
+  background: inherit !important; /* garante que fullPage use o mesmo fundo escuro */
 }
 
 .posts-expand-gallery {
@@ -1073,7 +1075,7 @@ label {
 .posts-expand-gallery__viewport {
   position: relative;
   width: 100%;
-  height: clamp(300px, 36vh, 400px);
+  height: clamp(280px, 34vh, 380px); /* altura controlada da galeria */
   min-height: 0;
   overflow: hidden;
 }
@@ -1244,18 +1246,22 @@ label {
 }
 
 .posts-expand-gallery__footer {
-  display: none; /* removido: navegação controlada apenas por setas */
+  display: block; /* mostrar o link "Ver todas as notícias" abaixo da galeria */
+  margin: 0;
+  padding: 0.9rem 0 1.25rem;
+  text-align: center;
+  background: #080d14; /* manter fundo escuro contínuo */
 }
 
 .posts-expand-gallery__link {
-  color: #ff6363;
+  color: #ffb8a0;
   font-weight: 600;
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
 .posts-expand-gallery__link:hover {
-  color: #333;
+  color: #fff;
 }
 
 .posts-expand-gallery--one .posts-expand-gallery__item {
