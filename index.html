@@ -86,6 +86,9 @@ layout: null
                   </strong>
 
                   <span class="posts-expand-gallery__button">+</span>
+                  {% if forloop.first %}
+                    <a class="posts-expand-gallery__readmore" href="{{ post.url | relative_url }}">Ler postagem completa →</a>
+                  {% endif %}
                 </div>
               </a>
             {% endfor %}
@@ -99,30 +102,7 @@ layout: null
     </div>
     <!-- end section: galeria horizontal de posts -->
 
-    <!-- begin section: artigo editorial dinâmico -->
-    {% if site.posts.size > 0 %}
-    {% assign latest_post = site.posts.first %}
-    <div class="section article-section" data-anchor="skills">
-      <article class="main-article">
-        <header>
-          <h3 class="byline">Posted by <a href="#">{{ latest_post.author }}</a> | <a href="#">{{ latest_post.date | date: "%B %d, %Y" }}</a></h3>
-          <h1 class="article__headline">{{ latest_post.title }}</h1>
-          {% if latest_post.subtitle %}
-          <h2 class="lead">{{ latest_post.subtitle }}</h2>
-          {% else %}
-          <h2 class="lead">{{ latest_post.excerpt }}</h2>
-          {% endif %}
-        </header>
-
-        <article class="article-content">
-          {{ latest_post.excerpt }}
-        </article>
-
-        <a href="{{ latest_post.url | relative_url }}" class="latest-read-link">Ler postagem completa e discutir →</a>
-      </article>
-    </div>
-    {% endif %}
-    <!-- end section: artigo editorial dinâmico -->
+    <!-- seção editorial removida: último post exibido na galeria com link "Ler postagem completa" -->
 
   </div>
   <!-- end fullpage -->

@@ -1455,6 +1455,23 @@ label {
     transform: rotate(0deg);
   }
 
+/* link de leitura completa para o primeiro item da galeria */
+.posts-expand-gallery__readmore {
+  display: inline-block;
+  margin-top: 0.6rem;
+  color: #ffcccb;
+  background: rgba(255,255,255,0.06);
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.posts-expand-gallery__readmore:hover {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+}
+
   .posts-expand-gallery__item:hover .posts-expand-gallery__button,
   .posts-expand-gallery__item:focus-visible .posts-expand-gallery__button {
     background: #009999;
