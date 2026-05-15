@@ -4,6 +4,19 @@ body {
   font-family: "Raleway", sans-serif !important;
 }
 
+/* Final override: garantir que fullPage não force 100vh na seção da galeria */
+#fullpage .posts-expand-gallery-section .fp-tableCell,
+.fp-section.posts-expand-gallery-section .fp-tableCell,
+.posts-expand-gallery-section .fp-tableCell {
+  display: block !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  vertical-align: top !important;
+  background: inherit !important;
+}
+
 ul {
   list-style-type: none;
 }
