@@ -98,10 +98,20 @@ p {
   display: none !important;
 }
 
-/* Ajuste de posicionamento: manter os pontos visíveis alinhados verticalmente */
+/* Ajuste de posicionamento: manter os pontos visíveis mais abaixo para não sobrepor a galeria */
 #fp-nav {
-  top: 50% !important;
-  transform: translateY(-50%);
+  top: auto !important;
+  bottom: 6% !important; /* aproxima das notícias abaixo da galeria */
+  right: 1rem !important;
+  transform: none !important;
+}
+
+/* Em telas pequenas, baixar ainda mais para evitar sobreposição */
+@media (max-width: 768px) {
+  #fp-nav {
+    bottom: 3rem !important;
+    right: 0.6rem !important;
+  }
 }
 
 /* main header section */
