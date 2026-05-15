@@ -1068,6 +1068,41 @@ label {
   min-height: 0 !important;
 }
 
+/* Remover espaçamento excessivo entre galeria e seção de artigos:
+   garantir que a seção de artigos também se alinhe ao topo quando o fullPage estiver ativo */
+.fp-section.article-section,
+#fullpage .fp-section.article-section {
+  height: auto !important;
+  min-height: 0 !important;
+}
+
+#fullpage .article-section .fp-tableCell,
+.fp-section.article-section .fp-tableCell,
+.article-section .fp-tableCell {
+  display: flex !important;
+  flex-direction: column;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  height: auto !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  background: inherit !important;
+}
+
+/* Garantir que o conteúdo do artigo não tenha margin-top grande */
+.article-section .main-article {
+  margin: 0 auto 0 !important;
+  padding-top: 0 !important;
+}
+
+/* Remover margens/resíduos na galeria que possam empurrar a seção abaixo */
+.posts-expand-gallery {
+  margin-bottom: 0 !important;
+}
+.posts-expand-gallery__viewport {
+  margin-bottom: 0 !important;
+}
+
 #fullpage .posts-expand-gallery-section .fp-tableCell,
 .posts-expand-gallery-section .fp-tableCell {
   display: block !important;
