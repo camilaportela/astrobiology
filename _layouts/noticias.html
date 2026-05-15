@@ -1,0 +1,34 @@
+---
+layout: default
+---
+
+{% if site.posts.size > 0 %}
+{% assign latest_post = site.posts.first %}
+
+<section class="latest-section">
+  <div class="latest-container">
+    <h2 class="section-title">Postagem Mais Recente</h2>
+    <article class="latest-post">
+      <header class="latest-post-header">
+        <h3 class="latest-post-byline">
+          Por <span class="author-name">{{ latest_post.author }}</span> |
+          <time datetime="{{ latest_post.date | date: '%Y-%m-%d' }}">
+            {{ latest_post.date | date: "%d de %B de %Y" }}
+          </time>
+        </h3>
+        <h2 class="latest-post-title">{{ latest_post.title }}</h2>
+        {% if latest_post.subtitle %}
+        <p class="latest-post-lead">{{ latest_post.subtitle }}</p>
+        {% endif %}
+      </header>
+
+      <div class="latest-post-excerpt latest-post-full">
+        {{ latest_post.content }}
+      </div>
+
+      {% assign latest_post_term = latest_post.url %}
+      {% include giscus.html mapping="specific" term=latest_post_term %}
+    </article>
+  </div>
+</section>
+{% endif %}
