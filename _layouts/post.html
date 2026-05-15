@@ -2,35 +2,54 @@
 layout: default
 ---
 
-{% include universal-strip.html %}
-
-<div class="section article-section" data-anchor="post">
-  <article class="main-article">
-    <header>
-      <h3 class="byline">
-        Posted by <a href="#">{{ page.author }}</a> | 
-        <time datetime="{{ page.date | date: '%Y-%m-%d' }}">
-          {{ page.date | date: "%B %d, %Y" }}
-        </time>
-      </h3>
-      <h1 class="article__headline">{{ page.title }}</h1>
-      {% if page.subtitle %}
-        <h2 class="lead">{{ page.subtitle }}</h2>
-      {% endif %}
-    </header>
-
-    <article class="article-content">
-      {{ content }}
-    </article>
-
-    <aside class="author-bio">
-      <img class="profile-pic" src="http://fillmurray.com/120/120" alt="Author profile">
-      <div class="author-bio-text">
-        <p class="author-bio-name">{{ page.author }}</p>
-        <p class="author-bio-info">Pesquisadora em astrobiologia.</p>
+<div id="fullpage">
+  <div class="section aboutme" data-anchor="aboutme">
+    <div class="hero-solar">
+      <div class="solar-syst" aria-label="Sistema solar animado">
+        <div class="sun"></div>
+        <div class="mercury"></div>
+        <div class="venus"></div>
+        <div class="earth"></div>
+        <div class="mars"></div>
+        <div class="jupiter"></div>
+        <div class="saturn"></div>
+        <div class="uranus"></div>
+        <div class="neptune"></div>
       </div>
-    </aside>
+    </div>
+    <i id="moveDown" class="fa-solid fa-chevron-down fa-3x bounce"></i>
+  </div>
 
-    {% include giscus.html %}
-  </article>
+  {% include universal-strip.html %}
+
+  <div class="section article-section" data-anchor="post">
+    <article class="main-article">
+      <header>
+        <h3 class="byline">
+          Posted by <a href="#">{{ page.author }}</a> | 
+          <time datetime="{{ page.date | date: '%Y-%m-%d' }}">
+            {{ page.date | date: "%B %d, %Y" }}
+          </time>
+        </h3>
+        <h1 class="article__headline">{{ page.title }}</h1>
+        {% if page.subtitle %}
+          <h2 class="lead">{{ page.subtitle }}</h2>
+        {% endif %}
+      </header>
+
+      <article class="article-content">
+        {{ content }}
+      </article>
+
+      <aside class="author-bio">
+        <img class="profile-pic" src="http://fillmurray.com/120/120" alt="Author profile">
+        <div class="author-bio-text">
+          <p class="author-bio-name">{{ page.author }}</p>
+          <p class="author-bio-info">Pesquisadora em astrobiologia.</p>
+        </div>
+      </aside>
+
+      {% include giscus.html %}
+    </article>
+  </div>
 </div>
