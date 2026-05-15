@@ -1253,26 +1253,28 @@ label {
 }
 
 .posts-expand-gallery__footer {
-  display: block; /* mostrar área do rodapé como título abaixo da galeria */
+  display: none !important; /* remover visual do rodapé (título movido para a seção abaixo) */
   margin: 0;
-  padding: 0.9rem 0 1.25rem;
-  text-align: center;
-  background: #080d14; /* manter fundo escuro contínuo */
-}
-
-.posts-expand-gallery__footer::before {
-  content: "NOTÍCIAS RECENTES";
-  display: block;
-  color: #ffffff;
-  font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  margin: 0 auto 0.35rem;
+  padding: 0;
+  height: 0;
+  overflow: hidden;
 }
 
 .posts-expand-gallery__footer .posts-expand-gallery__link {
   display: none; /* esconder link original mantendo HTML */
+}
+
+/* Título que fica no início da seção de artigos (abaixo da galeria) */
+.article-section::before {
+  content: "NOTÍCIAS RECENTES";
+  display: block;
+  text-align: center;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #111;
+  font-size: 1rem;
+  margin: 1.25rem auto 0.75rem;
 }
 
 .posts-expand-gallery__link {
