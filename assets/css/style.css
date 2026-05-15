@@ -1275,14 +1275,14 @@ label {
   display: none; /* esconder link original mantendo HTML */
 }
 
-/* Título que fica no início da seção de artigos (abaixo da galeria) */
-.article-section::before {
+/* Título que fica no início da seção de artigos (abaixo da galeria)
+   Aplicado dentro de `.main-article` para garantir alinhamento com o conteúdo */
+.article-section .main-article::before {
   content: "NOTÍCIAS RECENTES";
   display: block;
-  max-width: 800px; /* mesmo max-width do .main-article */
-  margin: 1.25rem auto 0.75rem; /* centraliza o bloco e o posiciona verticalmente */
-  text-align: left; /* alinhar com o conteúdo do artigo */
-  padding-left: 0.25rem; /* pequeno espaçamento interno */
+  width: 100%;
+  margin: 1.25rem 0 0.75rem; /* posiciona verticalmente dentro do .main-article */
+  text-align: left; /* alinhamento à esquerda dentro do artigo centralizado */
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
