@@ -148,13 +148,10 @@ $(document).ready(function () {
   updateSolarScale();
   window.addEventListener('resize', updateSolarScale);
 
-  // gallery arrows: enabled only when the section renders arrows (>4 posts)
+  // gallery arrows: show only when there is content to the left/right
   function initPostsGalleryArrows() {
     var galleries = document.querySelectorAll('.posts-expand-gallery[data-posts-count]');
     galleries.forEach(function (gallery) {
-      var postsCount = parseInt(gallery.getAttribute('data-posts-count') || '0', 10);
-      if (postsCount <= 4) return;
-
       var track = gallery.querySelector('.posts-expand-gallery__track');
       var prevBtn = gallery.querySelector('.posts-expand-gallery__arrow--prev');
       var nextBtn = gallery.querySelector('.posts-expand-gallery__arrow--next');
@@ -175,6 +172,27 @@ $(document).ready(function () {
       nextBtn.addEventListener('click', function () {
         track.scrollBy({ left: getStep(), behavior: 'smooth' });
       });
+
+      // Update arrow visibility based on current scroll position
+      function updateArrowVisibility() {
+        var scrollLeft = track.scrollLeft;
+        var maxScrollLeft = track.scrollWidth - track.clientWidth;
+        var epsilon = 2; // tolerance
+
+        if (maxScrollLeft <= epsilon) {
+          prevBtn.style.display = 'none';
+          nextBtn.style.display = 'none';
+          return;
+        }
+
+        prevBtn.style.display = scrollLeft > epsilon ? '' : 'none';
+        nextBtn.style.display = scrollLeft < maxScrollLeft - epsilon ? '' : 'none';
+      }
+
+      // initialize visibility and attach listeners
+      updateArrowVisibility();
+      track.addEventListener('scroll', updateArrowVisibility, { passive: true });
+      window.addEventListener('resize', updateArrowVisibility);
 
       // prevent manual wheel/touch scrolling so only arrows control navigation
       track.addEventListener('wheel', function (e) {
