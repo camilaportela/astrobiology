@@ -13,41 +13,16 @@ layout: null
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
   <link rel="stylesheet" href="{{ '/assets/css/redesign.css' | relative_url }}">
-  <link rel="stylesheet" href="{{ '/assets/css/solar.css' | relative_url }}">
 </head>
 <body class="show-noticias">
   <!-- begin fullpage -->
 
   <div id="fullpage">
 
-    <!-- begin section -->
-
-    <div class="section aboutme" data-anchor="aboutme">
-      <div class="hero-solar">
-        <div class="solar-syst" aria-label="Sistema solar animado">
-          <div class="sun"></div>
-          <div class="mercury"></div>
-          <div class="venus"></div>
-          <div class="earth"></div>
-          <div class="mars"></div>
-          <div class="jupiter"></div>
-          <div class="saturn"></div>
-          <div class="uranus"></div>
-          <div class="neptune"></div>
-        </div>
-      </div>
-      <i id="moveDown" class="fa-solid fa-chevron-down fa-3x bounce"></i>
-    </div>
-    <!-- end section -->
-
-    <!-- begin section: galeria horizontal de posts -->
-    {% include universal-strip.html %}
-    <!-- end section: galeria horizontal de posts -->
-
-    <!-- begin section: artigo editorial dinâmico -->
-    {% if site.posts.size > 0 %}
     {% assign latest_post = site.posts.first %}
     {% assign latest_author = latest_post.author | default: "Camila Portela" %}
+    <!-- begin section: artigo editorial dinâmico -->
+    {% if site.posts.size > 0 %}
     <div class="section article-section" data-anchor="skills">
       <article class="main-article">
         <header>

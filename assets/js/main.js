@@ -75,57 +75,59 @@ $(document).ready(function () {
 
   // initiate full page scroll
 
-  $("#fullpage").fullpage({
-    scrollBar: true,
-    normalScrollElements: ".article-section",
-    normalScrollElementTouchThreshold: 5,
-    scrollingSpeed: 1200,
-    responsiveWidth: 400,
-    navigation: true,
-    navigationTooltips: ["home", "about"],
-    anchors: ["home", "about"],
-    fitToSection: false,
+  var fullpageSectionCount = $("#fullpage .section").length;
+  var fullpageEnabled = fullpageSectionCount > 1;
 
-    afterLoad: function (anchorLink, index) {
-      var loadedSection = $(this);
+  if (fullpageEnabled) {
+    $("#fullpage").fullpage({
+      scrollBar: true,
+      normalScrollElements: ".article-section",
+      normalScrollElementTouchThreshold: 5,
+      scrollingSpeed: 1200,
+      responsiveWidth: 400,
+      navigation: true,
+      navigationTooltips: ["article", "news"],
+      anchors: ["article", "news"],
+      fitToSection: false,
 
-      //using index
-      if (index == 1) {
-        /* add opacity to arrow */
-        $(".fa-chevron-down").each(function () {
-          $(this).css("opacity", "1");
-        });
-        $(".header-links a").each(function () {
-          $(this).css("color", "white");
-        });
-        $(".header-links").css("background-color", "transparent");
-      } else if (index != 1) {
-        $(".header-links a").each(function () {
-          $(this).css("color", "black");
-        });
-        $(".header-links").css("background-color", "white");
+      afterLoad: function (anchorLink, index) {
+        var loadedSection = $(this);
+
+        if (index == 1) {
+          $(".header-links a").each(function () {
+            $(this).css("color", "white");
+          });
+          $(".header-links").css("background-color", "transparent");
+        } else if (index != 1) {
+          $(".header-links a").each(function () {
+            $(this).css("color", "black");
+          });
+          $(".header-links").css("background-color", "white");
+        }
+
+        if (index == 2) {
+          $(".skillbar").each(function () {
+            $(this)
+              .find(".skillbar-bar")
+              .animate(
+                {
+                  width: $(this).attr("data-percent")
+                },
+                2500
+              );
+          });
+        }
       }
-
-      //using index
-      if (index == 2) {
-        /* animate skill bars */
-        $(".skillbar").each(function () {
-          $(this)
-            .find(".skillbar-bar")
-            .animate(
-              {
-                width: $(this).attr("data-percent")
-              },
-              2500
-            );
-        });
-      }
-    }
-  });
+    });
+  } else {
+    $("#fp-nav").hide();
+  }
 
   // move section down one
   $(document).on("click", "#moveDown", function () {
-    $.fn.fullpage.moveSectionDown();
+    if (fullpageEnabled && $.fn.fullpage && $.fn.fullpage.moveSectionDown) {
+      $.fn.fullpage.moveSectionDown();
+    }
   });
 
   // ensure solar system fits inside the stripe: compute scale from stripe height (40vh) and base size (1560px)
@@ -210,7 +212,9 @@ $(document).ready(function () {
 
   // fullpage.js link navigation
   $(document).on("click", "#skills", function () {
-    $.fn.fullpage.moveTo(2);
+    if (fullpageEnabled && $.fn.fullpage && $.fn.fullpage.moveTo) {
+      $.fn.fullpage.moveTo(2);
+    }
   });
 
   // comment actions
