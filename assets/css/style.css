@@ -1345,7 +1345,14 @@ label {
 }
 
 .posts-expand-gallery__button {
-  display: none !important; /* ocultar o botão '+' dentro de cada card */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1.35rem auto 0;
+  padding: 0.3em 0.6em;
+  background: rgba(0, 0, 0, 0.5);
+  transform: rotate(45deg);
+  transition: all 0.4s ease-out;
 }
 
 .posts-expand-gallery__item:hover .posts-expand-gallery__button,
