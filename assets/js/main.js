@@ -158,7 +158,13 @@ $(document).ready(function () {
       if (!track || !prevBtn || !nextBtn) return;
 
       function getStep() {
-        return track.clientWidth;
+        var firstItem = track.querySelector('.posts-expand-gallery__item');
+        if (!firstItem) return track.clientWidth;
+
+        var itemRect = firstItem.getBoundingClientRect();
+        var itemWidth = itemRect.width;
+
+        return itemWidth;
       }
 
       function updateGalleryArrows() {
