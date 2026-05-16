@@ -1,0 +1,65 @@
+html,
+body {
+  background: #020714;
+}
+
+body {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+#space-background {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  display: block;
+  pointer-events: none;
+  z-index: -10;
+  background: #020711;
+}
+
+body > :not(#space-background) {
+  position: relative;
+  z-index: 1;
+}
+
+#fullpage {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+}
+
+.section {
+  background-clip: padding-box;
+}
+
+.aboutme,
+.article-section,
+.posts-expand-gallery-section {
+  position: relative;
+}
+
+.aboutme::before,
+.article-section::before,
+.posts-expand-gallery-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(2, 7, 20, 0.05), rgba(2, 7, 20, 0.18));
+}
+
+.hero-solar,
+.main-article,
+.posts-expand-gallery {
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  #space-background {
+    opacity: 0.97;
+  }
+}
