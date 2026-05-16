@@ -4,7 +4,7 @@ body {
   font-family: "Raleway", sans-serif !important;
 }
 
-/* Final override: garantir que fullPage não force 100vh na seção da galeria */
+/* Final override: garantir que fullPage n+�o force 100vh na se+�+�o da galeria */
 #fullpage .posts-expand-gallery-section .fp-tableCell,
 .fp-section.posts-expand-gallery-section .fp-tableCell,
 .posts-expand-gallery-section .fp-tableCell {
@@ -74,7 +74,7 @@ p {
   color: #5f5f5f !important;
 }
 
-/* Position dos pontinhos laterais do fullPage (mais abaixo para não sobrepor as setas) */
+/* Position dos pontinhos laterais do fullPage (mais abaixo para n+�o sobrepor as setas) */
 #fp-nav {
   top: 84% !important;
 }
@@ -88,25 +88,25 @@ p {
 
 /* Mostrar apenas duas bolinhas no indicador do fullPage
    1 = faixa do topo (sistema solar) + galeria
-   2 = notícias recentes (postagem) */
+   2 = not+�cias recentes (postagem) */
 #fp-nav ul li:nth-child(n+3) {
   display: none !important;
 }
 
-/* Garantir que tooltip/labels das bolinhas ocultas não apareçam */
+/* Garantir que tooltip/labels das bolinhas ocultas n+�o apare+�am */
 #fp-nav ul li:nth-child(n+3) .fp-tooltip {
   display: none !important;
 }
 
-/* Ajuste de posicionamento: manter os pontos visíveis mais abaixo para não sobrepor a galeria */
+/* Ajuste de posicionamento: manter os pontos vis+�veis mais abaixo para n+�o sobrepor a galeria */
 #fp-nav {
   top: auto !important;
-  bottom: 6% !important; /* aproxima das notícias abaixo da galeria */
+  bottom: 6% !important; /* aproxima das not+�cias abaixo da galeria */
   right: 1rem !important;
   transform: none !important;
 }
 
-/* Em telas pequenas, baixar ainda mais para evitar sobreposição */
+/* Em telas pequenas, baixar ainda mais para evitar sobreposi+�+�o */
 @media (max-width: 768px) {
   #fp-nav {
     bottom: 3rem !important;
@@ -209,7 +209,7 @@ p {
 }
 
 .article-section .main-article h1 {
-  margin-top: 0.25rem; /* aproximar o título da byline/pseudo-título */
+  margin-top: 0.25rem; /* aproximar o t+�tulo da byline/pseudo-t+�tulo */
 }
 
 .article-section h1 {
@@ -788,7 +788,7 @@ label {
 
 /* ===== HOMEPAGE EDITORIAL STYLES ===== */
 
-/* Menu de navegação */
+/* Menu de navega+�+�o */
 .home-nav {
   position: sticky;
   top: 0;
@@ -822,7 +822,7 @@ label {
   color: #ff6363;
 }
 
-/* Seção de destaque */
+/* Se+�+�o de destaque */
 .featured-section {
   padding: 4rem 2rem;
   background: #fafafa;
@@ -913,7 +913,7 @@ label {
   color: #333;
 }
 
-/* Seção: Postagem mais recente */
+/* Se+�+�o: Postagem mais recente */
 .latest-section {
   padding: 4rem 2rem;
   background: #fff;
@@ -969,17 +969,17 @@ label {
   color: #555;
   line-height: 1.8;
   font-family: Georgia, serif;
-  margin-bottom: 0.8rem; /* espaço reduzido, link logo abaixo */
+  margin-bottom: 0.8rem; /* espa+�o reduzido, link logo abaixo */
   display: -webkit-box; /* truncar por linhas (WebKit) */
   display: box;
-  line-clamp: 6; /* padrão não prefixado (compatibilidade) */
-  -webkit-line-clamp: 6; /* mostrar até ~6 linhas do preview */
+  line-clamp: 6; /* padr+�o n+�o prefixado (compatibilidade) */
+  -webkit-line-clamp: 6; /* mostrar at+� ~6 linhas do preview */
   -webkit-box-orient: vertical;
   overflow: hidden;
   position: relative;
 }
 
-/* gradiente no final do trecho para indicar conteúdo oculto */
+/* gradiente no final do trecho para indicar conte+�do oculto */
 .latest-post-excerpt::after {
   content: "";
   position: absolute;
@@ -998,12 +998,12 @@ label {
   font-size: 0.95rem;
   transition: color 0.3s ease;
   display: inline-block;
-  margin-top: 0.5rem; /* manter o link próximo ao preview truncado */
+  margin-top: 0.5rem; /* manter o link pr+�ximo ao preview truncado */
 }
 
 @media (max-width: 768px) {
   .latest-post-excerpt {
-    line-clamp: 4; /* padrão não prefixado (compatibilidade) */
+    line-clamp: 4; /* padr+�o n+�o prefixado (compatibilidade) */
     -webkit-line-clamp: 4; /* reduzir linhas em telas pequenas */
   }
 }
@@ -1012,7 +1012,7 @@ label {
   color: #333;
 }
 
-/* Seção: Lista de posts recentes */
+/* Se+�+�o: Lista de posts recentes */
 .posts-list-section {
   padding: 4rem 2rem;
   background: #fafafa;
@@ -1086,7 +1086,7 @@ label {
   line-height: 1.6;
 }
 
-/* Seção: Sobre nós */
+/* Se+�+�o: Sobre n+�s */
 .about-section {
   padding: 4rem 2rem;
   background: #fff;
@@ -1120,16 +1120,16 @@ label {
   overflow: hidden;
 }
 
-/* Override para fullPage.js: permitir que a seção da galeria tenha altura automática
-   em vez de forçar 100vh, evitando o grande bloco vazio abaixo da faixa */
+/* Override para fullPage.js: permitir que a se+�+�o da galeria tenha altura autom+�tica
+   em vez de for+�ar 100vh, evitando o grande bloco vazio abaixo da faixa */
 .fp-section.posts-expand-gallery-section,
 #fullpage .fp-section.posts-expand-gallery-section {
   height: auto !important;
   min-height: 0 !important;
 }
 
-/* Remover espaçamento excessivo entre galeria e seção de artigos:
-   garantir que a seção de artigos também se alinhe ao topo quando o fullPage estiver ativo */
+/* Remover espa+�amento excessivo entre galeria e se+�+�o de artigos:
+   garantir que a se+�+�o de artigos tamb+�m se alinhe ao topo quando o fullPage estiver ativo */
 .fp-section.article-section,
 #fullpage .fp-section.article-section {
   height: auto !important;
@@ -1149,14 +1149,14 @@ label {
   background: inherit !important;
 }
 
-/* Garantir que o conteúdo do artigo não tenha margin-top grande */
+/* Garantir que o conte+�do do artigo n+�o tenha margin-top grande */
 .article-section .main-article {
-  margin: 2.5rem auto 0 !important; /* adicionar espaço acima do artigo para afastar da galeria */
+  margin: 2.5rem auto 0 !important; /* adicionar espa+�o acima do artigo para afastar da galeria */
   padding-top: 0 !important;
-  padding-bottom: 6rem !important; /* espaço em branco antes do fim da página */
+  padding-bottom: 6rem !important; /* espa+�o em branco antes do fim da p+�gina */
 }
 
-/* Remover margens/resíduos na galeria que possam empurrar a seção abaixo */
+/* Remover margens/res+�duos na galeria que possam empurrar a se+�+�o abaixo */
 .posts-expand-gallery {
   margin-bottom: 0 !important;
 }
@@ -1269,15 +1269,20 @@ label {
   overflow: hidden;
   border-radius: 0;
   scroll-snap-align: start;
-  filter: grayscale(12%) brightness(0.82);
-  transition: flex-grow 0.8s ease-out, filter 0.8s ease-out, transform 0.8s ease-out;
+  filter: grayscale(10%) brightness(0.78);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+  transition:
+    flex-grow 0.8s ease-out,
+    filter 0.8s ease-out,
+    transform 0.8s ease-out,
+    box-shadow 0.8s ease-out;
 }
 
 .posts-expand-gallery__item::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(10, 10, 10, 0.52);
+  background: rgba(10, 10, 10, 0.58);
   z-index: 1;
   transition: background 0.8s ease-out;
 }
@@ -1285,13 +1290,16 @@ label {
 .posts-expand-gallery__item:hover,
 .posts-expand-gallery__item:focus-visible {
   flex-grow: 1.55;
-  filter: grayscale(0%) brightness(1.02);
-  transform: translateY(-1px);
+  filter: grayscale(0%) brightness(1.05);
+  transform: translateY(-2px) scale(1.015);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.18),
+    0 0 32px rgba(255, 255, 255, 0.10);
 }
 
 .posts-expand-gallery__item:hover::before,
 .posts-expand-gallery__item:focus-visible::before {
-  background: rgba(10, 10, 10, 0.34);
+  background: rgba(10, 10, 10, 0.30);
 }
 
 .posts-expand-gallery__chip {
@@ -1326,6 +1334,11 @@ label {
   text-shadow: 0 2px 16px rgba(0, 0, 0, 0.45);
 }
 
+.posts-expand-gallery__item:hover .posts-expand-gallery__title,
+.posts-expand-gallery__item:focus-visible .posts-expand-gallery__title {
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.8);
+}
+
 .posts-expand-gallery__excerpt {
   display: block;
   width: 92%;
@@ -1347,20 +1360,25 @@ label {
   width: 2.1rem;
   height: 2.1rem;
   padding: 0;
-  background: rgba(0, 0, 0, 0.58);
-  color: #444;
+  background: rgba(0, 0, 0, 0.55);
+  color: #777;
   font-size: 1.45rem;
   font-weight: 700;
   line-height: 1;
   transform: rotate(45deg);
-  transition: transform 0.8s ease-out, background-color 0.8s ease-out, color 0.8s ease-out;
+  transition:
+    transform 0.8s ease-out,
+    background-color 0.8s ease-out,
+    color 0.8s ease-out,
+    box-shadow 0.8s ease-out;
 }
 
 .posts-expand-gallery__item:hover .posts-expand-gallery__button,
 .posts-expand-gallery__item:focus-visible .posts-expand-gallery__button {
-  color: #eeeeee;
+  color: #ffffff;
   background: #7b00b5;
   transform: rotate(0deg);
+  box-shadow: 0 0 20px rgba(123, 0, 181, 0.45);
 }
 
 .posts-expand-gallery__button:hover {
@@ -1368,7 +1386,7 @@ label {
 }
 
 .posts-expand-gallery__footer {
-  display: none !important; /* remover visual do rodapé (título movido para a seção abaixo) */
+  display: none !important; /* remover visual do rodap+� (t+�tulo movido para a se+�+�o abaixo) */
   margin: 0;
   padding: 0;
   height: 0;
@@ -1379,14 +1397,14 @@ label {
   display: none; /* esconder link original mantendo HTML */
 }
 
-/* Título que fica no início da seção de artigos (abaixo da galeria)
-   Aplicado dentro de `.main-article` para garantir alinhamento com o conteúdo */
+/* T+�tulo que fica no in+�cio da se+�+�o de artigos (abaixo da galeria)
+   Aplicado dentro de `.main-article` para garantir alinhamento com o conte+�do */
 .show-noticias .article-section .main-article::before {
-  content: "NOTÍCIAS RECENTES";
+  content: "NOT+�CIAS RECENTES";
   display: block;
   width: 100%;
-  margin: 0.6rem 0 0.35rem; /* abaixar e reduzir espaço entre título e postagem */
-  text-align: left; /* alinhamento à esquerda dentro do artigo centralizado */
+  margin: 0.6rem 0 0.35rem; /* abaixar e reduzir espa+�o entre t+�tulo e postagem */
+  text-align: left; /* alinhamento +� esquerda dentro do artigo centralizado */
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -1470,15 +1488,15 @@ label {
 
 .posts-expand-gallery__arrow--next {
   right: 0.65rem;
-  top: 70% !important; /* abaixa um pouco a seta direita para não sobrepor o texto */
+  top: 70% !important; /* abaixa um pouco a seta direita para n+�o sobrepor o texto */
 }
 
-/* alinhar ambas as setas na mesma altura para consistência */
+/* alinhar ambas as setas na mesma altura para consist+�ncia */
 .posts-expand-gallery__arrow--prev {
   top: 70% !important;
 }
 
-/* Seção: Postagem Mais Recente */
+/* Se+�+�o: Postagem Mais Recente */
 .latest-section {
   display: flex;
   align-items: center;
