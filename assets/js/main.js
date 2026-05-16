@@ -161,33 +161,37 @@ $(document).ready(function () {
         return track.clientWidth;
       }
 
+      function updateGalleryArrows() {
+        if (!track || !prevBtn || !nextBtn) return;
+
+        var threshold = 2;
+        var maxScrollLeft = track.scrollWidth - track.clientWidth;
+        var currentScrollLeft = track.scrollLeft;
+
+        var canScroll = maxScrollLeft > threshold;
+        var atStart = currentScrollLeft <= threshold;
+        var atEnd = currentScrollLeft >= maxScrollLeft - threshold;
+
+        prevBtn.classList.toggle('is-hidden', !canScroll || atStart);
+        nextBtn.classList.toggle('is-hidden', !canScroll || atEnd);
+      }
+
       prevBtn.addEventListener('click', function () {
         track.scrollBy({ left: -getStep(), behavior: 'smooth' });
+        setTimeout(updateGalleryArrows, 350);
       });
 
       nextBtn.addEventListener('click', function () {
         track.scrollBy({ left: getStep(), behavior: 'smooth' });
+        setTimeout(updateGalleryArrows, 350);
       });
 
-      // Update arrow visibility based on current scroll position
-      function updateArrowVisibility() {
-        var scrollLeft = track.scrollLeft;
-        var maxScrollLeft = track.scrollWidth - track.clientWidth;
-        var epsilon = 2; // tolerance
-        var canScroll = maxScrollLeft > epsilon;
-        var atStart = scrollLeft <= epsilon;
-        var atEnd = scrollLeft >= maxScrollLeft - epsilon;
-
-        prevBtn.style.display = canScroll && !atStart ? 'flex' : 'none';
-        nextBtn.style.display = canScroll && !atEnd ? 'flex' : 'none';
-      }
-
       // initialize visibility and attach listeners
-      updateArrowVisibility();
-      track.addEventListener('scroll', updateArrowVisibility, { passive: true });
-      window.addEventListener('resize', updateArrowVisibility);
-      window.addEventListener('load', updateArrowVisibility);
-      setTimeout(updateArrowVisibility, 300);
+      updateGalleryArrows();
+      track.addEventListener('scroll', updateGalleryArrows, { passive: true });
+      window.addEventListener('resize', updateGalleryArrows);
+      window.addEventListener('load', updateGalleryArrows);
+      setTimeout(updateGalleryArrows, 350);
 
       // prevent manual wheel/touch scrolling so only arrows control navigation
       track.addEventListener('wheel', function (e) {

@@ -1452,6 +1452,12 @@ label {
   transition: background-color 0.25s ease, transform 0.25s ease;
 }
 
+.posts-expand-gallery__arrow.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .posts-expand-gallery__arrow:hover {
   background: rgba(0, 0, 0, 0.78);
 }
