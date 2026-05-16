@@ -87,10 +87,10 @@
           driftY: random(-0.008, 0.008),
           phase: Math.random() * Math.PI * 2,
           color: pick([
-            "rgba(8, 39, 68, 0.16)",
-            "rgba(13, 58, 93, 0.14)",
-            "rgba(16, 77, 108, 0.11)",
-            "rgba(95, 160, 186, 0.06)"
+            "rgba(120,80,255,",
+            "rgba(255,100,180,",
+            "rgba(80,200,255,",
+            "rgba(150,255,200,"
           ])
         });
       }
@@ -110,10 +110,9 @@
 
     function drawFrame(time) {
       var background = context.createLinearGradient(0, 0, 0, state.height);
-      background.addColorStop(0, "#020610");
-      background.addColorStop(0.45, "#06101b");
-      background.addColorStop(0.8, "#040915");
-      background.addColorStop(1, "#010308");
+      background.addColorStop(0, "#000000");
+      background.addColorStop(0.55, "#030306");
+      background.addColorStop(1, "#000000");
       context.fillStyle = background;
       context.fillRect(0, 0, state.width, state.height);
 
@@ -125,9 +124,9 @@
         state.height * 0.18,
         state.width * 0.9
       );
-      glow.addColorStop(0, "rgba(33, 105, 145, 0.13)");
-      glow.addColorStop(0.45, "rgba(11, 49, 79, 0.08)");
-      glow.addColorStop(1, "rgba(2, 6, 16, 0)");
+      glow.addColorStop(0, "rgba(255, 255, 255, 0.03)");
+      glow.addColorStop(0.45, "rgba(255, 255, 255, 0.015)");
+      glow.addColorStop(1, "rgba(0, 0, 0, 0)");
       context.fillStyle = glow;
       context.fillRect(0, 0, state.width, state.height);
 
@@ -139,9 +138,9 @@
         state.height * 0.84,
         state.width * 0.75
       );
-      lowerGlow.addColorStop(0, "rgba(7, 28, 45, 0.1)");
-      lowerGlow.addColorStop(0.72, "rgba(4, 12, 24, 0.04)");
-      lowerGlow.addColorStop(1, "rgba(4, 12, 24, 0)");
+      lowerGlow.addColorStop(0, "rgba(255, 255, 255, 0.02)");
+      lowerGlow.addColorStop(0.72, "rgba(255, 255, 255, 0.01)");
+      lowerGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
       context.fillStyle = lowerGlow;
       context.fillRect(0, 0, state.width, state.height);
 
