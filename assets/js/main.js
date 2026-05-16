@@ -158,11 +158,7 @@ $(document).ready(function () {
       if (!track || !prevBtn || !nextBtn) return;
 
       function getStep() {
-        var firstCard = track.querySelector('.posts-expand-gallery__item');
-        if (firstCard) {
-          return firstCard.getBoundingClientRect().width;
-        }
-        return Math.max(track.clientWidth / 4, 220);
+        return track.clientWidth;
       }
 
       prevBtn.addEventListener('click', function () {
@@ -178,21 +174,20 @@ $(document).ready(function () {
         var scrollLeft = track.scrollLeft;
         var maxScrollLeft = track.scrollWidth - track.clientWidth;
         var epsilon = 2; // tolerance
+        var canScroll = maxScrollLeft > epsilon;
+        var atStart = scrollLeft <= epsilon;
+        var atEnd = scrollLeft >= maxScrollLeft - epsilon;
 
-        if (maxScrollLeft <= epsilon) {
-          prevBtn.style.display = 'none';
-          nextBtn.style.display = 'none';
-          return;
-        }
-
-        prevBtn.style.display = scrollLeft > epsilon ? '' : 'none';
-        nextBtn.style.display = scrollLeft < maxScrollLeft - epsilon ? '' : 'none';
+        prevBtn.style.display = canScroll && !atStart ? 'flex' : 'none';
+        nextBtn.style.display = canScroll && !atEnd ? 'flex' : 'none';
       }
 
       // initialize visibility and attach listeners
       updateArrowVisibility();
       track.addEventListener('scroll', updateArrowVisibility, { passive: true });
       window.addEventListener('resize', updateArrowVisibility);
+      window.addEventListener('load', updateArrowVisibility);
+      setTimeout(updateArrowVisibility, 300);
 
       // prevent manual wheel/touch scrolling so only arrows control navigation
       track.addEventListener('wheel', function (e) {
