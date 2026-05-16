@@ -1,12 +1,8 @@
 html,
 body {
-  background: #020714;
-}
-
-body {
-  position: relative;
-  min-height: 100vh;
-  overflow-x: hidden;
+  min-height: 100%;
+  margin: 0;
+  background: #000;
 }
 
 #space-background {
@@ -15,51 +11,65 @@ body {
   width: 100vw;
   height: 100vh;
   display: block;
+  z-index: 0;
   pointer-events: none;
-  z-index: -10;
-  background: #020711;
+  background: #000;
 }
 
-body > :not(#space-background) {
-  position: relative;
-  z-index: 1;
+.redesign-home {
+  min-height: 100vh;
+  overflow-x: hidden;
+  color: #f5f5f5;
+  font-family: Georgia, serif;
+  background: #000;
 }
 
-#fullpage {
+.redesign-home__content {
   position: relative;
   z-index: 1;
   min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
 }
 
-.section {
-  background-clip: padding-box;
+.redesign-home__hero {
+  width: min(900px, 92vw);
+  padding: clamp(2rem, 5vw, 5rem);
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 28px;
+  backdrop-filter: blur(6px);
+  text-align: center;
 }
 
-.aboutme,
-.article-section,
-.posts-expand-gallery-section {
-  position: relative;
+.redesign-home__eyebrow {
+  margin: 0 0 1rem;
+  font-family: "Trebuchet MS", sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.68);
 }
 
-.aboutme::before,
-.article-section::before,
-.posts-expand-gallery-section::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(180deg, rgba(2, 7, 20, 0.05), rgba(2, 7, 20, 0.18));
+.redesign-home__hero h1 {
+  margin: 0;
+  font-size: clamp(3rem, 9vw, 7rem);
+  line-height: 0.95;
+  color: #ffffff;
+  text-shadow: 0 8px 40px rgba(0, 0, 0, 0.8);
 }
 
-.hero-solar,
-.main-article,
-.posts-expand-gallery {
-  position: relative;
-  z-index: 1;
+.redesign-home__hero p {
+  max-width: 680px;
+  margin: 1.5rem auto 0;
+  font-size: clamp(1rem, 2vw, 1.3rem);
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.82);
 }
 
-@media (max-width: 768px) {
-  #space-background {
-    opacity: 0.97;
-  }
+.redesign-home__status {
+  font-family: "Trebuchet MS", sans-serif;
+  font-size: 0.85rem !important;
+  color: rgba(255, 255, 255, 0.55) !important;
 }

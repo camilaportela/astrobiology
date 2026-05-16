@@ -8,51 +8,23 @@ layout: null
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Astrobiologia</title>
   <meta name="description" content="Um espaço de divulgação científica sobre astrobiologia, microrganismos, ambientes extremos e vida no universo.">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.1.2/fullpage.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link rel="stylesheet" href="{{ '/assets/css/style.css?v=2' | relative_url }}">
-  <link rel="stylesheet" href="{{ '/assets/css/redesign.css?v=2' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/css/redesign.css?v=3' | relative_url }}">
 </head>
-<body class="show-noticias">
-  <!-- begin fullpage -->
+<body class="redesign-home">
+  <canvas id="space-background" aria-hidden="true"></canvas>
 
-  <div id="fullpage">
+  <main class="redesign-home__content">
+    <section class="redesign-home__hero" aria-labelledby="home-title">
+      <p class="redesign-home__eyebrow">Astrobiologia • Microbiologia • Ambientes extremos</p>
+      <h1 id="home-title">Astrobiologia</h1>
+      <p>
+        Um espaço de divulgação científica sobre vida, microrganismos, ambientes extremos
+        e possibilidades biológicas no universo.
+      </p>
+      <p class="redesign-home__status">Site em reconstrução visual.</p>
+    </section>
+  </main>
 
-    {% assign latest_post = site.posts.first %}
-    {% assign latest_author = latest_post.author | default: "Camila Portela" %}
-    <!-- begin section: artigo editorial dinâmico -->
-    {% if site.posts.size > 0 %}
-    <div class="section article-section" data-anchor="skills">
-      <article class="main-article">
-        <header>
-          <h3 class="byline">Posted by <a href="#">{{ latest_author }}</a> | <a href="#">{{ latest_post.date | date: "%B %d, %Y" }}</a></h3>
-          <h1 class="article__headline">{{ latest_post.title }}</h1>
-          {% if latest_post.subtitle %}
-          <h2 class="lead">{{ latest_post.subtitle }}</h2>
-          {% else %}
-          <h2 class="lead">{{ latest_post.excerpt }}</h2>
-          {% endif %}
-        </header>
-
-        <article class="article-content">
-          {{ latest_post.content }}
-        </article>
-
-        {% assign latest_post_term = latest_post.url %}
-        {% include giscus.html mapping="specific" term=latest_post_term %}
-      </article>
-    </div>
-    {% endif %}
-    <!-- end section: artigo editorial dinâmico -->
-
-  </div>
-  <!-- end fullpage -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.1.2/fullpage.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/wow/1.1.2/wow.min.js"></script>
-  <script src="{{ '/assets/js/main.js?v=3' | relative_url }}"></script>
-  <script src="{{ '/assets/js/redesign-background.js?v=2' | relative_url }}"></script>
-  <click-spark></click-spark>
+  <script src="{{ '/assets/js/redesign-background.js?v=3' | relative_url }}"></script>
 </body>
 </html>
