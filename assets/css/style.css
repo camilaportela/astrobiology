@@ -1242,7 +1242,7 @@ label {
   scroll-snap-type: x proximity;
   -webkit-overflow-scrolling: touch;
   border-radius: 0;
-  background: #222;
+  background: #000;
   margin-top: 0; /* garantir sem deslocamento extra */
 }
 
@@ -1270,12 +1270,13 @@ label {
   border-radius: 0;
   scroll-snap-align: start;
   filter: grayscale(10%) brightness(0.78);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+  border: 0;
+  outline: 0;
+  box-shadow: none;
   transition:
     flex-grow 0.8s ease-out,
     filter 0.8s ease-out,
-    transform 0.8s ease-out,
-    box-shadow 0.8s ease-out;
+    transform 0.8s ease-out;
 }
 
 .posts-expand-gallery__item::before {
@@ -1300,9 +1301,9 @@ label {
   flex-grow: 1.55;
   filter: grayscale(0%) brightness(1.05);
   transform: translateY(-2px) scale(1.015);
-  box-shadow:
-    inset 0 0 0 2px rgba(255, 255, 255, 0.18),
-    0 0 32px rgba(255, 255, 255, 0.10);
+  border: 0;
+  outline: none;
+  box-shadow: none;
 }
 
 .posts-expand-gallery__track:hover .posts-expand-gallery__item:hover::before,
