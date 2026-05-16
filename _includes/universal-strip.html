@@ -23,7 +23,7 @@
     {% assign gallery_count_class = "posts-expand-gallery--four" %}
   {% endif %}
 
-  <div class="posts-expand-gallery {{ gallery_count_class }}" data-posts-count="{{ posts_count }}">
+  <section class="posts-expand-gallery {{ gallery_count_class }}" data-posts-count="{{ posts_count }}" aria-label="Galeria de notícias">
     {% if posts_count > 4 %}
       <button class="posts-expand-gallery__arrow posts-expand-gallery__arrow--prev" type="button" aria-label="Mostrar posts anteriores">&#10094;</button>
       <button class="posts-expand-gallery__arrow posts-expand-gallery__arrow--next" type="button" aria-label="Mostrar próximos posts">&#10095;</button>
@@ -82,6 +82,6 @@
     <p class="posts-expand-gallery__footer">
       <a href="/noticias/" class="posts-expand-gallery__link">Ver todas as notícias →</a>
     </p>
-  </div>
+  </section>
 </div>
 {% endif %}
