@@ -1582,10 +1582,6 @@ label {
     flex: 0 0 82vw;
   }
 
-  .posts-expand-gallery__arrow {
-    display: none;
-  }
-
   .posts-expand-gallery__info {
     width: min(88%, 30rem);
   }
