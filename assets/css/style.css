@@ -1269,15 +1269,18 @@ label {
   overflow: hidden;
   border-radius: 0;
   scroll-snap-align: start;
-  filter: grayscale(12%) brightness(0.82);
-  transition: flex-grow 0.8s ease-out, filter 0.8s ease-out, transform 0.8s ease-out;
+  filter: grayscale(15%) brightness(0.68);
+  transition:
+    flex-grow 0.8s ease-out,
+    filter 0.8s ease-out,
+    transform 0.8s ease-out;
 }
 
 .posts-expand-gallery__item::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(10, 10, 10, 0.52);
+  background: rgba(10, 10, 10, 0.76);
   z-index: 1;
   transition: background 0.8s ease-out;
 }
@@ -1285,13 +1288,13 @@ label {
 .posts-expand-gallery__item:hover,
 .posts-expand-gallery__item:focus-visible {
   flex-grow: 1.55;
-  filter: grayscale(0%) brightness(1.02);
+  filter: grayscale(0%) brightness(1);
   transform: translateY(-1px);
 }
 
 .posts-expand-gallery__item:hover::before,
 .posts-expand-gallery__item:focus-visible::before {
-  background: rgba(10, 10, 10, 0.34);
+  background: rgba(10, 10, 10, 0.42);
 }
 
 .posts-expand-gallery__chip {
