@@ -633,6 +633,13 @@
       neptune: loadPlanetTexture(planetTextureFiles.neptune, "Netuno", createSolidTexture("#235ac4"))
     };
 
+    if (planetTextures.saturnRings) {
+      planetTextures.saturnRings.flipY = false;
+      planetTextures.saturnRings.wrapS = THREE.ClampToEdgeWrapping;
+      planetTextures.saturnRings.wrapT = THREE.ClampToEdgeWrapping;
+      planetTextures.saturnRings.needsUpdate = true;
+    }
+
     var sun = createPlanet(16, 0, sunColors, null, {
       map: planetTextures.sun,
       fallbackColor: "#ffcf40"
@@ -671,16 +678,33 @@
       map: planetTextures.jupiter,
       fallbackColor: "#c7ae82"
     });
-    var saturn = createPlanet(9.5, 245, saturnColors, {
-      innerRadius: 11.5,
-      outerRadius: 22,
-      color: 0xeadac0,
-      opacity: 0.95,
-      textureFile: "2k_saturn_ring_alpha.png"
-    }, {
+    var saturn = createPlanet(9.5, 245, saturnColors, null, {
       map: planetTextures.saturn,
       fallbackColor: "#d8c08a"
     });
+
+    var saturnRingGeometry = new THREE.RingGeometry(11.5, 22, 128);
+    var saturnRingMaterial = planetTextures.saturnRings
+      ? new THREE.MeshBasicMaterial({
+          map: planetTextures.saturnRings,
+          transparent: true,
+          side: THREE.DoubleSide,
+          depthWrite: false,
+          opacity: 0.95,
+          alphaTest: 0.05
+        })
+      : new THREE.MeshBasicMaterial({
+          color: 0xd8c08a,
+          side: THREE.DoubleSide,
+          transparent: true,
+          depthWrite: false,
+          opacity: 0.55,
+          alphaTest: 0.05
+        });
+    var saturnRingMesh = new THREE.Mesh(saturnRingGeometry, saturnRingMaterial);
+    saturnRingMesh.rotation.x = -0.5 * Math.PI;
+    saturnRingMesh.rotation.z = 0.36;
+    saturn.mesh.add(saturnRingMesh);
     var uranus = createPlanet(7, 305, uranusColors, null, {
       map: planetTextures.uranus,
       fallbackColor: "#8ed2da"
