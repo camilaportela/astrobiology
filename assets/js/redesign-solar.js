@@ -48,22 +48,40 @@
     var textureLoader = new THREE.TextureLoader();
     var PLANET_TEXTURE_PATH = "/assets/img/planets/";
 
-    function loadTexture(path, label, fallbackTexture, onLoad) {
+    var planetTextureFiles = {
+      sun: "2k_sun.jpg",
+      mercury: "2k_mercury.jpg",
+      venus: "2k_venus_atmosphere.jpg",
+      earth: "2k_earth_daymap.jpg",
+      mars: "2k_mars.jpg",
+      jupiter: "2k_jupiter.jpg",
+      saturn: "2k_saturn.jpg",
+      saturnRings: "2k_saturn_ring_alpha.png",
+      uranus: "2k_uranus.jpg",
+      neptune: "2k_neptune.jpg"
+    };
+
+    function loadPlanetTexture(fileName, label, fallbackTexture, onLoad) {
+      var path = PLANET_TEXTURE_PATH + fileName;
       var texture = textureLoader.load(
         path,
         function () {
-          console.log("Textura carregada:", label, path);
+          console.log("[Solar textures] carregada:", label, path);
           if (onLoad) {
             onLoad(texture);
           }
         },
         undefined,
         function (error) {
-          console.warn("Falha ao carregar textura:", label, path, error);
+          console.warn("[Solar textures] FALHA:", label, path, error);
+          if (fallbackTexture && fallbackTexture.image) {
+            texture.image = fallbackTexture.image;
+            texture.needsUpdate = true;
+          }
         }
       );
 
-      if (THREE.sRGBEncoding) {
+      if ("encoding" in texture && THREE.sRGBEncoding) {
         texture.encoding = THREE.sRGBEncoding;
       }
 
@@ -71,41 +89,13 @@
       texture.wrapT = THREE.ClampToEdgeWrapping;
       texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
       texture.needsUpdate = true;
-      return fallbackTexture || texture;
-    }
 
-    function applyTextureEncoding(texture) {
-      if (texture && THREE.sRGBEncoding !== undefined) {
-        texture.encoding = THREE.sRGBEncoding;
+      if (fallbackTexture && fallbackTexture.image) {
+        texture.image = fallbackTexture.image;
+        texture.needsUpdate = true;
       }
-      if (texture) {
-        texture.wrapS = THREE.RepeatWrapping;
-        texture.wrapT = THREE.ClampToEdgeWrapping;
-        texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-      }
-      texture.needsUpdate = true;
+
       return texture;
-    }
-
-    function loadPlanetTexture(fileName, fallbackTexture, onLoad) {
-      textureLoader.load(
-        PLANET_TEXTURE_PATH + fileName,
-        function (loadedTexture) {
-          applyTextureEncoding(loadedTexture);
-          if (onLoad) {
-            onLoad(loadedTexture);
-          }
-        },
-        undefined,
-        function () {
-          console.warn("Textura não encontrada:", fileName);
-          if (fallbackTexture) {
-            applyTextureEncoding(fallbackTexture);
-          }
-        }
-      );
-
-      return fallbackTexture;
     }
 
     function createCanvasTexture(drawFn, size) {
@@ -126,6 +116,12 @@
         context.fillStyle = color;
         context.fillRect(0, 0, size, size);
       }, 16));
+    }
+
+    function createTexturedPlanetMaterial(texture) {
+      return new THREE.MeshBasicMaterial({
+        map: texture
+      });
     }
 
     function setTextureDefaults(texture) {
@@ -471,13 +467,7 @@
       var geometry = new THREE.SphereGeometry(size, 40, 40);
       var texture;
 
-      if (textureOptions && textureOptions.fileName) {
-        texture = createSolidTexture(textureOptions.fallbackColor || (colorStops && colorStops[0] && colorStops[0].color) || "#ffffff");
-        loadPlanetTexture(textureOptions.fileName, texture, function (loadedTexture) {
-          material.map = loadedTexture;
-          material.needsUpdate = true;
-        });
-      } else if (textureOptions && textureOptions.map) {
+      if (textureOptions && textureOptions.map) {
         texture = textureOptions.map;
       } else if (textureOptions && textureOptions.type === "striped") {
         texture = createStripedTexture(textureOptions.baseColor, textureOptions.stripeColor, textureOptions.size || 256);
@@ -485,9 +475,7 @@
         texture = createGradientTexture(colorStops, textureOptions);
       }
 
-      var material = new THREE.MeshBasicMaterial({
-        map: texture
-      });
+      var material = createTexturedPlanetMaterial(texture);
 
       var planet = new THREE.Mesh(geometry, material);
       var obj = new THREE.Object3D();
@@ -500,11 +488,12 @@
           color: ringOptions.color,
           side: THREE.DoubleSide,
           transparent: true,
-          opacity: ringOptions.opacity || 0.62
+          alphaTest: ringOptions.alphaTest || 0.03,
+          opacity: ringOptions.opacity || 0.9
         });
 
         if (ringOptions.textureFile) {
-          loadTexture(PLANET_TEXTURE_PATH + ringOptions.textureFile, "Anéis de Saturno", null, function (loadedTexture) {
+          loadPlanetTexture(ringOptions.textureFile, "Anéis de Saturno", null, function (loadedTexture) {
             ringMat.map = loadedTexture;
             ringMat.needsUpdate = true;
           });
@@ -593,8 +582,21 @@
       { stop: 1, color: '#10205c' }
     ];
 
+    var planetTextures = {
+      sun: loadPlanetTexture(planetTextureFiles.sun, "Sol", createSolidTexture("#ffcf40")),
+      mercury: loadPlanetTexture(planetTextureFiles.mercury, "Mercúrio", createSolidTexture("#8f8b84")),
+      venus: loadPlanetTexture(planetTextureFiles.venus, "Vênus", createSolidTexture("#c89a45")),
+      earth: loadPlanetTexture(planetTextureFiles.earth, "Terra", createSolidTexture("#1e72d8")),
+      mars: loadPlanetTexture(planetTextureFiles.mars, "Marte", createSolidTexture("#c5532f")),
+      jupiter: loadPlanetTexture(planetTextureFiles.jupiter, "Júpiter", createSolidTexture("#c7ae82")),
+      saturn: loadPlanetTexture(planetTextureFiles.saturn, "Saturno", createSolidTexture("#d8c08a")),
+      saturnRings: loadPlanetTexture(planetTextureFiles.saturnRings, "Anéis de Saturno", null),
+      uranus: loadPlanetTexture(planetTextureFiles.uranus, "Urano", createSolidTexture("#8ed2da")),
+      neptune: loadPlanetTexture(planetTextureFiles.neptune, "Netuno", createSolidTexture("#235ac4"))
+    };
+
     var sun = createPlanet(16, 0, sunColors, null, {
-      map: loadTexture(PLANET_TEXTURE_PATH + "2k_sun.jpg", "Sol", createSolidTexture("#ffcf40")),
+      map: planetTextures.sun,
       fallbackColor: "#ffcf40"
     });
     var sunGlow = new THREE.SpriteMaterial({
@@ -612,23 +614,23 @@
     sun.mesh.add(glowSprite);
 
     var mercury = createPlanet(2.2, 45, mercuryColors, null, {
-      map: loadTexture(PLANET_TEXTURE_PATH + "2k_mercury.jpg", "Mercúrio", createSolidTexture("#8f8b84")),
+      map: planetTextures.mercury,
       fallbackColor: "#8f8b84"
     });
     var venus = createPlanet(4.6, 68, venusColors, null, {
-      map: loadTexture(PLANET_TEXTURE_PATH + "2k_venus_atmosphere.jpg", "Vênus", createSolidTexture("#c89a45")),
+      map: planetTextures.venus,
       fallbackColor: "#c89a45"
     });
     var earth = createPlanet(5.2, 95, earthColors, null, {
-      map: loadTexture(PLANET_TEXTURE_PATH + "2k_earth_daymap.jpg", "Terra", createSolidTexture("#1e72d8")),
+      map: planetTextures.earth,
       fallbackColor: "#1e72d8"
     });
     var mars = createPlanet(3.6, 125, marsColors, null, {
-      map: loadTexture(PLANET_TEXTURE_PATH + "2k_mars.jpg", "Marte", createSolidTexture("#c5532f")),
+      map: planetTextures.mars,
       fallbackColor: "#c5532f"
     });
     var jupiter = createPlanet(11, 180, jupiterColors, null, {
-      map: loadTexture(PLANET_TEXTURE_PATH + "2k_jupiter.jpg", "Júpiter", createSolidTexture("#c7ae82")),
+      map: planetTextures.jupiter,
       fallbackColor: "#c7ae82"
     });
     var saturn = createPlanet(9.5, 245, saturnColors, {
@@ -638,25 +640,21 @@
       opacity: 0.58,
       textureFile: "2k_saturn_ring_alpha.png"
     }, {
-      map: loadTexture(PLANET_TEXTURE_PATH + "2k_saturn.jpg", "Saturno", createSolidTexture("#d8c08a")),
+      map: planetTextures.saturn,
       fallbackColor: "#d8c08a"
     });
     var uranus = createPlanet(7, 305, uranusColors, null, {
-      map: loadTexture(PLANET_TEXTURE_PATH + "2k_uranus.jpg", "Urano", createSolidTexture("#8ed2da")),
+      map: planetTextures.uranus,
       fallbackColor: "#8ed2da"
     });
     var neptune = createPlanet(7, 360, neptuneColors, null, {
-      map: loadTexture(PLANET_TEXTURE_PATH + "2k_neptune.jpg", "Netuno", createSolidTexture("#235ac4")),
+      map: planetTextures.neptune,
       fallbackColor: "#235ac4"
     });
 
     var moonGeometry = new THREE.SphereGeometry(1.5, 30, 30);
     var moonMaterial = new THREE.MeshBasicMaterial({
       map: createSolidTexture("#b7bcc6")
-    });
-    loadPlanetTexture("moon.jpg", moonMaterial.map, function (loadedTexture) {
-      moonMaterial.map = loadedTexture;
-      moonMaterial.needsUpdate = true;
     });
     var moon = new THREE.Mesh(moonGeometry, moonMaterial);
     var moonObj = new THREE.Object3D();
