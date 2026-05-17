@@ -6,6 +6,7 @@
   function initSolarSystem() {
     var container = document.getElementById("redesign-solar-system");
     if (!container || !window.THREE) {
+      console.warn("[Solar] Container ou THREE não encontrado. Sistema solar não iniciado.");
       return;
     }
 
@@ -62,6 +63,11 @@
     };
 
     function loadPlanetTexture(fileName, label, fallbackTexture, onLoad) {
+      if (!fileName) {
+        console.warn("[Solar textures] arquivo ausente para:", label);
+        return fallbackTexture || null;
+      }
+
       var path = PLANET_TEXTURE_PATH + fileName;
       var texture = textureLoader.load(
         path,
@@ -95,6 +101,22 @@
         texture.needsUpdate = true;
       }
 
+      return texture;
+    }
+
+    function applyTextureEncoding(texture) {
+      if (!texture) {
+        return null;
+      }
+
+      if (THREE.sRGBEncoding) {
+        texture.encoding = THREE.sRGBEncoding;
+      }
+
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.ClampToEdgeWrapping;
+      texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+      texture.needsUpdate = true;
       return texture;
     }
 
@@ -493,10 +515,11 @@
         });
 
         if (ringOptions.textureFile) {
-          loadPlanetTexture(ringOptions.textureFile, "Anéis de Saturno", null, function (loadedTexture) {
+          var ringTexture = loadPlanetTexture(ringOptions.textureFile, "Anéis de Saturno", createSolidTexture("#d8c08a"), function (loadedTexture) {
             ringMat.map = loadedTexture;
             ringMat.needsUpdate = true;
           });
+          ringMat.map = ringTexture;
         }
 
         var ringMesh = new THREE.Mesh(ringGeo, ringMat);
