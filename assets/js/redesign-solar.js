@@ -13,8 +13,8 @@
     var SOLAR_SPEED = reduceMotion ? 0.05 : 0.35;
 
     var scene = new THREE.Scene();
-    var camera = new THREE.PerspectiveCamera(55, 1, 0.1, 2500);
-    camera.position.set(0, 78, 280);
+    var camera = new THREE.PerspectiveCamera(40, 1, 0.1, 3000);
+    camera.position.set(0, 170, 760);
 
     var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -26,13 +26,18 @@
     controls.enableDamping = true;
     controls.dampingFactor = 0.08;
     controls.enablePan = false;
-    controls.minDistance = 120;
-    controls.maxDistance = 650;
+    controls.minDistance = 260;
+    controls.maxDistance = 1400;
     controls.target.set(0, 0, 0);
     controls.update();
 
     var ambient = new THREE.AmbientLight(0xffffff, 1.1);
     scene.add(ambient);
+
+    var solarRoot = new THREE.Object3D();
+    solarRoot.scale.setScalar(0.5);
+    solarRoot.position.y = -22;
+    scene.add(solarRoot);
 
     function createGradientTexture(colorStops, options) {
       var size = (options && options.size) || 256;
@@ -128,9 +133,9 @@
 
         var orbit = new THREE.Mesh(orbitGeometry, orbitMaterial);
         orbit.rotation.x = -0.5 * Math.PI;
-        scene.add(orbit);
+        solarRoot.add(orbit);
       }
-      scene.add(obj);
+      solarRoot.add(obj);
 
       return { mesh: planet, obj: obj };
     }
@@ -260,6 +265,10 @@
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height, false);
+
+      var fitScale = Math.min(width / 1360, height / 860);
+      solarRoot.scale.setScalar(Math.max(0.44, Math.min(0.62, 0.48 + fitScale * 0.06)));
+      solarRoot.position.y = -24;
     }
 
     function animate() {
