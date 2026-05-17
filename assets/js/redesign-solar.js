@@ -668,17 +668,16 @@
     });
     var sunGlow = new THREE.SpriteMaterial({
       map: createGradientTexture([
-        { stop: 0, color: '#ffffff' },
-        { stop: 0.4, color: '#fff8df' },
-        { stop: 1, color: 'transparent' }
+        { stop: 0, color: 'rgba(255,255,255,0.75)' },
+        { stop: 1, color: 'rgba(255,255,255,0)' }
       ], { size: 256, radius: 128 }),
-      color: 0xffffff,
+      color: 0xffe484,
       transparent: true,
       blending: THREE.AdditiveBlending,
-      opacity: 0.55
+      opacity: 0.4
     });
     var glowSprite = new THREE.Sprite(sunGlow);
-    glowSprite.scale.set(76, 76, 1);
+    glowSprite.scale.set(80, 80, 1);
     sun.mesh.add(glowSprite);
 
     var mercury = createPlanet(2.2, 45, mercuryColors, null, {
