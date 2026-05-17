@@ -14,7 +14,7 @@
 
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(40, 1, 0.1, 3000);
-    camera.position.set(0, 150, 700);
+    camera.position.set(0, 95, 360);
 
     var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -31,6 +31,7 @@
     controls.maxDistance = 1400;
     controls.target.set(0, 0, 0);
     controls.update();
+    camera.lookAt(0, 0, 0);
 
     renderer.domElement.addEventListener("wheel", function (event) {
       event.preventDefault();
@@ -40,8 +41,8 @@
     scene.add(ambient);
 
     var solarRoot = new THREE.Object3D();
-    solarRoot.scale.setScalar(0.64);
-    solarRoot.position.y = -18;
+    solarRoot.scale.setScalar(0.62);
+    solarRoot.position.y = -8;
     scene.add(solarRoot);
 
     function createGradientTexture(colorStops, options) {
@@ -272,8 +273,8 @@
       renderer.setSize(width, height, false);
 
       var fitScale = Math.min(width / 1600, height / 1000);
-      solarRoot.scale.setScalar(Math.max(0.58, Math.min(0.74, 0.64 + fitScale * 0.06)));
-      solarRoot.position.y = -18;
+      solarRoot.scale.setScalar(Math.max(0.56, Math.min(0.7, 0.62 + fitScale * 0.05)));
+      solarRoot.position.y = -8;
     }
 
     function animate() {
