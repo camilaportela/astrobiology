@@ -20,26 +20,32 @@
     var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setClearColor(0x000000, 0);
+    if (THREE.sRGBEncoding) {
+      renderer.outputEncoding = THREE.sRGBEncoding;
+    }
+    if (renderer.toneMappingExposure !== undefined) {
+      renderer.toneMappingExposure = 1.08;
+    }
     renderer.setSize(container.clientWidth || 1, container.clientHeight || 1, false);
     container.appendChild(renderer.domElement);
 
     var controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.08;
-    controls.enableZoom = false;
+    controls.enableZoom = true;
     controls.enablePan = false;
-    controls.minDistance = 260;
-    controls.maxDistance = 1400;
+    controls.minDistance = 180;
+    controls.maxDistance = 900;
     controls.target.set(0, 0, 0);
     controls.update();
     camera.lookAt(0, 0, 0);
 
-    renderer.domElement.addEventListener("wheel", function (event) {
-      event.preventDefault();
-    }, { passive: false });
-
-    var ambient = new THREE.AmbientLight(0xffffff, 1.1);
+    var ambient = new THREE.AmbientLight(0xffffff, 1.18);
     scene.add(ambient);
+
+    var sunLight = new THREE.PointLight(0xfff2b0, 1.2, 900);
+    sunLight.position.set(0, 0, 0);
+    scene.add(sunLight);
 
     var solarRoot = new THREE.Object3D();
     solarRoot.scale.setScalar(0.62);
@@ -90,6 +96,9 @@
       if ("encoding" in texture && THREE.sRGBEncoding) {
         texture.encoding = THREE.sRGBEncoding;
       }
+      if (texture && "colorSpace" in texture && THREE.SRGBColorSpace) {
+        texture.colorSpace = THREE.SRGBColorSpace;
+      }
 
       texture.wrapS = THREE.RepeatWrapping;
       texture.wrapT = THREE.ClampToEdgeWrapping;
@@ -111,6 +120,9 @@
 
       if (THREE.sRGBEncoding) {
         texture.encoding = THREE.sRGBEncoding;
+      }
+      if ("colorSpace" in texture && THREE.SRGBColorSpace) {
+        texture.colorSpace = THREE.SRGBColorSpace;
       }
 
       texture.wrapS = THREE.RepeatWrapping;
@@ -510,16 +522,19 @@
           color: ringOptions.color,
           side: THREE.DoubleSide,
           transparent: true,
-          alphaTest: ringOptions.alphaTest || 0.03,
-          opacity: ringOptions.opacity || 0.9
+          depthWrite: false,
+          alphaTest: ringOptions.alphaTest || 0.05,
+          opacity: ringOptions.opacity || 0.95
         });
 
         if (ringOptions.textureFile) {
           var ringTexture = loadPlanetTexture(ringOptions.textureFile, "Anéis de Saturno", createSolidTexture("#d8c08a"), function (loadedTexture) {
             ringMat.map = loadedTexture;
+            ringMat.alphaMap = loadedTexture;
             ringMat.needsUpdate = true;
           });
           ringMat.map = ringTexture;
+          ringMat.alphaMap = ringTexture;
         }
 
         var ringMesh = new THREE.Mesh(ringGeo, ringMat);
@@ -660,7 +675,7 @@
       innerRadius: 11.5,
       outerRadius: 22,
       color: 0xeadac0,
-      opacity: 0.58,
+      opacity: 0.95,
       textureFile: "2k_saturn_ring_alpha.png"
     }, {
       map: planetTextures.saturn,
