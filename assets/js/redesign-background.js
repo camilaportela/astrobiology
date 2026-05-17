@@ -49,83 +49,13 @@
     initStars();
 
     /* ======================================================
-       PARTICULAS RAPIDAS
-    ====================================================== */
-    var particles = [];
-
-    function createParticle() {
-      var angle = Math.random() * Math.PI * 2;
-      var speed = 6 + Math.random() * 6;
-
-      particles.push({
-        x: centerX,
-        y: centerY,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
-        life: 0,
-        maxLife: 140 + Math.random() * 80,
-        collided: false
-      });
-    }
-
-    /* ======================================================
-       EXPLOSIONES
-    ====================================================== */
-    var explosions = [];
-
-    function createExplosion(x, y, baseVx, baseVy) {
-      var count = 12 + Math.floor(Math.random() * 10);
-
-      for (var i = 0; i < count; i++) {
-        var angle =
-          Math.atan2(baseVy, baseVx) +
-          (Math.random() - 0.5) * Math.PI;
-
-        var speed = 2 + Math.random() * 4;
-
-        explosions.push({
-          x: x,
-          y: y,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed,
-          life: 0,
-          maxLife: 40 + Math.random() * 30
-        });
-      }
-    }
-
-    /* ======================================================
-       NEBULOSAS
-    ====================================================== */
-    var nebulas = [];
-
-    function createNebula() {
-      var colors = [
-        "rgba(120,80,255,",
-        "rgba(255,100,180,",
-        "rgba(80,200,255,",
-        "rgba(150,255,200,"
-      ];
-
-      nebulas.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        radius: 300 + Math.random() * 500,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        alpha: 0,
-        maxAlpha: 0.12 + Math.random() * 0.12,
-        phase: "in"
-      });
-    }
-
-    /* ======================================================
        LOOP
     ====================================================== */
     function draw() {
-      context.clearRect(0, 0, canvas.width, canvas.height);
+      context.fillStyle = "#000000";
+      context.fillRect(0, 0, canvas.width, canvas.height);
 
-      /* Fundo estelar */
-      context.fillStyle = "white";
+      context.fillStyle = "rgba(220, 245, 255, 0.9)";
 
       for (var sIndex = 0; sIndex < stars.length; sIndex++) {
         var s = stars[sIndex];
@@ -137,82 +67,13 @@
         context.arc(x, y, size, 0, Math.PI * 2);
         context.fill();
 
-        s.z -= 1.35;
+        s.z -= 0.35;
 
         if (s.z <= 0) {
           s.z = canvas.width;
           s.x = Math.random() * canvas.width - centerX;
           s.y = Math.random() * canvas.height - centerY;
         }
-      }
-
-      /* Partículas */
-      if (Math.random() < 0.003) createParticle();
-
-      for (var pIndex = particles.length - 1; pIndex >= 0; pIndex--) {
-        var p = particles[pIndex];
-        var fade = 1 - p.life / p.maxLife;
-
-        context.strokeStyle = "rgba(255,255,255," + fade + ")";
-        context.lineWidth = 1.4;
-        context.beginPath();
-        context.moveTo(p.x, p.y);
-        context.lineTo(p.x - p.vx * 2, p.y - p.vy * 2);
-        context.stroke();
-
-        if (!p.collided && Math.random() < 0.001) {
-          p.collided = true;
-          createExplosion(p.x, p.y, p.vx, p.vy);
-        }
-
-        p.x += p.vx;
-        p.y += p.vy;
-        p.life++;
-
-        if (p.life > p.maxLife) particles.splice(pIndex, 1);
-      }
-
-      /* Explosões */
-      for (var eIndex = explosions.length - 1; eIndex >= 0; eIndex--) {
-        var e = explosions[eIndex];
-        var eFade = 1 - e.life / e.maxLife;
-
-        context.fillStyle = "rgba(255,255,255," + eFade + ")";
-        context.beginPath();
-        context.arc(e.x, e.y, 1.2, 0, Math.PI * 2);
-        context.fill();
-
-        e.x += e.vx;
-        e.y += e.vy;
-        e.life++;
-
-        if (e.life > e.maxLife) explosions.splice(eIndex, 1);
-      }
-
-      /* Nebulosas */
-      if (Math.random() < 0.002 && nebulas.length < 2) createNebula();
-
-      for (var nIndex = nebulas.length - 1; nIndex >= 0; nIndex--) {
-        var n = nebulas[nIndex];
-
-        n.alpha += n.phase === "in" ? 0.0015 : -0.001;
-
-        if (n.alpha >= n.maxAlpha) n.phase = "out";
-
-        if (n.alpha <= 0) {
-          nebulas.splice(nIndex, 1);
-          continue;
-        }
-
-        var gradient = context.createRadialGradient(
-          n.x, n.y, 0, n.x, n.y, n.radius
-        );
-
-        gradient.addColorStop(0, n.color + n.alpha + ")");
-        gradient.addColorStop(1, n.color + "0)");
-
-        context.fillStyle = gradient;
-        context.fillRect(0, 0, canvas.width, canvas.height);
       }
 
       requestAnimationFrame(draw);
