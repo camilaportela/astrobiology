@@ -92,14 +92,6 @@
           maxLife: 40 + Math.random() * 30
         });
       }
-
-      // Flash breve reduzido levemente para não agredir o site
-      context.save();
-      context.fillStyle = "rgba(255,255,255,0.16)";
-      context.beginPath();
-      context.arc(x, y, 6, 0, Math.PI * 2);
-      context.fill();
-      context.restore();
     }
 
     /* ======================================================
@@ -145,7 +137,7 @@
         context.arc(x, y, size, 0, Math.PI * 2);
         context.fill();
 
-        s.z -= 2;
+        s.z -= 1.35;
 
         if (s.z <= 0) {
           s.z = canvas.width;
@@ -155,7 +147,7 @@
       }
 
       /* Partículas */
-      if (Math.random() < 0.005) createParticle();
+      if (Math.random() < 0.003) createParticle();
 
       for (var pIndex = particles.length - 1; pIndex >= 0; pIndex--) {
         var p = particles[pIndex];
@@ -168,8 +160,7 @@
         context.lineTo(p.x - p.vx * 2, p.y - p.vy * 2);
         context.stroke();
 
-        // Colisão rara com estrelas visíveis
-        if (!p.collided && Math.random() < 0.002) {
+        if (!p.collided && Math.random() < 0.001) {
           p.collided = true;
           createExplosion(p.x, p.y, p.vx, p.vy);
         }
