@@ -158,6 +158,28 @@
       });
     }
 
+    function remapRingGeometryUVs(geometry, innerRadius, outerRadius) {
+      var position = geometry.attributes.position;
+      var uv = geometry.attributes.uv;
+
+      if (!position || !uv) {
+        return;
+      }
+
+      for (var i = 0; i < position.count; i += 1) {
+        var x = position.getX(i);
+        var y = position.getY(i);
+        var radius = Math.sqrt(x * x + y * y);
+        var angle = Math.atan2(y, x);
+        var u = (radius - innerRadius) / (outerRadius - innerRadius);
+        var v = (angle + Math.PI) / (Math.PI * 2);
+
+        uv.setXY(i, u, v);
+      }
+
+      uv.needsUpdate = true;
+    }
+
     function setTextureDefaults(texture) {
       texture.needsUpdate = true;
       texture.anisotropy = Math.min(renderer.capabilities.getMaxAnisotropy(), 8);
@@ -683,23 +705,34 @@
       fallbackColor: "#d8c08a"
     });
 
-    var saturnRingGeometry = new THREE.RingGeometry(11.5, 22, 128);
-    var saturnRingMaterial = planetTextures.saturnRings
+    var saturnRingInnerRadius = 11.5;
+    var saturnRingOuterRadius = 22;
+    var saturnRingGeometry = new THREE.RingGeometry(saturnRingInnerRadius, saturnRingOuterRadius, 192);
+    remapRingGeometryUVs(saturnRingGeometry, saturnRingInnerRadius, saturnRingOuterRadius);
+
+    var saturnRingTexture = planetTextures.saturnRings;
+    if (saturnRingTexture) {
+      saturnRingTexture.flipY = false;
+      saturnRingTexture.wrapS = THREE.ClampToEdgeWrapping;
+      saturnRingTexture.wrapT = THREE.RepeatWrapping;
+      saturnRingTexture.needsUpdate = true;
+    }
+
+    var saturnRingMaterial = saturnRingTexture
       ? new THREE.MeshBasicMaterial({
-          map: planetTextures.saturnRings,
+          map: saturnRingTexture,
           transparent: true,
           side: THREE.DoubleSide,
           depthWrite: false,
-          opacity: 0.95,
-          alphaTest: 0.05
+          opacity: 1,
+          alphaTest: 0.03
         })
       : new THREE.MeshBasicMaterial({
           color: 0xd8c08a,
           side: THREE.DoubleSide,
           transparent: true,
           depthWrite: false,
-          opacity: 0.55,
-          alphaTest: 0.05
+          opacity: 0.55
         });
     var saturnRingMesh = new THREE.Mesh(saturnRingGeometry, saturnRingMaterial);
     saturnRingMesh.rotation.x = -0.5 * Math.PI;
