@@ -14,7 +14,7 @@
 
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(40, 1, 0.1, 3000);
-    camera.position.set(0, 170, 760);
+    camera.position.set(0, 150, 700);
 
     var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -25,18 +25,23 @@
     var controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.08;
+    controls.enableZoom = false;
     controls.enablePan = false;
     controls.minDistance = 260;
     controls.maxDistance = 1400;
     controls.target.set(0, 0, 0);
     controls.update();
 
+    renderer.domElement.addEventListener("wheel", function (event) {
+      event.preventDefault();
+    }, { passive: false });
+
     var ambient = new THREE.AmbientLight(0xffffff, 1.1);
     scene.add(ambient);
 
     var solarRoot = new THREE.Object3D();
-    solarRoot.scale.setScalar(0.5);
-    solarRoot.position.y = -22;
+    solarRoot.scale.setScalar(0.64);
+    solarRoot.position.y = -18;
     scene.add(solarRoot);
 
     function createGradientTexture(colorStops, options) {
@@ -260,15 +265,15 @@
     ];
 
     function resizeSolar() {
-      var width = container.clientWidth || container.parentElement.clientWidth || window.innerWidth;
-      var height = container.clientHeight || container.parentElement.clientHeight || window.innerHeight;
+      var width = container.clientWidth || 1;
+      var height = container.clientHeight || 1;
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height, false);
 
-      var fitScale = Math.min(width / 1360, height / 860);
-      solarRoot.scale.setScalar(Math.max(0.44, Math.min(0.62, 0.48 + fitScale * 0.06)));
-      solarRoot.position.y = -24;
+      var fitScale = Math.min(width / 1600, height / 1000);
+      solarRoot.scale.setScalar(Math.max(0.58, Math.min(0.74, 0.64 + fitScale * 0.06)));
+      solarRoot.position.y = -18;
     }
 
     function animate() {
