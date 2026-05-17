@@ -52,6 +52,11 @@
       if (texture && THREE.sRGBEncoding !== undefined) {
         texture.encoding = THREE.sRGBEncoding;
       }
+      if (texture) {
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.ClampToEdgeWrapping;
+        texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+      }
       texture.needsUpdate = true;
       return texture;
     }
@@ -442,9 +447,11 @@
 
       if (textureOptions && textureOptions.fileName) {
         texture = createSolidTexture(textureOptions.fallbackColor || (colorStops && colorStops[0] && colorStops[0].color) || "#ffffff");
-      }
-
-      if (textureOptions && textureOptions.map) {
+        loadPlanetTexture(textureOptions.fileName, texture, function (loadedTexture) {
+          material.map = loadedTexture;
+          material.needsUpdate = true;
+        });
+      } else if (textureOptions && textureOptions.map) {
         texture = textureOptions.map;
       } else if (textureOptions && textureOptions.type === "striped") {
         texture = createStripedTexture(textureOptions.baseColor, textureOptions.stripeColor, textureOptions.size || 256);
@@ -455,13 +462,6 @@
       var material = new THREE.MeshBasicMaterial({
         map: texture
       });
-
-      if (textureOptions && textureOptions.fileName) {
-        loadPlanetTexture(textureOptions.fileName, texture, function (loadedTexture) {
-          material.map = loadedTexture;
-          material.needsUpdate = true;
-        });
-      }
 
       var planet = new THREE.Mesh(geometry, material);
       var obj = new THREE.Object3D();
