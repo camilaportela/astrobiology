@@ -11,7 +11,7 @@
     }
 
     var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var SOLAR_SPEED = reduceMotion ? 0.05 : 0.35;
+    var SOLAR_SPEED = reduceMotion ? 0.035 : 0.24;
 
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(40, 1, 0.1, 3000);

@@ -2,6 +2,33 @@
 (function () {
   "use strict";
 
+  var milkyWayImage = new Image();
+  milkyWayImage.src = "/assets/img/planets/2k_stars_milky_way.jpg";
+
+  function drawCoverImage(ctx, image, canvasWidth, canvasHeight) {
+    var imageRatio = image.width / image.height;
+    var canvasRatio = canvasWidth / canvasHeight;
+
+    var drawWidth;
+    var drawHeight;
+    var offsetX;
+    var offsetY;
+
+    if (imageRatio > canvasRatio) {
+      drawHeight = canvasHeight;
+      drawWidth = canvasHeight * imageRatio;
+      offsetX = (canvasWidth - drawWidth) / 2;
+      offsetY = 0;
+    } else {
+      drawWidth = canvasWidth;
+      drawHeight = canvasWidth / imageRatio;
+      offsetX = 0;
+      offsetY = (canvasHeight - drawHeight) / 2;
+    }
+
+    ctx.drawImage(image, offsetX, offsetY, drawWidth, drawHeight);
+  }
+
   function initBackground() {
     var canvas = document.getElementById("space-background");
     if (!canvas) {
@@ -52,8 +79,14 @@
        LOOP
     ====================================================== */
     function draw() {
-      context.fillStyle = "#000000";
-      context.fillRect(0, 0, canvas.width, canvas.height);
+      if (milkyWayImage.complete && milkyWayImage.naturalWidth > 0) {
+        drawCoverImage(context, milkyWayImage, canvas.width, canvas.height);
+        context.fillStyle = "rgba(0, 0, 0, 0.45)";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+      } else {
+        context.fillStyle = "#000000";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+      }
 
       context.fillStyle = "rgba(220, 245, 255, 0.9)";
 
