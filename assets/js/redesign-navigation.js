@@ -23,6 +23,10 @@
     if (panel) {
       panel.setAttribute("aria-hidden", "false");
     }
+
+    if (overlay) {
+      overlay.classList.add("astro-side-nav--open");
+    }
   }
 
   function closeNav() {
@@ -35,6 +39,10 @@
 
     if (panel) {
       panel.setAttribute("aria-hidden", "true");
+    }
+
+    if (overlay) {
+      overlay.classList.remove("astro-side-nav--open");
     }
   }
 
