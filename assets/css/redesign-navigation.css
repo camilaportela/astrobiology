@@ -224,6 +224,7 @@
   gap: 0.7rem;
   align-items: stretch;
   width: 100%;
+  margin-top: 7rem;
 }
 
 .astro-side-nav__link {
@@ -293,5 +294,9 @@
   .astro-side-nav__brand {
     margin-top: 3vh;
     margin-bottom: 14vh;
+  }
+
+  .astro-side-nav__menu {
+    margin-top: 3.5rem;
   }
 }
