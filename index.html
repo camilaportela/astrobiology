@@ -1,6 +1,3 @@
----
-layout: null
----
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -9,9 +6,9 @@ layout: null
   <title>Astrobiologia</title>
   <meta name="description" content="Um espaço de divulgação científica sobre astrobiologia, microrganismos, ambientes extremos e vida no universo.">
 
-  <link rel="stylesheet" href="{{ '/assets/css/redesign.css?v=401' | relative_url }}">
-  <link rel="stylesheet" href="{{ '/assets/css/redesign-solar.css?v=401' | relative_url }}">
-  <link rel="stylesheet" href="{{ '/assets/css/redesign-navigation.css?v=1001' | relative_url }}">
+  <link rel="stylesheet" href="/assets/css/redesign.css?v=500">
+  <link rel="stylesheet" href="/assets/css/redesign-solar.css?v=500">
+  <link rel="stylesheet" href="/assets/css/redesign-navigation.css?v=500">
 </head>
 
 <body class="redesign-home">
@@ -56,39 +53,8 @@ layout: null
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-  <script src="{{ '/assets/js/redesign-background.js?v=401' | relative_url }}"></script>
-  <script src="{{ '/assets/js/redesign-solar.js?v=401' | relative_url }}"></script>
-  <script src="{{ '/assets/js/redesign-navigation.js?v=1001' | relative_url }}"></script>
-  <script>
-    window.addEventListener("load", function () {
-      var nav = document.querySelector(".astro-side-nav");
-      var trigger = document.querySelector(".astro-side-nav__trigger");
-      var panel = document.querySelector(".astro-side-nav__panel");
-      var overlay = document.querySelector(".astro-side-nav__overlay");
-
-      console.log("[SideNav inline fallback]", {
-        nav: !!nav,
-        trigger: !!trigger,
-        panel: !!panel,
-        overlay: !!overlay
-      });
-
-      if (!nav || !trigger || !panel) return;
-
-      trigger.addEventListener("click", function () {
-        console.log("[SideNav inline fallback] clique detectado");
-        nav.classList.toggle("is-open");
-        panel.classList.toggle("astro-side-nav--open");
-
-        if (overlay) {
-          overlay.classList.toggle("astro-side-nav--open");
-        }
-
-        var open = nav.classList.contains("is-open");
-        trigger.setAttribute("aria-expanded", open ? "true" : "false");
-        panel.setAttribute("aria-hidden", open ? "false" : "true");
-      });
-    });
-  </script>
+  <script src="/assets/js/redesign-background.js?v=500"></script>
+  <script src="/assets/js/redesign-solar.js?v=500"></script>
+  <script src="/assets/js/redesign-navigation.js?v=500"></script>
 </body>
 </html>

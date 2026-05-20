@@ -1,16 +1,10 @@
-// Menu lateral de navegacao - Astrobiologia
+/* Menu lateral de navegação - Astrobiologia */
 (function () {
   "use strict";
 
-  console.log("[SideNav] script carregado");
-
   function initSideNav() {
     var nav = document.querySelector(".astro-side-nav");
-
-    if (!nav) {
-      console.warn("[SideNav] .astro-side-nav nao encontrado.");
-      return;
-    }
+    if (!nav) return;
 
     var trigger = nav.querySelector(".astro-side-nav__trigger");
     var panel = nav.querySelector(".astro-side-nav__panel");
@@ -18,32 +12,9 @@
     var overlay = nav.querySelector(".astro-side-nav__overlay");
     var links = nav.querySelectorAll(".astro-side-nav__link");
 
-    console.log("[SideNav] init", {
-      nav: !!nav,
-      trigger: !!trigger,
-      panel: !!panel,
-      closeBtn: !!closeBtn,
-      overlay: !!overlay,
-      links: links.length
-    });
-
-    if (!trigger || !panel) {
-      console.warn("[SideNav] Elementos essenciais nao encontrados.");
-      return;
-    }
-
-    if (nav.dataset.sideNavInitialized === "true") {
-      console.log("[SideNav] init ignorado: menu ja inicializado");
-      return;
-    }
-
-    nav.dataset.sideNavInitialized = "true";
-    nav.dataset.sideNavReady = "true";
-    trigger.dataset.sideNavBound = "true";
+    if (!trigger || !panel) return;
 
     function openMenu() {
-      console.log("[SideNav] abrindo menu");
-
       nav.classList.add("is-open");
       panel.classList.add("astro-side-nav--open");
       panel.setAttribute("aria-hidden", "false");
@@ -57,8 +28,6 @@
     }
 
     function closeMenu() {
-      console.log("[SideNav] fechando menu");
-
       nav.classList.remove("is-open");
       panel.classList.remove("astro-side-nav--open");
       panel.setAttribute("aria-hidden", "true");
@@ -74,11 +43,8 @@
     function toggleMenu(event) {
       if (event) {
         event.preventDefault();
-        event.stopImmediatePropagation();
         event.stopPropagation();
       }
-
-      console.log("[SideNav] trigger clicado");
 
       if (nav.classList.contains("is-open")) {
         closeMenu();
