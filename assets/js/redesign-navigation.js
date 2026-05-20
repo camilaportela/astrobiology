@@ -12,7 +12,6 @@
     return {
       nav: nav,
       trigger:
-        document.querySelector("[data-astro-menu-trigger]") ||
         nav.querySelector("[data-astro-menu-trigger]") ||
         nav.querySelector(".astro-side-nav__trigger"),
       panel:
@@ -61,12 +60,14 @@
     });
 
     document.addEventListener("click", function (event) {
-      var trigger = event.target.closest("[data-astro-menu-trigger], .astro-side-nav__trigger");
+      // Only treat clicks on the three-line icon (or an explicit data attribute) as trigger
+      var triggerIcon = event.target.closest(".astro-side-nav__trigger-icon, [data-astro-menu-trigger]");
       var closeBtn = event.target.closest("[data-astro-menu-close], .astro-side-nav__close");
       var overlay = event.target.closest("[data-astro-menu-overlay], .astro-side-nav__overlay");
       var link = event.target.closest(".astro-side-nav__link");
 
-      if (trigger && trigger === elements.trigger) {
+      if (triggerIcon && elements.nav.contains(triggerIcon)) {
+        // prevent clicks from bubbling when activating the menu
         event.preventDefault();
         event.stopPropagation();
 
