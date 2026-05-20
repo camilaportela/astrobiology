@@ -27,7 +27,8 @@ header nav,
 .navbar--container,
 .nav--open {
   position: fixed;
-  z-index: 10000;
+  z-index: 20000;
+  pointer-events: auto;
 }
 
 .navbar--container {
@@ -39,6 +40,7 @@ header nav,
   box-shadow: 2px 2px 20px 4px rgba(255, 255, 255, 0.5);
   display: flex;
   flex-direction: column;
+  pointer-events: auto;
 }
 
 .navbar--icon {
@@ -49,6 +51,8 @@ header nav,
   background: transparent;
   color: #333333;
   cursor: pointer;
+  pointer-events: auto;
+  z-index: 20001;
 }
 
 .navbar--icon:hover {
