@@ -56,15 +56,16 @@
   width: 18px;
   height: 2px;
   border-radius: 999px;
-  background: #beccff;
+  background: #10131f; /* default black */
   transition: transform 0.28s ease, opacity 0.28s ease, background-color 0.28s ease;
 }
 
 .astro-side-nav__trigger-icon {
   position: relative;
-  margin-top: 28px;
-  margin-left: 26px;
-  align-self: flex-start;
+  /* moved lower in the trigger to match original layout */
+  margin-top: 140px;
+  margin-left: 36px;
+  align-self: center;
 }
 
 .astro-side-nav__trigger-icon::before {
@@ -89,6 +90,13 @@
 
 .astro-side-nav.is-open .astro-side-nav__trigger-icon {
   background: transparent;
+}
+
+/* on hover, change the three lines to blue */
+.astro-side-nav__trigger:hover .astro-side-nav__trigger-icon,
+.astro-side-nav__trigger:hover .astro-side-nav__trigger-icon::before,
+.astro-side-nav__trigger:hover .astro-side-nav__trigger-icon::after {
+  background: #beccff;
 }
 
 .astro-side-nav.is-open .astro-side-nav__trigger-icon::before {
