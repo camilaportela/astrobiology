@@ -93,6 +93,11 @@
   pointer-events: auto;
 }
 
+.astro-side-nav__overlay.astro-side-nav--open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 /* Painel lateral */
 .astro-side-nav__panel {
   position: fixed;
@@ -114,6 +119,10 @@
 }
 
 .astro-side-nav.is-open .astro-side-nav__panel {
+  transform: translateX(0);
+}
+
+.astro-side-nav__panel.astro-side-nav--open {
   transform: translateX(0);
 }
 

@@ -23,7 +23,11 @@
 
     function openMenu() {
       nav.classList.add("is-open");
-      panel.classList.add("astro-side-nav--open");
+
+      if (panel) {
+        panel.classList.add("astro-side-nav--open");
+        panel.setAttribute("aria-hidden", "false");
+      }
 
       if (overlay) {
         overlay.classList.add("astro-side-nav--open");
@@ -31,12 +35,15 @@
 
       trigger.setAttribute("aria-expanded", "true");
       trigger.setAttribute("aria-label", "Fechar menu");
-      panel.setAttribute("aria-hidden", "false");
     }
 
     function closeMenu() {
       nav.classList.remove("is-open");
-      panel.classList.remove("astro-side-nav--open");
+
+      if (panel) {
+        panel.classList.remove("astro-side-nav--open");
+        panel.setAttribute("aria-hidden", "true");
+      }
 
       if (overlay) {
         overlay.classList.remove("astro-side-nav--open");
@@ -44,10 +51,13 @@
 
       trigger.setAttribute("aria-expanded", "false");
       trigger.setAttribute("aria-label", "Abrir menu");
-      panel.setAttribute("aria-hidden", "true");
     }
 
-    function toggleMenu() {
+    function toggleMenu(event) {
+      if (event) {
+        event.stopPropagation();
+      }
+
       if (nav.classList.contains("is-open")) {
         closeMenu();
       } else {
@@ -55,10 +65,7 @@
       }
     }
 
-    trigger.addEventListener("click", function (event) {
-      event.stopPropagation();
-      toggleMenu();
-    });
+    trigger.addEventListener("click", toggleMenu);
 
     if (closeBtn) {
       closeBtn.addEventListener("click", closeMenu);
