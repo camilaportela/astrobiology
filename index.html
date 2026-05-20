@@ -8,11 +8,15 @@ layout: null
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Astrobiologia</title>
   <meta name="description" content="Um espaço de divulgação científica sobre astrobiologia, microrganismos, ambientes extremos e vida no universo.">
-  <link rel="stylesheet" href="{{ '/assets/css/redesign.css?v=4' | relative_url }}">
-  <link rel="stylesheet" href="{{ '/assets/css/redesign-solar.css?v=4' | relative_url }}">
-  <link rel="stylesheet" href="{{ '/assets/css/redesign-navigation.css?v=4' | relative_url }}">
+
+  <link rel="stylesheet" href="{{ '/assets/css/redesign.css?v=10' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/css/redesign-solar.css?v=10' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/css/redesign-navigation.css?v=10' | relative_url }}">
 </head>
+
 <body class="redesign-home">
+  <canvas id="space-background" aria-hidden="true"></canvas>
+
   <nav class="astro-side-nav" aria-label="Navegação principal">
     <button
       class="astro-side-nav__trigger"
@@ -31,28 +35,30 @@ layout: null
         <span class="astro-side-nav__close-icon" aria-hidden="true"></span>
       </button>
 
-      <div class="astro-side-nav__title">Astrobiologia</div>
+      <div class="astro-side-nav__brand">
+        <span class="astro-side-nav__brand-small">Divulgação científica</span>
+        <span class="astro-side-nav__brand-title">Astrobiologia</span>
+      </div>
 
       <div class="astro-side-nav__menu">
         <a class="astro-side-nav__link" href="/">Início</a>
         <a class="astro-side-nav__link" href="/noticias/">Notícias</a>
         <a class="astro-side-nav__link" href="#sobre">Sobre</a>
+        <a class="astro-side-nav__link" href="/noticias/">Posts</a>
       </div>
     </aside>
   </nav>
 
-  <canvas id="space-background" aria-hidden="true"></canvas>
-
-  <main class="redesign-home__content">
+  <main class="redesign-home__main">
     <section class="redesign-solar-hero" aria-label="Sistema solar">
       <div id="redesign-solar-system" class="redesign-solar-system"></div>
     </section>
   </main>
 
-  <script src="{{ '/assets/js/redesign-background.js?v=7' | relative_url }}"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-  <script src="{{ '/assets/js/redesign-solar.js?v=15' | relative_url }}"></script>
-  <script src="{{ '/assets/js/redesign-navigation.js?v=4' | relative_url }}"></script>
+  <script src="{{ '/assets/js/redesign-background.js?v=10' | relative_url }}"></script>
+  <script src="{{ '/assets/js/redesign-solar.js?v=10' | relative_url }}"></script>
+  <script src="{{ '/assets/js/redesign-navigation.js?v=10' | relative_url }}"></script>
 </body>
 </html>
