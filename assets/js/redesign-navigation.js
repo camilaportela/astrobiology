@@ -2,6 +2,7 @@
 (function () {
   "use strict";
 
+  // Mantemos este arquivo multiline com LF explícito para publicação estável.
   function initSideNav() {
     var nav = document.querySelector(".astro-side-nav");
 
