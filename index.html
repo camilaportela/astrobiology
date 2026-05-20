@@ -6,54 +6,57 @@
   <title>Astrobiologia</title>
   <meta name="description" content="Um espaço de divulgação científica sobre astrobiologia, microrganismos, ambientes extremos e vida no universo.">
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-
-  <link rel="stylesheet" href="/assets/css/redesign.css?v=502">
+  <link rel="stylesheet" href="/assets/css/redesign.css?v=501">
   <link rel="stylesheet" href="/assets/css/redesign-solar.css?v=500">
-  <link rel="stylesheet" href="/assets/css/redesign-navigation.css?v=507">
+  <link rel="stylesheet" href="/assets/css/redesign-navigation.css?v=506">
 </head>
 
 <body class="redesign-home">
   <canvas id="space-background" aria-hidden="true"></canvas>
 
-  <header>
-    <nav>
-      <div class="navbar--container sticky">
-        <div class="navbar--title">
-          <h4>navigation</h4>
-        </div>
-        <button class="navbar--icon" type="button" aria-label="Abrir menu">
-          <i class="fas fa-bars" aria-hidden="true"></i>
-        </button>
+  <nav class="astro-side-nav" aria-label="Navegação principal">
+    <button
+      class="astro-side-nav__trigger"
+      data-astro-menu-trigger
+      type="button"
+      aria-label="Abrir menu"
+      aria-expanded="false"
+      aria-controls="astro-side-nav-panel"
+    >
+      <span class="astro-side-nav__trigger-icon" aria-hidden="true"></span>
+      <span class="astro-side-nav__trigger-label" aria-hidden="true">Navigation</span>
+    </button>
+
+    <div class="astro-side-nav__overlay" data-astro-menu-overlay aria-hidden="true"></div>
+
+    <aside id="astro-side-nav-panel" class="astro-side-nav__panel" aria-hidden="true">
+      <button class="astro-side-nav__close" data-astro-menu-close type="button" aria-label="Fechar menu">
+        <span class="astro-side-nav__close-icon" aria-hidden="true"></span>
+      </button>
+
+      <div class="astro-side-nav__brand">
+        <span class="astro-side-nav__brand-small">Divulgação científica</span>
+        <span class="astro-side-nav__brand-title">Astrobiologia</span>
       </div>
-      <div class="nav--open close sticky" aria-hidden="true">
-        <button class="nav--open-icon" type="button" aria-label="Fechar menu">
-          <i class="fas fa-times" aria-hidden="true"></i>
-        </button>
-        <div class="nav--open-title">explore</div>
-        <div class="nav--open-menu">
-          <a id="name" href="#first">name</a>
-          <a id="game" href="#second">game</a>
-          <a id="like" href="#third">like</a>
-          <a id="contact" href="#fourth">contact</a>
-        </div>
+
+      <div class="astro-side-nav__menu">
+        <a class="astro-side-nav__link" href="/">Início</a>
+        <a class="astro-side-nav__link" href="/noticias/">Notícias</a>
+        <a class="astro-side-nav__link" href="/noticias/">Posts</a>
       </div>
-    </nav>
-  </header>
+    </aside>
+  </nav>
 
   <main class="redesign-home__main">
-    <section id="first" class="redesign-solar-hero" aria-label="Sistema solar">
+    <section class="redesign-solar-hero" aria-label="Sistema solar">
       <div id="redesign-solar-system" class="redesign-solar-system"></div>
     </section>
-    <section id="second" class="redesign-home__anchor-section" aria-hidden="true"></section>
-    <section id="third" class="redesign-home__anchor-section" aria-hidden="true"></section>
-    <section id="fourth" class="redesign-home__anchor-section" aria-hidden="true"></section>
   </main>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script src="/assets/js/redesign-background.js?v=500"></script>
   <script src="/assets/js/redesign-solar.js?v=500"></script>
-  <script src="/assets/js/redesign-navigation.js?v=506"></script>
+  <script src="/assets/js/redesign-navigation.js?v=504"></script>
 </body>
 </html>
