@@ -34,7 +34,7 @@
         {% if include_latest_first %}
           {% comment %} Render latest post first (we already ensured current post is excluded from posts_for_gallery) {% endcomment %}
           {% assign post = latest_post %}
-          {% assign post_banner = post.banner | default: "/assets/img/posts/default.jpg" %}
+          {% assign post_banner = post.banner | default: "/assets/img/planets/2k_stars_milky_way.jpg" %}
           {% if post_banner contains "http" %}
             {% assign banner_url = post_banner %}
           {% else %}
@@ -59,7 +59,7 @@
           {% if include_latest_first and post.url == latest_post.url %}
             {% continue %}
           {% endif %}
-          {% assign post_banner = post.banner | default: "/assets/img/posts/default.jpg" %}
+          {% assign post_banner = post.banner | default: "/assets/img/planets/2k_stars_milky_way.jpg" %}
           {% if post_banner contains "http" %}
             {% assign banner_url = post_banner %}
           {% else %}

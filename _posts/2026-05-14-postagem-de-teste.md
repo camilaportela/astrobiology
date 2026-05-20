@@ -1,15 +1,15 @@
 ---
 layout: post
 title: "Postagem de teste"
-subtitle: "Este é um subtítulo de teste para validar o layout editorial do site."
 date: 2026-05-14
 author: "Camila Portela"
-date: 2026-05-15 12:00:00
-author: "Camila Portela"
+subtitle: "Este é um subtítulo de teste para validar o layout editorial do site."
+image: "/assets/img/planets/2k_stars_milky_way.jpg"
 category: noticias
 banner: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1600&q=80"
 excerpt: "Esta é uma postagem de teste para validar a estrutura editorial do site."
 featured: true
+---
 
 ## Introdução
 
@@ -40,7 +40,5 @@ A estrutura criada inclui:
 Uma vez validado, novos artigos podem ser criados adicionando arquivos Markdown em `_posts/`.
 
 Cada artigo gerará sua própria página e thread de comentários separada no GitHub Discussions.
-
----
 
 **Está tudo funcionando corretamente!**

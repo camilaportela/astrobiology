@@ -23,6 +23,7 @@
 
     function openMenu() {
       nav.classList.add("is-open");
+
       panel.classList.add("astro-side-nav--open");
       panel.setAttribute("aria-hidden", "false");
 
@@ -36,6 +37,7 @@
 
     function closeMenu() {
       nav.classList.remove("is-open");
+
       panel.classList.remove("astro-side-nav--open");
       panel.setAttribute("aria-hidden", "true");
 
