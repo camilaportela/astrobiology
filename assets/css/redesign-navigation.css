@@ -58,6 +58,8 @@
   border-radius: 999px;
   background: #10131f; /* default black */
   transition: transform 0.28s ease, opacity 0.28s ease, background-color 0.28s ease;
+  pointer-events: auto;
+  z-index: 11001;
 }
 
 .astro-side-nav__trigger-icon {
