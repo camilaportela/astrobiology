@@ -16,7 +16,7 @@ body {
   background: #000;
 }
 
-.redesign-home > *:not(#space-background) {
+.redesign-home > *:not(#space-background):not(.astro-side-nav) {
   position: relative;
   z-index: 1;
 }
