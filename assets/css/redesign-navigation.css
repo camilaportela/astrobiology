@@ -16,7 +16,7 @@
   width: 90px;
   height: 220px;
   border: 0;
-  border-radius: 0 24px 24px 0;
+  border-radius: 0;
   background: #ffffff;
   box-shadow: 2px 2px 20px 4px rgba(255, 255, 255, 0.5);
   color: #10131f;
@@ -56,7 +56,7 @@
   width: 18px;
   height: 2px;
   border-radius: 999px;
-  background: #141414;
+  background: #beccff;
   transition: transform 0.28s ease, opacity 0.28s ease, background-color 0.28s ease;
 }
 
@@ -81,6 +81,10 @@
 
 .astro-side-nav.is-open .astro-side-nav__trigger {
   background: rgba(242, 244, 250, 0.96);
+  /* hide the trigger when menu is open to match original behavior */
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-20px);
 }
 
 .astro-side-nav.is-open .astro-side-nav__trigger-icon {
@@ -121,6 +125,21 @@
   transform: translateX(-300px);
   transition: transform 0.4s ease, opacity 0.3s ease;
   pointer-events: auto;
+}
+
+/* show EXPLORE label when panel is open, centered near top */
+.astro-side-nav.is-open .astro-side-nav__panel::before {
+  content: "EXPLORE";
+  position: absolute;
+  top: 18%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: "Playfair Display", serif;
+  font-size: 0.82rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #beccff;
+  pointer-events: none;
 }
 
 .astro-side-nav__close {
