@@ -2,7 +2,6 @@
 (function () {
   "use strict";
 
-  // Regravado por script com LF explícito para evitar publish achatado.
   function initSideNav() {
     var nav = document.querySelector(".astro-side-nav");
 
