@@ -2,7 +2,7 @@
 (function () {
   "use strict";
 
-  // Mantemos este arquivo multiline com LF explícito para publicação estável.
+  // Regravado por script com LF explícito para evitar publish achatado.
   function initSideNav() {
     var nav = document.querySelector(".astro-side-nav");
 
