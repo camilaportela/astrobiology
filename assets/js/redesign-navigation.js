@@ -12,6 +12,7 @@
     return {
       nav: nav,
       trigger:
+        document.querySelector("[data-astro-menu-trigger]") ||
         nav.querySelector("[data-astro-menu-trigger]") ||
         nav.querySelector(".astro-side-nav__trigger"),
       panel:
@@ -65,7 +66,7 @@
       var overlay = event.target.closest("[data-astro-menu-overlay], .astro-side-nav__overlay");
       var link = event.target.closest(".astro-side-nav__link");
 
-      if (trigger && elements.nav.contains(trigger)) {
+      if (trigger && trigger === elements.trigger) {
         event.preventDefault();
         event.stopPropagation();
 
