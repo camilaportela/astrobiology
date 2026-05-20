@@ -125,6 +125,8 @@
   transform: translateX(-300px);
   transition: transform 0.4s ease, opacity 0.3s ease;
   pointer-events: auto;
+  position: fixed;
+  overflow: hidden;
 }
 
 /* show EXPLORE label when panel is open, centered near top */
@@ -143,8 +145,9 @@
 }
 
 .astro-side-nav__close {
-  margin-left: 0;
-  margin-right: auto;
+  position: absolute;
+  top: 16px;
+  right: 16px;
   width: 44px;
   height: 44px;
   border: 0;
