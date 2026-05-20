@@ -11,7 +11,7 @@ layout: null
 
   <link rel="stylesheet" href="{{ '/assets/css/redesign.css?v=401' | relative_url }}">
   <link rel="stylesheet" href="{{ '/assets/css/redesign-solar.css?v=401' | relative_url }}">
-  <link rel="stylesheet" href="{{ '/assets/css/redesign-navigation.css?v=999' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/css/redesign-navigation.css?v=1001' | relative_url }}">
 </head>
 
 <body class="redesign-home">
@@ -58,7 +58,7 @@ layout: null
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script src="{{ '/assets/js/redesign-background.js?v=401' | relative_url }}"></script>
   <script src="{{ '/assets/js/redesign-solar.js?v=401' | relative_url }}"></script>
-  <script src="{{ '/assets/js/redesign-navigation.js?v=999' | relative_url }}"></script>
+  <script src="{{ '/assets/js/redesign-navigation.js?v=1001' | relative_url }}"></script>
   <script>
     window.addEventListener("load", function () {
       var nav = document.querySelector(".astro-side-nav");
@@ -74,11 +74,6 @@ layout: null
       });
 
       if (!nav || !trigger || !panel) return;
-
-      if (nav.dataset.sideNavReady === "true" || trigger.dataset.sideNavBound === "true") {
-        console.log("[SideNav inline fallback] menu externo já inicializado");
-        return;
-      }
 
       trigger.addEventListener("click", function () {
         console.log("[SideNav inline fallback] clique detectado");

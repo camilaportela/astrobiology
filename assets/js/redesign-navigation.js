@@ -74,6 +74,7 @@
     function toggleMenu(event) {
       if (event) {
         event.preventDefault();
+        event.stopImmediatePropagation();
         event.stopPropagation();
       }
 
