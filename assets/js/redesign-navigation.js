@@ -24,10 +24,8 @@
     function openMenu() {
       nav.classList.add("is-open");
 
-      if (panel) {
-        panel.classList.add("astro-side-nav--open");
-        panel.setAttribute("aria-hidden", "false");
-      }
+      panel.classList.add("astro-side-nav--open");
+      panel.setAttribute("aria-hidden", "false");
 
       if (overlay) {
         overlay.classList.add("astro-side-nav--open");
@@ -40,10 +38,8 @@
     function closeMenu() {
       nav.classList.remove("is-open");
 
-      if (panel) {
-        panel.classList.remove("astro-side-nav--open");
-        panel.setAttribute("aria-hidden", "true");
-      }
+      panel.classList.remove("astro-side-nav--open");
+      panel.setAttribute("aria-hidden", "true");
 
       if (overlay) {
         overlay.classList.remove("astro-side-nav--open");
