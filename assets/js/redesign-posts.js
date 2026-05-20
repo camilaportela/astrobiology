@@ -1,4 +1,4 @@
-/* Steam-inspired posts carousel - Astrobiologia */
+/* Homepage posts gallery - Astrobiologia */
 (function () {
   "use strict";
 
@@ -73,7 +73,7 @@
     state.visibleCount = getVisibleCount();
 
     if (!state.posts.length) {
-      track.innerHTML = '<p class="steam-posts-loading">Nenhuma publicação disponível por enquanto.</p>';
+      track.innerHTML = '<p class="home-posts-gallery__loading">Nenhuma publicação disponível por enquanto.</p>';
       if (prev) prev.hidden = true;
       if (next) next.hidden = true;
       return;
@@ -152,7 +152,7 @@
       })
       .catch(function (error) {
         console.warn("[Posts]", error);
-        track.innerHTML = '<p class="steam-posts-loading">Não foi possível carregar as publicações agora.</p>';
+        track.innerHTML = '<p class="home-posts-gallery__loading">Não foi possível carregar as publicações agora.</p>';
       });
   }
 

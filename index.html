@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="/assets/css/redesign.css?v=501">
   <link rel="stylesheet" href="/assets/css/redesign-solar.css?v=500">
   <link rel="stylesheet" href="/assets/css/redesign-navigation.css?v=506">
-  <link rel="stylesheet" href="/assets/css/redesign-posts.css?v=1">
+  <link rel="stylesheet" href="/assets/css/redesign-posts.css?v=2">
 </head>
 
 <body class="redesign-home">
@@ -51,38 +51,41 @@
   <main class="redesign-home__main">
     <section class="redesign-solar-hero" aria-label="Sistema solar">
       <div id="redesign-solar-system" class="redesign-solar-system"></div>
-    </section>
 
-    <section id="noticias" class="steam-posts-section" aria-labelledby="steam-posts-title">
-      <div class="steam-posts-section__inner">
-        <header class="steam-posts-section__header">
-          <p class="steam-posts-section__eyebrow">Publicações recentes</p>
-          <h2 id="steam-posts-title">Notícias e textos</h2>
-          <p>
-            Leituras sobre astrobiologia, microrganismos, ambientes extremos e vida no universo.
-          </p>
-        </header>
+      <section class="home-posts-gallery" aria-labelledby="home-posts-gallery-title">
+        <div class="home-posts-gallery__header">
+          <p class="home-posts-gallery__eyebrow">Publicações recentes</p>
+          <h2 id="home-posts-gallery-title">Notícias e textos</h2>
+        </div>
 
-        <div class="steam-posts-carousel" data-steam-posts-carousel>
-          <button class="steam-posts-carousel__arrow steam-posts-carousel__arrow--prev" type="button" aria-label="Post anterior" data-posts-prev>
+        <div class="home-posts-gallery__carousel" data-home-posts-carousel>
+          <button
+            class="home-posts-gallery__arrow home-posts-gallery__arrow--prev"
+            type="button"
+            aria-label="Post anterior"
+            data-posts-prev
+            hidden
+          >
             ‹
           </button>
 
-          <div class="steam-posts-carousel__viewport">
-            <div class="steam-posts-carousel__track" data-posts-track>
-              <p class="steam-posts-loading">Carregando publicações...</p>
+          <div class="home-posts-gallery__viewport">
+            <div class="home-posts-gallery__track" data-posts-track>
+              <p class="home-posts-gallery__loading">Carregando publicações...</p>
             </div>
           </div>
 
-          <button class="steam-posts-carousel__arrow steam-posts-carousel__arrow--next" type="button" aria-label="Próximo post" data-posts-next>
+          <button
+            class="home-posts-gallery__arrow home-posts-gallery__arrow--next"
+            type="button"
+            aria-label="Próximo post"
+            data-posts-next
+            hidden
+          >
             ›
           </button>
         </div>
-
-        <div class="steam-posts-section__footer">
-          <a class="steam-posts-section__button" href="/noticias/">Ver todas as notícias</a>
-        </div>
-      </div>
+      </section>
     </section>
   </main>
 
@@ -91,6 +94,6 @@
   <script src="/assets/js/redesign-background.js?v=500"></script>
   <script src="/assets/js/redesign-solar.js?v=500"></script>
   <script src="/assets/js/redesign-navigation.js?v=504"></script>
-  <script src="/assets/js/redesign-posts.js?v=1"></script>
+  <script src="/assets/js/redesign-posts.js?v=2"></script>
 </body>
 </html>
