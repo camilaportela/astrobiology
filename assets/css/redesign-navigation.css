@@ -4,14 +4,14 @@
   position: fixed;
   inset: 0 auto 0 0;
   z-index: 10000;
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 .astro-side-nav__trigger {
   position: fixed;
   top: clamp(1rem, 14vh, 7rem);
   left: 0;
-  z-index: 10003;
+  z-index: 11000;
   pointer-events: auto;
   width: 90px;
   height: 220px;
