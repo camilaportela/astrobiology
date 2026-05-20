@@ -2,93 +2,106 @@
 (function () {
   "use strict";
 
-  function initSideNav() {
+  function getSideNavElements() {
     var nav = document.querySelector(".astro-side-nav");
-    if (!nav) return;
 
-    var trigger =
-      nav.querySelector("[data-astro-menu-trigger]") ||
-      nav.querySelector(".astro-side-nav__trigger");
+    if (!nav) {
+      return null;
+    }
 
-    var panel =
-      nav.querySelector("#astro-side-nav-panel") ||
-      nav.querySelector(".astro-side-nav__panel");
+    return {
+      nav: nav,
+      trigger:
+        nav.querySelector("[data-astro-menu-trigger]") ||
+        nav.querySelector(".astro-side-nav__trigger"),
+      panel:
+        nav.querySelector("#astro-side-nav-panel") ||
+        nav.querySelector(".astro-side-nav__panel"),
+      closeBtn:
+        nav.querySelector("[data-astro-menu-close]") ||
+        nav.querySelector(".astro-side-nav__close"),
+      overlay:
+        nav.querySelector("[data-astro-menu-overlay]") ||
+        nav.querySelector(".astro-side-nav__overlay"),
+      links: nav.querySelectorAll(".astro-side-nav__link")
+    };
+  }
 
-    var closeBtn =
-      nav.querySelector("[data-astro-menu-close]") ||
-      nav.querySelector(".astro-side-nav__close");
-
-    var overlay =
-      nav.querySelector("[data-astro-menu-overlay]") ||
-      nav.querySelector(".astro-side-nav__overlay");
-
-    var links = nav.querySelectorAll(".astro-side-nav__link");
-
-    if (!trigger || !panel) {
-      console.warn("[SideNav] trigger ou panel não encontrado.", {
-        trigger: !!trigger,
-        panel: !!panel
-      });
+  function setMenuState(elements, shouldOpen) {
+    if (!elements || !elements.nav || !elements.panel || !elements.trigger) {
       return;
     }
 
-    function openMenu() {
-      nav.classList.add("is-open");
-      panel.classList.add("astro-side-nav--open");
-      panel.setAttribute("aria-hidden", "false");
+    elements.nav.classList.toggle("is-open", shouldOpen);
+    elements.panel.classList.toggle("astro-side-nav--open", shouldOpen);
+    elements.panel.setAttribute("aria-hidden", shouldOpen ? "false" : "true");
 
-      if (overlay) {
-        overlay.classList.add("astro-side-nav--open");
-      }
-
-      trigger.setAttribute("aria-expanded", "true");
-      trigger.setAttribute("aria-label", "Fechar menu");
+    if (elements.overlay) {
+      elements.overlay.classList.toggle("astro-side-nav--open", shouldOpen);
     }
 
-    function closeMenu() {
-      nav.classList.remove("is-open");
-      panel.classList.remove("astro-side-nav--open");
-      panel.setAttribute("aria-hidden", "true");
+    elements.trigger.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
+    elements.trigger.setAttribute("aria-label", shouldOpen ? "Fechar menu" : "Abrir menu");
+  }
 
-      if (overlay) {
-        overlay.classList.remove("astro-side-nav--open");
-      }
+  function initSideNav() {
+    var elements = getSideNavElements();
 
-      trigger.setAttribute("aria-expanded", "false");
-      trigger.setAttribute("aria-label", "Abrir menu");
+    if (!elements || !elements.trigger || !elements.panel) {
+      console.warn("[SideNav] elementos essenciais não encontrados.", elements);
+      return;
     }
 
-    function toggleMenu(event) {
-      if (event) {
+    console.log("[SideNav] inicializado", {
+      trigger: !!elements.trigger,
+      panel: !!elements.panel,
+      overlay: !!elements.overlay,
+      links: elements.links.length
+    });
+
+    document.addEventListener("click", function (event) {
+      var trigger = event.target.closest("[data-astro-menu-trigger], .astro-side-nav__trigger");
+      var closeBtn = event.target.closest("[data-astro-menu-close], .astro-side-nav__close");
+      var overlay = event.target.closest("[data-astro-menu-overlay], .astro-side-nav__overlay");
+      var link = event.target.closest(".astro-side-nav__link");
+
+      if (trigger && elements.nav.contains(trigger)) {
         event.preventDefault();
         event.stopPropagation();
+
+        var isOpen = elements.nav.classList.contains("is-open");
+        setMenuState(elements, !isOpen);
+        return;
       }
 
-      if (nav.classList.contains("is-open")) {
-        closeMenu();
-      } else {
-        openMenu();
+      if (
+        (closeBtn && elements.nav.contains(closeBtn)) ||
+        (overlay && elements.nav.contains(overlay)) ||
+        (link && elements.nav.contains(link))
+      ) {
+        setMenuState(elements, false);
       }
-    }
+    });
 
-    trigger.addEventListener("click", toggleMenu);
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") {
+        setMenuState(elements, false);
+      }
+    });
+  }
 
-    if (closeBtn) {
-      closeBtn.addEventListener("click", function (event) {
-        event.preventDefault();
-        closeMenu();
-      });
-    }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initSideNav, { once: true });
+  } else {
+    initSideNav();
+  }
+})();
 
-    if (overlay) {
-      overlay.addEventListener("click", function (event) {
-        event.preventDefault();
-        closeMenu();
-      });
-    }
-
-    links.forEach(function (link) {
-      link.addEventListener("click", closeMenu);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initSideNav, { once: true });
+  } else {
+    initSideNav();
+  }
     });
 
     document.addEventListener("keydown", function (event) {
