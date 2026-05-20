@@ -1,0 +1,47 @@
+[
+  {
+    "title": "Postagem de teste",
+    "subtitle": "Uma publicação inicial para validar a seção de notícias do site.",
+    "date": "2026-05-14",
+    "author": "Camila Portela",
+    "url": "/noticias/",
+    "image": "/assets/img/planets/2k_stars_milky_way.jpg",
+    "tag": "Notícia"
+  },
+  {
+    "title": "Astrobiologia e ambientes extremos",
+    "subtitle": "Microrganismos, habitabilidade e vida em condições extremas.",
+    "date": "2026-05-20",
+    "author": "Camila Portela",
+    "url": "/noticias/",
+    "image": "/assets/img/planets/2k_stars_milky_way.jpg",
+    "tag": "Astrobiologia"
+  },
+  {
+    "title": "Marte como laboratório natural",
+    "subtitle": "Por que Marte continua sendo central para pensar habitabilidade planetária.",
+    "date": "2026-05-21",
+    "author": "Camila Portela",
+    "url": "/noticias/",
+    "image": "/assets/img/planets/2k_mars.jpg",
+    "tag": "Marte"
+  },
+  {
+    "title": "Extremófilos e limites da vida",
+    "subtitle": "Organismos terrestres ajudam a imaginar possibilidades biológicas fora da Terra.",
+    "date": "2026-05-22",
+    "author": "Camila Portela",
+    "url": "/noticias/",
+    "image": "/assets/img/planets/2k_earth_daymap.jpg",
+    "tag": "Microbiologia"
+  },
+  {
+    "title": "Oceanos gelados e luas habitáveis",
+    "subtitle": "Europa e Encélado como mundos de interesse astrobiológico.",
+    "date": "2026-05-23",
+    "author": "Camila Portela",
+    "url": "/noticias/",
+    "image": "/assets/img/planets/2k_neptune.jpg",
+    "tag": "Habitabilidade"
+  }
+]
