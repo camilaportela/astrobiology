@@ -96,24 +96,3 @@
     initSideNav();
   }
 })();
-
-    document.addEventListener("keydown", function (event) {
-      if (event.key === "Escape") {
-        closeMenu();
-      }
-    });
-
-    console.log("[SideNav] menu inicializado", {
-      trigger: true,
-      panel: true,
-      overlay: !!overlay,
-      links: links.length
-    });
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initSideNav, { once: true });
-  } else {
-    initSideNav();
-  }
-})();
