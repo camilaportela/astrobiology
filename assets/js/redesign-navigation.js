@@ -1,4 +1,4 @@
-// Menu lateral de navegação - Astrobiologia
+﻿// Menu lateral de navegação - Astrobiologia
 (function () {
   "use strict";
 
