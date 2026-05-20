@@ -226,8 +226,6 @@
   opacity: 1;
   pointer-events: auto;
 }
-  opacity: 1;
-  pointer-events: auto;
 }
 
 @media (max-width: 640px) {
