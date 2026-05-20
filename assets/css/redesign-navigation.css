@@ -234,8 +234,9 @@
   font-weight: 100;
   line-height: 1.05;
   padding: 1rem 0;
+  margin: 0 -34px;
   transition: background-color 0.2s ease, color 0.2s ease;
-  width: 100%;
+  width: calc(100% + 68px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -282,6 +283,11 @@
   .astro-side-nav__panel {
     width: min(310px, 90vw);
     padding: 24px 24px 34px;
+  }
+
+  .astro-side-nav__link {
+    margin: 0 -24px;
+    width: calc(100% + 48px);
   }
 
   .astro-side-nav__brand {
