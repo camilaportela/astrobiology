@@ -138,12 +138,13 @@
   font-size: 0.82rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #beccff;
+  color: #10131f;
   pointer-events: none;
 }
 
 .astro-side-nav__close {
-  margin-left: auto;
+  margin-left: 0;
+  margin-right: auto;
   width: 44px;
   height: 44px;
   border: 0;
@@ -184,9 +185,7 @@
 }
 
 .astro-side-nav__brand {
-  margin-top: 5vh;
-  margin-bottom: 18vh;
-  text-align: center;
+  display: none;
 }
 
 .astro-side-nav__brand-small {
@@ -216,21 +215,24 @@
 }
 
 .astro-side-nav__link {
-  color: #10131f;
+  color: #beccff; /* default blue */
   text-decoration: none;
   font-family: "Playfair Display", serif;
   font-size: 2em;
   font-weight: 100;
   line-height: 1.05;
-  padding: 0.45rem 0.75rem;
-  transition: transform 0.28s ease, color 0.28s ease, background-color 0.28s ease;
+  padding: 1rem 0;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  width: 100%;
+  display: block;
+  text-align: center;
 }
 
 .astro-side-nav__link:hover,
-.astro-side-nav__link:focus-visible {
-  color: #333333;
+.astro-side-nav__link:focus,
+.astro-side-nav__link:active {
   background: #beccff;
-  transform: translateX(8px);
+  color: #10131f;
   outline: none;
 }
 
