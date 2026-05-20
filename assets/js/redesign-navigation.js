@@ -1,100 +1,98 @@
-let open = document.querySelector('.navbar--icon');
-let menu = document.querySelector('.nav--open');
-let close = document.querySelector('.nav--open-icon');
-let menuIsOpen = false;
+/* Menu lateral de navegação - Astrobiologia */
+(function () {
+  "use strict";
 
-function setMenuState(shouldOpen) {
-  if (!menu) {
-    return;
+  function getSideNavElements() {
+    var nav = document.querySelector(".astro-side-nav");
+
+    if (!nav) {
+      return null;
+    }
+
+    return {
+      nav: nav,
+      trigger:
+        nav.querySelector("[data-astro-menu-trigger]") ||
+        nav.querySelector(".astro-side-nav__trigger"),
+      panel:
+        nav.querySelector("#astro-side-nav-panel") ||
+        nav.querySelector(".astro-side-nav__panel"),
+      closeBtn:
+        nav.querySelector("[data-astro-menu-close]") ||
+        nav.querySelector(".astro-side-nav__close"),
+      overlay:
+        nav.querySelector("[data-astro-menu-overlay]") ||
+        nav.querySelector(".astro-side-nav__overlay"),
+      links: nav.querySelectorAll(".astro-side-nav__link")
+    };
   }
 
-    menuIsOpen = shouldOpen;
-    menu.classList.toggle('close', !shouldOpen);
-    menu.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
-    menu.style.transform = shouldOpen ? 'translateX(0)' : 'translateX(-300px)';
-    menu.style.opacity = shouldOpen ? '1' : '0';
-    menu.style.pointerEvents = shouldOpen ? 'auto' : 'none';
-}
-
-if (open) {
-  open.addEventListener('click', function () {
-        setMenuState(!menuIsOpen);
-  });
-}
-
-if (close) {
-  close.addEventListener('click', function () {
-        setMenuState(false);
-  });
-}
-
-if (menu) {
-    setMenuState(false);
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-	const tabElement1 = document.getElementById('name');
-	const tabElement2 = document.getElementById('game');
-	const tabElement3 = document.getElementById('like');
-	const tabElement4 = document.getElementById('contact');
-
-    if (tabElement1) {
-        tabElement1.addEventListener("click", function (e) {
-            e.preventDefault();
-            scrollToElement("first");
-        });
+  function setMenuState(elements, shouldOpen) {
+    if (!elements || !elements.nav || !elements.panel || !elements.trigger) {
+      return;
     }
 
-    if (tabElement2) {
-        tabElement2.addEventListener("click", function (e) {
-            e.preventDefault();
-            scrollToElement("second");
-        });
+    elements.nav.classList.toggle("is-open", shouldOpen);
+    elements.panel.classList.toggle("astro-side-nav--open", shouldOpen);
+    elements.panel.setAttribute("aria-hidden", shouldOpen ? "false" : "true");
+
+    if (elements.overlay) {
+      elements.overlay.classList.toggle("astro-side-nav--open", shouldOpen);
     }
 
-    if (tabElement3) {
-        tabElement3.addEventListener("click", function (e) {
-            e.preventDefault();
-            scrollToElement("third");
-        });
+    elements.trigger.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
+    elements.trigger.setAttribute("aria-label", shouldOpen ? "Fechar menu" : "Abrir menu");
+  }
+
+  function initSideNav() {
+    var elements = getSideNavElements();
+
+    if (!elements || !elements.trigger || !elements.panel) {
+      console.warn("[SideNav] elementos essenciais não encontrados.", elements);
+      return;
     }
 
-    if (tabElement4) {
-        tabElement4.addEventListener("click", function (e) {
-            e.preventDefault();
-            scrollToElement("fourth");
-        });
-    }
+    console.log("[SideNav] inicializado", {
+      trigger: !!elements.trigger,
+      panel: !!elements.panel,
+      overlay: !!elements.overlay,
+      links: elements.links.length
+    });
 
-    function smoothScrollTo(targetPosition, duration) {
-        const startPosition = window.scrollY;
-        const distance = targetPosition - startPosition;
-        const startTime = performance.now();
+    document.addEventListener("click", function (event) {
+      var trigger = event.target.closest("[data-astro-menu-trigger], .astro-side-nav__trigger");
+      var closeBtn = event.target.closest("[data-astro-menu-close], .astro-side-nav__close");
+      var overlay = event.target.closest("[data-astro-menu-overlay], .astro-side-nav__overlay");
+      var link = event.target.closest(".astro-side-nav__link");
 
-        function step(currentTime) {
-            const elapsedTime = currentTime - startTime;
-            const progress = Math.min(elapsedTime / duration, 1);
-            const ease = easeInOutQuad(progress);
-            window.scrollTo(0, startPosition + distance * ease);
+      if (trigger && elements.nav.contains(trigger)) {
+        event.preventDefault();
+        event.stopPropagation();
 
-            if (progress < 1) {
-                requestAnimationFrame(step);
-            }
-        }
+        var isOpen = elements.nav.classList.contains("is-open");
+        setMenuState(elements, !isOpen);
+        return;
+      }
 
-        requestAnimationFrame(step);
-    }
+      if (
+        (closeBtn && elements.nav.contains(closeBtn)) ||
+        (overlay && elements.nav.contains(overlay)) ||
+        (link && elements.nav.contains(link))
+      ) {
+        setMenuState(elements, false);
+      }
+    });
 
-    function scrollToElement(elementId) {
-        const targetElement = document.getElementById(elementId);
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") {
+        setMenuState(elements, false);
+      }
+    });
+  }
 
-        if (targetElement) {
-            const offset = targetElement.getBoundingClientRect().top + window.scrollY;
-            smoothScrollTo(offset, 500);
-        }
-    }
-
-    function easeInOutQuad(t) {
-        return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-    }
-});
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initSideNav, { once: true });
+  } else {
+    initSideNav();
+  }
+})();
