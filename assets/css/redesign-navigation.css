@@ -7,7 +7,7 @@
   pointer-events: none;
 }
 
-      padding: 22px 34px; /* vertical + horizontal padding */
+.astro-side-nav__trigger {
   position: fixed;
   top: clamp(1rem, 14vh, 7rem);
   left: 0;
@@ -63,7 +63,7 @@
 .astro-side-nav__trigger-icon {
   position: relative;
   /* moved lower in the trigger to match original layout */
-  margin-top: 180px;
+  margin-top: 140px;
   margin-left: 36px;
   align-self: center;
 }
@@ -169,7 +169,7 @@
 
 .astro-side-nav__close:hover,
 .astro-side-nav__close:focus-visible {
-  color: #10131f;
+  color: #ffffff;
   outline: none;
 }
 
@@ -223,6 +223,7 @@
   flex-direction: column;
   gap: 0.7rem;
   align-items: stretch;
+  width: 100%;
 }
 
 .astro-side-nav__link {
@@ -234,9 +235,10 @@
   line-height: 1.05;
   padding: 1rem 0;
   transition: background-color 0.2s ease, color 0.2s ease;
-  width: calc(100% + 68px); /* compensate panel horizontal padding */
-  margin-left: -34px;
-  display: block;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
 }
 
