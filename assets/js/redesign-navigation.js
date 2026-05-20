@@ -6,13 +6,31 @@
     var nav = document.querySelector(".astro-side-nav");
     if (!nav) return;
 
-    var trigger = nav.querySelector(".astro-side-nav__trigger");
-    var panel = nav.querySelector(".astro-side-nav__panel");
-    var closeBtn = nav.querySelector(".astro-side-nav__close");
-    var overlay = nav.querySelector(".astro-side-nav__overlay");
+    var trigger =
+      nav.querySelector("[data-astro-menu-trigger]") ||
+      nav.querySelector(".astro-side-nav__trigger");
+
+    var panel =
+      nav.querySelector("#astro-side-nav-panel") ||
+      nav.querySelector(".astro-side-nav__panel");
+
+    var closeBtn =
+      nav.querySelector("[data-astro-menu-close]") ||
+      nav.querySelector(".astro-side-nav__close");
+
+    var overlay =
+      nav.querySelector("[data-astro-menu-overlay]") ||
+      nav.querySelector(".astro-side-nav__overlay");
+
     var links = nav.querySelectorAll(".astro-side-nav__link");
 
-    if (!trigger || !panel) return;
+    if (!trigger || !panel) {
+      console.warn("[SideNav] trigger ou panel não encontrado.", {
+        trigger: !!trigger,
+        panel: !!panel
+      });
+      return;
+    }
 
     function openMenu() {
       nav.classList.add("is-open");
@@ -56,11 +74,17 @@
     trigger.addEventListener("click", toggleMenu);
 
     if (closeBtn) {
-      closeBtn.addEventListener("click", closeMenu);
+      closeBtn.addEventListener("click", function (event) {
+        event.preventDefault();
+        closeMenu();
+      });
     }
 
     if (overlay) {
-      overlay.addEventListener("click", closeMenu);
+      overlay.addEventListener("click", function (event) {
+        event.preventDefault();
+        closeMenu();
+      });
     }
 
     links.forEach(function (link) {
@@ -71,6 +95,13 @@
       if (event.key === "Escape") {
         closeMenu();
       }
+    });
+
+    console.log("[SideNav] menu inicializado", {
+      trigger: true,
+      panel: true,
+      overlay: !!overlay,
+      links: links.length
     });
   }
 
