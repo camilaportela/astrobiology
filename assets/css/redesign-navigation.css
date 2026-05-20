@@ -3,7 +3,7 @@
 .astro-side-nav {
   position: fixed;
   inset: 0 auto 0 0;
-  z-index: 50;
+  z-index: 70;
   pointer-events: none;
   font-family: "Trebuchet MS", Arial, sans-serif;
 }
@@ -12,7 +12,7 @@
   position: fixed;
   left: 1.1rem;
   top: 1.1rem;
-  z-index: 55;
+  z-index: 75;
   width: 3rem;
   height: 3rem;
   border: 1px solid rgba(255, 255, 255, 0.16);
@@ -81,7 +81,7 @@
 .astro-side-nav__overlay {
   position: fixed;
   inset: 0;
-  z-index: 51;
+  z-index: 71;
   background: rgba(0, 0, 0, 0.44);
   opacity: 0;
   pointer-events: none;
@@ -103,7 +103,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 52;
+  z-index: 72;
   width: min(360px, 86vw);
   height: 100vh;
   padding: 5.5rem 2rem 2rem;
@@ -248,4 +248,24 @@
     width: min(320px, 88vw);
     padding: 5rem 1.5rem 1.5rem;
   }
+}
+
+.astro-side-nav__panel {
+  transform: translateX(-105%);
+}
+
+.astro-side-nav.is-open .astro-side-nav__panel,
+.astro-side-nav__panel.astro-side-nav--open {
+  transform: translateX(0);
+}
+
+.astro-side-nav__overlay {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.astro-side-nav.is-open .astro-side-nav__overlay,
+.astro-side-nav__overlay.astro-side-nav--open {
+  opacity: 1;
+  pointer-events: auto;
 }
