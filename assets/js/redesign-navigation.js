@@ -1,78 +1,87 @@
 // Menu lateral de navegação - Astrobiologia
 (function () {
-  var nav = document.querySelector(".astro-side-nav");
+  "use strict";
 
-  if (!nav) {
-    return;
-  }
+  function initSideNav() {
+    var nav = document.querySelector(".astro-side-nav");
 
-  var trigger = nav.querySelector(".astro-side-nav__trigger");
-  var closeButton = nav.querySelector(".astro-side-nav__close");
-  var overlay = nav.querySelector(".astro-side-nav__overlay");
-  var panel = nav.querySelector(".astro-side-nav__panel");
-  var links = nav.querySelectorAll(".astro-side-nav__link");
-
-  function openNav() {
-    nav.classList.add("is-open");
-
-    if (trigger) {
-      trigger.setAttribute("aria-expanded", "true");
-      trigger.setAttribute("aria-label", "Fechar menu");
+    if (!nav) {
+      console.warn("[SideNav] .astro-side-nav não encontrado.");
+      return;
     }
 
-    if (panel) {
+    var trigger = nav.querySelector(".astro-side-nav__trigger");
+    var panel = nav.querySelector(".astro-side-nav__panel");
+    var closeBtn = nav.querySelector(".astro-side-nav__close");
+    var overlay = nav.querySelector(".astro-side-nav__overlay");
+    var links = nav.querySelectorAll(".astro-side-nav__link");
+
+    if (!trigger || !panel) {
+      console.warn("[SideNav] Elementos essenciais não encontrados.");
+      return;
+    }
+
+    function openMenu() {
+      nav.classList.add("is-open");
+      panel.classList.add("astro-side-nav--open");
+
+      if (overlay) {
+        overlay.classList.add("astro-side-nav--open");
+      }
+
+      trigger.setAttribute("aria-expanded", "true");
+      trigger.setAttribute("aria-label", "Fechar menu");
       panel.setAttribute("aria-hidden", "false");
     }
 
-    if (overlay) {
-      overlay.classList.add("astro-side-nav--open");
-    }
-  }
+    function closeMenu() {
+      nav.classList.remove("is-open");
+      panel.classList.remove("astro-side-nav--open");
 
-  function closeNav() {
-    nav.classList.remove("is-open");
+      if (overlay) {
+        overlay.classList.remove("astro-side-nav--open");
+      }
 
-    if (trigger) {
       trigger.setAttribute("aria-expanded", "false");
       trigger.setAttribute("aria-label", "Abrir menu");
-    }
-
-    if (panel) {
       panel.setAttribute("aria-hidden", "true");
     }
 
+    function toggleMenu() {
+      if (nav.classList.contains("is-open")) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    }
+
+    trigger.addEventListener("click", function (event) {
+      event.stopPropagation();
+      toggleMenu();
+    });
+
+    if (closeBtn) {
+      closeBtn.addEventListener("click", closeMenu);
+    }
+
     if (overlay) {
-      overlay.classList.remove("astro-side-nav--open");
+      overlay.addEventListener("click", closeMenu);
     }
+
+    links.forEach(function (link) {
+      link.addEventListener("click", closeMenu);
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") {
+        closeMenu();
+      }
+    });
   }
 
-  function toggleNav() {
-    if (nav.classList.contains("is-open")) {
-      closeNav();
-    } else {
-      openNav();
-    }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initSideNav, { once: true });
+  } else {
+    initSideNav();
   }
-
-  if (trigger) {
-    trigger.addEventListener("click", toggleNav);
-  }
-
-  if (closeButton) {
-    closeButton.addEventListener("click", closeNav);
-  }
-
-  if (overlay) {
-    overlay.addEventListener("click", closeNav);
-  }
-
-  links.forEach(function (link) {
-    link.addEventListener("click", closeNav);
-  });
-
-  document.addEventListener("keydown", function (event) {
-    if (event.key === "Escape") {
-      closeNav();
-    }
-  });
 })();
