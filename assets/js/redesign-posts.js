@@ -42,21 +42,12 @@
 
   function createCard(post) {
     var title = escapeHTML(post.title || "Publicação");
-    var subtitle = escapeHTML(post.subtitle || "");
-    var author = escapeHTML(post.author || "");
-    var date = escapeHTML(formatDate(post.date));
     var url = escapeHTML(post.url || "/noticias/");
     var image = escapeHTML(post.image || "/assets/img/planets/2k_stars_milky_way.jpg");
-    var meta = [author, date].filter(Boolean).join(" • ");
 
     return (
-      '<a class="b-game-card" href="' + url + '">' +
+      '<a class="b-game-card" href="' + url + '" aria-label="' + title + '">' +
         '<span class="b-game-card__cover" style="background-image: url(' + image + ');"></span>' +
-        '<span class="b-game-card__content">' +
-          '<h3>' + title + '</h3>' +
-          (subtitle ? '<p>' + subtitle + '</p>' : '') +
-          (meta ? '<span class="b-game-card__meta">' + escapeHTML(meta) + '</span>' : '') +
-        '</span>' +
       '</a>'
     );
   }
