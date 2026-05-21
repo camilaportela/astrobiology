@@ -6,35 +6,11 @@
   left: 50%;
   right: auto;
   bottom: clamp(1.2rem, 4vh, 3rem);
-  width: min(1000px, calc(100vw - 12rem));
+  width: min(1200px, calc(100vw - 10rem));
   transform: translateX(-50%);
   z-index: 12;
   pointer-events: none;
   color: #ffffff;
-}
-
-.home-posts-gallery__header {
-  max-width: 760px;
-  margin-bottom: 1rem;
-  pointer-events: none;
-}
-
-.home-posts-gallery__eyebrow {
-  margin: 0 0 0.45rem;
-  font-family: "Trebuchet MS", Arial, sans-serif;
-  font-size: 0.68rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.58);
-}
-
-.home-posts-gallery h2 {
-  margin: 0;
-  font-family: Georgia, serif;
-  font-size: clamp(1.8rem, 4vw, 3.5rem);
-  line-height: 0.95;
-  color: #ffffff;
-  text-shadow: 0 8px 40px rgba(0, 0, 0, 0.82);
 }
 
 .home-posts-gallery__carousel {
@@ -51,8 +27,8 @@
 .home-posts-gallery__track {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: calc((100% - 72px) / 4);
-  gap: 24px;
+  grid-auto-columns: calc((100% - 90px) / 4);
+  gap: 30px;
   transition: transform 0.36s ease;
   will-change: transform;
   pointer-events: none;
@@ -62,7 +38,7 @@
   position: relative;
   z-index: 1;
   width: 100%;
-  padding-bottom: 140%;
+  padding-bottom: 150%;
   perspective: 1000px;
   color: #ffffff;
   text-decoration: none;
@@ -105,7 +81,7 @@
   will-change: transform;
   transform: skewX(0.001deg);
   transition: transform 0.35s ease-in-out;
-  border-radius: 14px;
+  border-radius: 0;
 }
 
 .b-game-card__cover::after {
@@ -152,7 +128,7 @@
       rgba(0, 0, 0, 0.94)
     );
   color: #ffffff;
-  border-radius: 0 0 18px 18px;
+  border-radius: 0;
 }
 
 .b-game-card__tag {
@@ -250,10 +226,6 @@
 @media (max-width: 560px) {
   .home-posts-gallery {
     width: min(360px, 78vw);
-  }
-
-  .home-posts-gallery__header {
-    display: none;
   }
 
   .home-posts-gallery__track {
