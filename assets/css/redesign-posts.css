@@ -6,7 +6,7 @@
   left: 50%;
   right: auto;
   bottom: clamp(1.2rem, 4vh, 3rem);
-  width: min(1200px, calc(100vw - 10rem));
+  width: min(1000px, calc(100vw - 12rem));
   transform: translateX(-50%);
   z-index: 12;
   pointer-events: none;
@@ -51,8 +51,8 @@
 .home-posts-gallery__track {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: calc((100% - 90px) / 4);
-  gap: 30px;
+  grid-auto-columns: calc((100% - 72px) / 4);
+  gap: 24px;
   transition: transform 0.36s ease;
   will-change: transform;
   pointer-events: none;
@@ -62,7 +62,7 @@
   position: relative;
   z-index: 1;
   width: 100%;
-  padding-bottom: 150%;
+  padding-bottom: 140%;
   perspective: 1000px;
   color: #ffffff;
   text-decoration: none;
@@ -105,7 +105,7 @@
   will-change: transform;
   transform: skewX(0.001deg);
   transition: transform 0.35s ease-in-out;
-  border-radius: 18px;
+  border-radius: 14px;
 }
 
 .b-game-card__cover::after {
@@ -143,7 +143,7 @@
   position: absolute;
   z-index: 3;
   inset: auto 0 0;
-  padding: 0.9rem;
+  padding: 0.7rem;
   background:
     linear-gradient(
       180deg,
