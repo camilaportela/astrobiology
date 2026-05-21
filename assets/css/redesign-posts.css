@@ -5,7 +5,7 @@
   position: absolute;
   left: 50%;
   right: auto;
-  top: clamp(4.5rem, 10vh, 7rem);
+  top: clamp(5.25rem, 11vh, 7.5rem);
   bottom: auto;
   width: min(1200px, calc(100vw - 10rem));
   transform: translateX(-50%);
@@ -216,7 +216,7 @@
 @media (max-width: 820px) {
   .home-posts-gallery {
     width: min(640px, calc(100vw - 3rem));
-    top: clamp(3.5rem, 8vh, 5rem);
+    top: clamp(4rem, 8.5vh, 5.25rem);
   }
 
   .home-posts-gallery__track {
