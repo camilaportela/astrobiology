@@ -43,7 +43,6 @@
   function createCard(post) {
     var title = escapeHTML(post.title || "Publicação");
     var subtitle = escapeHTML(post.subtitle || "");
-    var tag = escapeHTML(post.tag || "Texto");
     var author = escapeHTML(post.author || "");
     var date = escapeHTML(formatDate(post.date));
     var url = escapeHTML(post.url || "/noticias/");
@@ -54,7 +53,6 @@
       '<a class="b-game-card" href="' + url + '">' +
         '<span class="b-game-card__cover" style="background-image: url(' + image + ');"></span>' +
         '<span class="b-game-card__content">' +
-          '<span class="b-game-card__tag">' + tag + '</span>' +
           '<h3>' + title + '</h3>' +
           (subtitle ? '<p>' + subtitle + '</p>' : '') +
           (meta ? '<span class="b-game-card__meta">' + escapeHTML(meta) + '</span>' : '') +
