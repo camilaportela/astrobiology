@@ -15,7 +15,7 @@
 
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(40, 1, 0.1, 3000);
-    camera.position.set(0, 120, 680);
+    camera.position.set(0, 95, 360);
 
     var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -34,8 +34,8 @@
     controls.dampingFactor = 0.08;
     controls.enableZoom = true;
     controls.enablePan = false;
-    controls.minDistance = 380;
-    controls.maxDistance = 1600;
+    controls.minDistance = 180;
+    controls.maxDistance = 900;
     controls.target.set(0, 0, 0);
     controls.update();
     camera.lookAt(0, 0, 0);
@@ -48,8 +48,8 @@
     scene.add(sunLight);
 
     var solarRoot = new THREE.Object3D();
-    solarRoot.scale.setScalar(0.32);
-    solarRoot.position.y = -6;
+    solarRoot.scale.setScalar(0.62);
+    solarRoot.position.y = -8;
     scene.add(solarRoot);
 
     var textureLoader = new THREE.TextureLoader();
