@@ -161,11 +161,8 @@
   -webkit-box-decoration-break: clone;
   padding: 0 0.08em;
   color: inherit;
-  background-image: linear-gradient(transparent 58%, rgba(170, 220, 255, 0.72) 58%);
-  background-repeat: no-repeat;
-  background-position: 0 100%;
-  background-size: 0% 100%;
-  transition: background-size 0.3s ease, color 0.2s ease;
+  background-color: transparent;
+  transition: background-color 0.3s ease, color 0.2s ease;
 }
 
 .b-game-card:hover .b-game-card__title,
@@ -177,7 +174,7 @@
 
 .b-game-card:hover .b-game-card__title-effect,
 .b-game-card:focus-visible .b-game-card__title-effect {
-  background-size: 100% 100%;
+  background-color: rgba(170, 220, 255, 0.72);
 }
 
 .b-game-card__meta {
