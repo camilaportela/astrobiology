@@ -36,6 +36,8 @@
     controls.enablePan = false;
     controls.minDistance = 180;
     controls.maxDistance = 900;
+    controls.minPolarAngle = Math.PI * 0.42;
+    controls.maxPolarAngle = Math.PI * 0.58;
     controls.target.set(0, 0, 0);
     controls.update();
     camera.lookAt(0, 0, 0);
