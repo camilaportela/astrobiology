@@ -1,4 +1,5 @@
-// Background effect adapted from a public CodePen by Vicente Alcazar, MIT License. Original: https://codepen.io/Vicente-Alcazar/pen/NPNZavq
+/* Background effect adapted from a public CodePen by Vicente Alcazar, MIT License.
+  Original: https://codepen.io/Vicente-Alcazar/pen/NPNZavq */
 (function () {
   "use strict";
 

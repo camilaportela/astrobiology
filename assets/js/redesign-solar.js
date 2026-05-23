@@ -1,5 +1,5 @@
-// Solar system adapted from a public CodePen by jumplander, MIT License.
-// Original: https://codepen.io/jumplander/pen/azOwEor
+/* Solar system adapted from a public CodePen by jumplander, MIT License.
+  Original: https://codepen.io/jumplander/pen/azOwEor */
 (function () {
   "use strict";
 
