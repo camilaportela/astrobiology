@@ -3,8 +3,18 @@
    Para suporte completo, adicione os arquivos .woff2/.woff e @font-face apontando para eles.
 */
 
+/* Register SF Pro Display from local font files in /fonts/ */
+@font-face {
+  font-family: 'SFProDisplay';
+  src: url('/fonts/SFPRODISPLAYREGULAR.OTF') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Force SFProDisplay as the only site font */
 :root {
-  --site-font: 'SFProDisplayRegular', Arial, sans-serif;
+  --site-font: 'SFProDisplay';
 }
 
 /* Apply to all textual elements */
@@ -26,7 +36,7 @@ button, input, select, textarea {
   font-family: var(--site-font) !important;
 }
 
-/* Optional: improve uppercase spacing if many headings are uppercase */
+/* Improve font smoothing for headings */
 h1, h2, h3, h4, h5, h6, .b-game-card__title {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
