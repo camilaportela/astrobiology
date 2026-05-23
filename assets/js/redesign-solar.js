@@ -53,7 +53,7 @@
     scene.add(solarRoot);
 
     var textureLoader = new THREE.TextureLoader();
-    var PLANET_TEXTURE_PATH = "/assets/img/planets/";
+    var PLANET_TEXTURE_PATH = "assets/img/planets/";
 
     var planetTextureFiles = {
       sun: "2k_sun.jpg",

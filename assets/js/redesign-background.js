@@ -3,7 +3,7 @@
   "use strict";
 
   var milkyWayImage = new Image();
-  milkyWayImage.src = "/assets/img/planets/2k_stars_milky_way.jpg";
+  milkyWayImage.src = "assets/img/planets/2k_stars_milky_way.jpg";
 
   function drawCoverImage(ctx, image, canvasWidth, canvasHeight) {
     var imageRatio = image.width / image.height;

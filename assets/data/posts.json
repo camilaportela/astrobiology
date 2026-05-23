@@ -4,8 +4,8 @@
     "subtitle": "Uma publicação inicial para validar a seção de notícias do site.",
     "date": "2026-05-14",
     "author": "Camila Portela",
-    "url": "/noticias/",
-    "image": "/assets/img/planets/2k_stars_milky_way.jpg",
+    "url": "noticias/",
+    "image": "assets/img/planets/2k_stars_milky_way.jpg",
     "tag": "Notícia"
   },
   {
@@ -13,8 +13,8 @@
     "subtitle": "Microrganismos, habitabilidade e vida em condições extremas.",
     "date": "2026-05-20",
     "author": "Camila Portela",
-    "url": "/noticias/",
-    "image": "/assets/img/planets/2k_stars_milky_way.jpg",
+    "url": "noticias/",
+    "image": "assets/img/planets/2k_stars_milky_way.jpg",
     "tag": "Astrobiologia"
   },
   {
@@ -22,8 +22,8 @@
     "subtitle": "Por que Marte continua sendo central para pensar habitabilidade planetária.",
     "date": "2026-05-21",
     "author": "Camila Portela",
-    "url": "/noticias/",
-    "image": "/assets/img/planets/2k_mars.jpg",
+    "url": "noticias/",
+    "image": "assets/img/planets/2k_mars.jpg",
     "tag": "Marte"
   },
   {
@@ -31,8 +31,8 @@
     "subtitle": "Organismos terrestres ajudam a imaginar possibilidades biológicas fora da Terra.",
     "date": "2026-05-22",
     "author": "Camila Portela",
-    "url": "/noticias/",
-    "image": "/assets/img/planets/2k_earth_daymap.jpg",
+    "url": "noticias/",
+    "image": "assets/img/planets/2k_earth_daymap.jpg",
     "tag": "Microbiologia"
   },
   {
@@ -40,8 +40,8 @@
     "subtitle": "Europa e Encélado como mundos de interesse astrobiológico.",
     "date": "2026-05-23",
     "author": "Camila Portela",
-    "url": "/noticias/",
-    "image": "/assets/img/planets/2k_neptune.jpg",
+    "url": "noticias/",
+    "image": "assets/img/planets/2k_neptune.jpg",
     "tag": "Habitabilidade"
   }
 ]

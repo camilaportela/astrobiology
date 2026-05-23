@@ -43,8 +43,8 @@
 
   function createCard(post) {
     var title = escapeHTML(post.title || "Publicação");
-    var url = escapeHTML(post.url || "/noticias/");
-    var image = escapeHTML(post.image || "/assets/img/planets/2k_stars_milky_way.jpg");
+    var url = escapeHTML(post.url || "noticias/");
+    var image = escapeHTML(post.image || "assets/img/planets/2k_stars_milky_way.jpg");
 
     return (
       '<a class="b-game-card" href="' + url + '" aria-label="' + title + '">' +
@@ -153,7 +153,7 @@
 
     if (!track) return;
 
-    fetch("/assets/data/posts.json?v=1")
+    fetch("assets/data/posts.json?v=2")
       .then(function (response) {
         if (!response.ok) {
           throw new Error("Não foi possível carregar posts.json");
