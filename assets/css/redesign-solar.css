@@ -15,6 +15,8 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
+  /* Elevar visualmente o sistema solar para cima do centro do herói */
+  transform: translateY(-12vh);
 }
 
 .redesign-solar-system canvas {
