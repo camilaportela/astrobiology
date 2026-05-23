@@ -157,6 +157,7 @@
 .b-game-card__title-effect {
   display: inline;
   padding: 0.14em 0.08em 0.08em;
+  padding: 0.12em 0.12em;
   color: inherit;
   background-image: linear-gradient(
     rgba(170, 220, 255, 0.72),
