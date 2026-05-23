@@ -15,8 +15,8 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  /* Elevar visualmente o sistema solar até aproximadamente a altura do menu */
-  transform: translateY(-45vh);
+  /* Ajuste: mover o sistema solar um pouco para baixo (menos negativo) */
+  transform: translateY(-35vh);
 }
 
 .redesign-solar-system canvas {
