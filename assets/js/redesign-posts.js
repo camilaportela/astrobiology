@@ -47,6 +47,9 @@
     return (
       '<a class="b-game-card" href="' + url + '" aria-label="' + title + '">' +
         '<span class="b-game-card__cover" style="background-image: url(' + image + ');"></span>' +
+        '<span class="b-game-card__content">' +
+          '<h3 class="b-game-card__title"><span class="b-game-card__title-effect">' + title + '</span></h3>' +
+        '</span>' +
       '</a>'
     );
   }

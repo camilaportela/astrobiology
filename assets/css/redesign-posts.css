@@ -147,18 +147,40 @@
   color: rgba(255, 255, 255, 0.82);
 }
 
-.b-game-card h3 {
+/* Text highlight hover adapted from a public CodePen by Adam Argyle.
+   Original: https://codepen.io/argyleink/pen/poEjvpd */
+
+.b-game-card__title {
   margin: 0;
   font-family: Georgia, serif;
   font-size: clamp(0.95rem, 1.35vw, 1.25rem);
   line-height: 1.05;
+  color: #ffffff;
 }
 
-.b-game-card p {
-  margin: 0.5rem 0 0;
-  color: rgba(255, 255, 255, 0.76);
-  font-size: 0.72rem;
-  line-height: 1.4;
+.b-game-card__title-effect {
+  position: relative;
+  display: inline;
+  z-index: 1;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.b-game-card__title-effect::before {
+  content: "";
+  position: absolute;
+  inset: 0 -0.08em;
+  z-index: -1;
+  background: rgba(170, 220, 255, 0.72);
+  transform: scaleX(0);
+  transform-origin: bottom right;
+  transition: transform 0.3s ease;
+}
+
+.b-game-card:hover .b-game-card__title-effect::before,
+.b-game-card:focus-visible .b-game-card__title-effect::before {
+  transform: scaleX(1);
+  transform-origin: bottom left;
 }
 
 .b-game-card__meta {
