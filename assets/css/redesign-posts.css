@@ -146,14 +146,12 @@
 
 .b-game-card__title {
   margin: 0;
-  font-family: 'SFProDisplay', sans-serif;
+  font-family: 'SFProDisplay', Georgia, serif;
   font-size: clamp(0.95rem, 1.35vw, 1.25rem);
   line-height: 1.05;
   color: rgba(255, 255, 255, 0.68);
   transition: color 0.2s ease;
-  text-transform: none;
   font-weight: 100;
-  font-style: normal;
 }
 
 .b-game-card__title-effect {
@@ -164,20 +162,28 @@
   -webkit-box-decoration-break: clone;
   padding: 0 0.08em;
   color: inherit;
-  background-color: transparent;
-  transition: background-color 0.3s ease, color 0.2s ease;
+}
+
+.b-game-card__title-effect::before {
+  content: "";
+  position: absolute;
+  inset: 0 -0.08em;
+  z-index: -1;
+  background: rgba(170, 220, 255, 0.72);
+  transform: scaleX(0);
+  transform-origin: bottom right;
+  transition: transform 0.3s ease;
 }
 
 .b-game-card:hover .b-game-card__title,
-.b-game-card:focus-visible .b-game-card__title,
-.b-game-card:hover .b-game-card__title-effect,
-.b-game-card:focus-visible .b-game-card__title-effect {
+.b-game-card:focus-visible .b-game-card__title {
   color: #ffffff;
 }
 
-.b-game-card:hover .b-game-card__title-effect,
-.b-game-card:focus-visible .b-game-card__title-effect {
-  background-color: rgba(170, 220, 255, 0.72);
+.b-game-card:hover .b-game-card__title-effect::before,
+.b-game-card:focus-visible .b-game-card__title-effect::before {
+  transform: scaleX(1);
+  transform-origin: bottom left;
 }
 
 .b-game-card__meta {

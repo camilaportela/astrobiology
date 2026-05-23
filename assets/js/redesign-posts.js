@@ -112,7 +112,7 @@
     }
 
     var firstCard = track.querySelector(".b-game-card");
-    // Read gap dynamically from computed styles so JS matches CSS sizing
+    /* Read gap dynamically from computed styles so JS matches CSS sizing */
     var computed = window.getComputedStyle(track);
     var gap = parseFloat(computed.getPropertyValue('gap')) || parseFloat(computed.getPropertyValue('column-gap')) || 0;
     var cardWidth = firstCard ? firstCard.getBoundingClientRect().width : 0;
