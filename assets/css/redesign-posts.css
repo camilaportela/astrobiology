@@ -87,6 +87,28 @@
   border-radius: 0;
 }
 
+.b-game-card__cover::before {
+  display: block;
+  content: "";
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 42%;
+  background-image: inherit;
+  background-size: inherit;
+  background-position: inherit;
+  background-repeat: inherit;
+  filter: blur(12px);
+  transform: scale(1.12);
+  transform-origin: bottom center;
+  opacity: 0.9;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.55) 24%, rgba(0, 0, 0, 1) 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.55) 24%, rgba(0, 0, 0, 1) 100%);
+}
+
 .b-game-card__cover::after {
   display: block;
   content: "";
