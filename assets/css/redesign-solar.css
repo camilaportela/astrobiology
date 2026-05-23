@@ -6,7 +6,8 @@
   min-height: 100vh;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  /* permitir que elementos filhos (órbitas) transbordem e não sejam cortados */
+  overflow: visible;
 }
 
 .redesign-solar-system {
@@ -14,14 +15,20 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  /* deixar visível para garantir que as órbitas desenhadas além do canvas não sejam cortadas */
+  overflow: visible;
   /* Ajuste: mover o sistema solar um pouco para baixo (menos negativo) */
   transform: translateY(-30vh);
 }
 
 .redesign-solar-system canvas {
-  width: 100% !important;
-  height: 100% !important;
+  /* Aumentar o canvas para 120% e deslocar -10% para permitir desenhar órbitas fora do viewport
+     (melhora quando as órbitas aparentam ser cortadas na lateral). */
+  position: absolute;
+  left: -10%;
+  top: -10%;
+  width: 120% !important;
+  height: 120% !important;
   display: block;
 }
 
