@@ -7,7 +7,7 @@
     visibleCount: 4
   };
 
-  var GALLERY_ARROW_ANIMATION_MS = 400;
+  var GALLERY_ARROW_ANIMATION_MS = 250;
 
   function escapeHTML(value) {
     return String(value || "")

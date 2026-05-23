@@ -337,19 +337,19 @@
 }
 
 .gallery-arrow.animate svg {
-  animation: gallery-arrow-stroke 0.4s ease forwards 0.05s;
+  animation: gallery-arrow-stroke 0.25s ease forwards 0.04s;
 }
 
 .gallery-arrow.animate i {
-  animation: gallery-arrow-move 0.4s ease forwards;
+  animation: gallery-arrow-move 0.25s ease forwards;
 }
 
 .gallery-arrow.animate i::before {
-  animation: gallery-arrow-up 0.4s ease forwards;
+  animation: gallery-arrow-up 0.25s ease forwards;
 }
 
 .gallery-arrow.animate i::after {
-  animation: gallery-arrow-down 0.4s ease forwards;
+  animation: gallery-arrow-down 0.25s ease forwards;
 }
 
 @keyframes gallery-arrow-stroke {
