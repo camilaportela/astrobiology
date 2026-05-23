@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="/assets/css/redesign.css?v=501">
   <link rel="stylesheet" href="/assets/css/redesign-solar.css?v=500">
   <link rel="stylesheet" href="/assets/css/redesign-navigation.css?v=506">
-  <link rel="stylesheet" href="/assets/css/redesign-posts.css?v=15">
+  <link rel="stylesheet" href="/assets/css/redesign-posts.css?v=16">
 </head>
 
 <body class="redesign-home">
@@ -55,13 +55,16 @@
       <section class="home-posts-gallery" aria-labelledby="home-posts-gallery-title">
         <div class="home-posts-gallery__carousel" data-home-posts-carousel>
           <button
-            class="home-posts-gallery__arrow home-posts-gallery__arrow--prev"
+            class="home-posts-gallery__arrow home-posts-gallery__arrow--prev gallery-arrow gallery-arrow--left"
             type="button"
             aria-label="Post anterior"
             data-posts-prev
             hidden
           >
-            ‹
+            <i aria-hidden="true"></i>
+            <svg aria-hidden="true">
+              <use href="#gallery-arrow-circle"></use>
+            </svg>
           </button>
 
           <div class="home-posts-gallery__viewport">
@@ -71,24 +74,33 @@
           </div>
 
           <button
-            class="home-posts-gallery__arrow home-posts-gallery__arrow--next"
+            class="home-posts-gallery__arrow home-posts-gallery__arrow--next gallery-arrow"
             type="button"
             aria-label="Próximo post"
             data-posts-next
             hidden
           >
-            ›
+            <i aria-hidden="true"></i>
+            <svg aria-hidden="true">
+              <use href="#gallery-arrow-circle"></use>
+            </svg>
           </button>
         </div>
       </section>
     </section>
   </main>
 
+  <svg class="gallery-arrow-symbols" aria-hidden="true" focusable="false">
+    <symbol viewBox="0 0 44 44" width="44px" height="44px" id="gallery-arrow-circle" fill="none" stroke="currentColor">
+      <circle r="20" cy="22" cx="22"></circle>
+    </symbol>
+  </svg>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script src="/assets/js/redesign-background.js?v=500"></script>
   <script src="/assets/js/redesign-solar.js?v=500"></script>
   <script src="/assets/js/redesign-navigation.js?v=504"></script>
-  <script src="/assets/js/redesign-posts.js?v=4"></script>
+  <script src="/assets/js/redesign-posts.js?v=5"></script>
 </body>
 </html>

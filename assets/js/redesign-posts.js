@@ -1,4 +1,3 @@
-/* Homepage posts gallery - Astrobiologia */
 (function () {
   "use strict";
 
@@ -52,6 +51,18 @@
     );
   }
 
+  function animateGalleryArrow(button) {
+    if (!button || button.classList.contains("animate")) {
+      return;
+    }
+
+    button.classList.add("animate");
+
+    window.setTimeout(function () {
+      button.classList.remove("animate");
+    }, 1600);
+  }
+
   function updateCarousel() {
     var track = document.querySelector("[data-posts-track]");
     var prev = document.querySelector("[data-posts-prev]");
@@ -103,6 +114,7 @@
 
     if (prev) {
       prev.addEventListener("click", function () {
+        animateGalleryArrow(prev);
         state.index = Math.max(0, state.index - 1);
         updateCarousel();
       });
@@ -110,6 +122,7 @@
 
     if (next) {
       next.addEventListener("click", function () {
+        animateGalleryArrow(next);
         var maxIndex = Math.max(0, state.posts.length - state.visibleCount);
         state.index = Math.min(maxIndex, state.index + 1);
         updateCarousel();
