@@ -1,0 +1,33 @@
+/* Override global font to SFProDisplayRegular
+   Nota: se a fonte não estiver instalada ou embutida, o navegador usará o fallback.
+   Para suporte completo, adicione os arquivos .woff2/.woff e @font-face apontando para eles.
+*/
+
+:root {
+  --site-font: 'SFProDisplayRegular', Arial, sans-serif;
+}
+
+/* Apply to all textual elements */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+caption, tbody, tfoot, thead, tr, th, td,
+button, input, textarea, select {
+  font-family: var(--site-font) !important;
+}
+
+/* Ensure form controls and buttons also inherit */
+button, input, select, textarea { 
+  font-family: var(--site-font) !important;
+}
+
+/* Optional: improve uppercase spacing if many headings are uppercase */
+h1, h2, h3, h4, h5, h6, .b-game-card__title {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
