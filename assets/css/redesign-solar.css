@@ -22,13 +22,8 @@
 }
 
 .redesign-solar-system canvas {
-  /* Aumentar o canvas para 120% e deslocar -10% para permitir desenhar órbitas fora do viewport
-     (melhora quando as órbitas aparentam ser cortadas na lateral). */
-  position: absolute;
-  left: -10%;
-  top: -10%;
-  width: 120% !important;
-  height: 120% !important;
+  width: 100% !important;
+  height: 100% !important;
   display: block;
 }
 
