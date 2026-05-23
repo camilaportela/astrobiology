@@ -7,6 +7,8 @@
     visibleCount: 4
   };
 
+  var GALLERY_ARROW_ANIMATION_MS = 1600;
+
   function escapeHTML(value) {
     return String(value || "")
       .replace(/&/g, "&amp;")
@@ -63,7 +65,23 @@
 
     window.setTimeout(function () {
       button.classList.remove("animate");
-    }, 1600);
+    }, GALLERY_ARROW_ANIMATION_MS);
+  }
+
+  function moveCarouselAfterArrow(button, step) {
+    if (!button || button.classList.contains("animate")) {
+      return;
+    }
+
+    animateGalleryArrow(button);
+
+    window.setTimeout(function () {
+      state.index = Math.max(0, Math.min(
+        Math.max(0, state.posts.length - state.visibleCount),
+        state.index + step
+      ));
+      updateCarousel();
+    }, GALLERY_ARROW_ANIMATION_MS);
   }
 
   function updateCarousel() {
@@ -117,18 +135,13 @@
 
     if (prev) {
       prev.addEventListener("click", function () {
-        animateGalleryArrow(prev);
-        state.index = Math.max(0, state.index - 1);
-        updateCarousel();
+        moveCarouselAfterArrow(prev, -1);
       });
     }
 
     if (next) {
       next.addEventListener("click", function () {
-        animateGalleryArrow(next);
-        var maxIndex = Math.max(0, state.posts.length - state.visibleCount);
-        state.index = Math.min(maxIndex, state.index + 1);
-        updateCarousel();
+        moveCarouselAfterArrow(next, 1);
       });
     }
 
