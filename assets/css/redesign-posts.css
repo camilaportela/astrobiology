@@ -151,6 +151,7 @@
   line-height: 1.05;
   color: rgba(255, 255, 255, 0.68);
   transition: color 0.2s ease;
+  text-transform: uppercase;
 }
 
 .b-game-card__title-effect {
