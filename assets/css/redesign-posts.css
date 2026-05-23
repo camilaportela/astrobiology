@@ -149,7 +149,8 @@
   font-family: Georgia, serif;
   font-size: clamp(0.95rem, 1.35vw, 1.25rem);
   line-height: 1.05;
-  color: #ffffff;
+  color: rgba(255, 255, 255, 0.78);
+  transition: color 0.2s ease;
 }
 
 .b-game-card__title-effect {
@@ -158,6 +159,8 @@
   z-index: 1;
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
+  color: inherit;
+  transition: color 0.2s ease;
 }
 
 .b-game-card__title-effect::before {
@@ -165,14 +168,17 @@
   position: absolute;
   inset: 0 -0.08em;
   z-index: -1;
-  background: rgba(170, 220, 255, 0.72);
+  background: rgba(255, 255, 255, 0.16);
   transform: scaleX(0);
   transform-origin: bottom right;
   transition: transform 0.3s ease;
 }
 
+.b-game-card:hover .b-game-card__title,
+.b-game-card:focus-visible .b-game-card__title,
 .b-game-card:hover .b-game-card__title-effect::before,
 .b-game-card:focus-visible .b-game-card__title-effect::before {
+  color: #ffffff;
   transform: scaleX(1);
   transform-origin: bottom left;
 }
