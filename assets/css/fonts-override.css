@@ -44,9 +44,9 @@
   font-display: swap;
 }
 
-/* Force SFProDisplay as the only site font */
+/* Force sf-ui-display-thin as the only site font */
 :root {
-  --site-font: 'SFProDisplay';
+  --site-font: 'sf-ui-display-thin';
 }
 
 /* Apply to all textual elements */
