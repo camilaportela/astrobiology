@@ -149,7 +149,7 @@
   font-family: Georgia, serif;
   font-size: clamp(0.95rem, 1.35vw, 1.25rem);
   line-height: 1.05;
-  color: rgba(255, 255, 255, 0.78);
+  color: rgba(255, 255, 255, 0.68);
   transition: color 0.2s ease;
 }
 
