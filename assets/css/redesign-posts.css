@@ -5,7 +5,8 @@
   position: absolute;
   left: 50%;
   right: auto;
-  bottom: clamp(26rem, 44vh, 30rem);
+  /* Diminuir bottom para posicionar a galeria mais embaixo na tela */
+  bottom: clamp(1.5rem, 6vh, 2.5rem);
   width: 100%;
   max-width: 1200px;
   padding: 30px;
