@@ -5,7 +5,7 @@
   position: absolute;
   left: 50%;
   right: auto;
-  bottom: clamp(10rem, 20vh, 14rem);
+  bottom: clamp(14rem, 26vh, 18rem);
   width: 100%;
   max-width: 1200px;
   padding: 30px;
