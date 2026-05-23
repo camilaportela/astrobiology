@@ -8,6 +8,7 @@
   };
 
   var GALLERY_ARROW_ANIMATION_MS = 400;
+  var CAROUSEL_START_MS = 180;
 
   function escapeHTML(value) {
     return String(value || "")
@@ -73,15 +74,56 @@
       return;
     }
 
+    var track = document.querySelector("[data-posts-track]");
+    if (!track) return;
+
+    // prepare a floating clone of the leaving card so it stays visible
+    var cards = Array.prototype.slice.call(track.querySelectorAll('.b-game-card'));
+    var leavingIndex;
+    if (step > 0) {
+      // moving to next: leftmost visible card will leave
+      leavingIndex = state.index;
+    } else {
+      // moving to prev: rightmost visible card will leave
+      leavingIndex = state.index + state.visibleCount - 1;
+    }
+
+    var leavingCard = cards[leavingIndex];
+    var floating = null;
+    if (leavingCard) {
+      floating = leavingCard.cloneNode(true);
+      floating.classList.add('b-game-card--float');
+      var rect = leavingCard.getBoundingClientRect();
+      floating.style.position = 'fixed';
+      floating.style.left = rect.left + 'px';
+      floating.style.top = rect.top + 'px';
+      floating.style.width = rect.width + 'px';
+      floating.style.height = rect.height + 'px';
+      floating.style.zIndex = 9999;
+      floating.style.pointerEvents = 'none';
+      document.body.appendChild(floating);
+    }
+
+    // start arrow animation
     animateGalleryArrow(button);
 
+    // start moving the carousel a bit earlier
     window.setTimeout(function () {
       state.index = Math.max(0, Math.min(
         Math.max(0, state.posts.length - state.visibleCount),
         state.index + step
       ));
       updateCarousel();
-    }, GALLERY_ARROW_ANIMATION_MS);
+    }, CAROUSEL_START_MS);
+
+    // remove the floating clone after the arrow animation finishes
+    if (floating) {
+      window.setTimeout(function () {
+        if (floating && floating.parentNode) {
+          floating.parentNode.removeChild(floating);
+        }
+      }, GALLERY_ARROW_ANIMATION_MS);
+    }
   }
 
   function updateCarousel() {
