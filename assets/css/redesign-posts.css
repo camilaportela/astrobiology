@@ -163,7 +163,7 @@
     rgba(170, 220, 255, 0.72)
   );
   background-repeat: no-repeat;
-  background-size: 0% 100%;
+  background-size: 0% 84%;
   background-position: right bottom;
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
@@ -179,7 +179,7 @@
 
 .b-game-card:hover .b-game-card__title-effect,
 .b-game-card:focus-visible .b-game-card__title-effect {
-  background-size: 100% 100%;
+  background-size: 100% 84%;
   background-position: left bottom;
   transition:
     background-size 0.3s ease,
