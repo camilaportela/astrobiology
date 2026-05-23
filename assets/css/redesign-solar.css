@@ -15,8 +15,8 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  /* Alinhar o centro do sistema solar com o centro do menu lateral */
-  transform: translateY(0px);
+  /* Ajuste: mover o sistema solar um pouco para baixo (menos negativo) */
+  transform: translateY(-30vh);
 }
 
 .redesign-solar-system canvas {
