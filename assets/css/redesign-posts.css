@@ -159,19 +159,13 @@
   z-index: 1;
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
+  padding: 0 0.08em;
   color: inherit;
-  transition: color 0.2s ease;
-}
-
-.b-game-card__title-effect::before {
-  content: "";
-  position: absolute;
-  inset: 0 -0.08em;
-  z-index: -1;
-  background: rgba(170, 220, 255, 0.72);
-  transform: scaleX(0);
-  transform-origin: bottom right;
-  transition: transform 0.3s ease;
+  background-image: linear-gradient(transparent 58%, rgba(170, 220, 255, 0.72) 58%);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 100%;
+  transition: background-size 0.3s ease, color 0.2s ease;
 }
 
 .b-game-card:hover .b-game-card__title,
@@ -181,10 +175,9 @@
   color: #ffffff;
 }
 
-.b-game-card:hover .b-game-card__title-effect::before,
-.b-game-card:focus-visible .b-game-card__title-effect::before {
-  transform: scaleX(1);
-  transform-origin: bottom left;
+.b-game-card:hover .b-game-card__title-effect,
+.b-game-card:focus-visible .b-game-card__title-effect {
+  background-size: 100% 100%;
 }
 
 .b-game-card__meta {
