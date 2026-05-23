@@ -187,13 +187,6 @@
   color: rgba(255, 255, 255, 0.56);
 }
 
-/* Floating clone used to keep a leaving card visible until arrow animation ends */
-.b-game-card--float {
-  box-shadow: 0 6px 12px 12px rgba(0, 0, 0, 0.4);
-  transform-origin: center center;
-  will-change: opacity, transform;
-}
-
 .home-posts-gallery__arrow {
   position: absolute;
   top: 50%;
