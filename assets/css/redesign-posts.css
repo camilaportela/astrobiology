@@ -20,7 +20,7 @@
 .home-orbit-continuity {
   position: absolute;
   inset: 0;
-  z-index: 13;
+  z-index: 11;
   pointer-events: none;
   overflow: hidden;
 }
@@ -35,19 +35,21 @@
 
 .home-orbit-continuity__line {
   fill: none;
-  stroke: rgba(245, 240, 233, 0.16);
-  stroke-width: 1.25;
+  stroke: rgba(245, 240, 233, 0.14);
+  stroke-width: 1.2;
   vector-effect: non-scaling-stroke;
   shape-rendering: geometricPrecision;
+  stroke-linecap: round;
+  stroke-linejoin: round;
   pointer-events: none;
 }
 
 .home-orbit-continuity__line--1 {
-  stroke-opacity: 0.16;
+  stroke-opacity: 0.14;
 }
 
 .home-orbit-continuity__line--2 {
-  stroke-opacity: 0.13;
+  stroke-opacity: 0.12;
 }
 
 .home-orbit-continuity__line--3 {
@@ -279,7 +281,7 @@
 .home-orbit-continuity {
   left: 0;
   transform: none;
-  z-index: 13;
+  z-index: 11;
 }
 
 @media (max-width: 760px) {
