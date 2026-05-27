@@ -15,10 +15,28 @@
   pointer-events: none;
   color: #ffffff;
   box-sizing: border-box;
+  isolation: isolate;
+}
+
+.home-posts-gallery::before {
+  content: "";
+  position: absolute;
+  inset: -2.5rem -3rem -1.5rem -3rem;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(0, 0, 0, 0.30) 0%,
+      rgba(0, 0, 0, 0.20) 42%,
+      rgba(0, 0, 0, 0.08) 68%,
+      rgba(0, 0, 0, 0) 100%
+    );
 }
 
 .home-posts-gallery__carousel {
   position: relative;
+  z-index: 1;
   pointer-events: none;
 }
 
