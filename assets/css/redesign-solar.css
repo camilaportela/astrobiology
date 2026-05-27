@@ -17,14 +17,12 @@
   overflow: hidden;
   /* Ajuste: mover o sistema solar um pouco para baixo (menos negativo) */
   transform: translateY(-30vh);
-  pointer-events: none;
 }
 
 .redesign-solar-system canvas {
   width: 100% !important;
   height: 100% !important;
   display: block;
-  pointer-events: none;
 }
 
 @media (max-width: 900px) {

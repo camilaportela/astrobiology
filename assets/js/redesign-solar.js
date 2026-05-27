@@ -12,14 +12,10 @@
 
     var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var SOLAR_SPEED = reduceMotion ? 0.035 : 0.24;
-    var HOME_CAMERA_POSITION = { x: 0, y: 95, z: 360 };
-    var HOME_CAMERA_TARGET = { x: 0, y: 0, z: 0 };
-    var ORBIT_CUTOFF_MARGIN = 10;
-    var orbitMaterials = [];
 
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(40, 1, 0.1, 3000);
-    camera.position.set(HOME_CAMERA_POSITION.x, HOME_CAMERA_POSITION.y, HOME_CAMERA_POSITION.z);
+    camera.position.set(0, 95, 360);
 
     var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -34,54 +30,15 @@
     container.appendChild(renderer.domElement);
 
     var controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableZoom = false;
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.enableZoom = true;
     controls.enablePan = false;
-    controls.enableRotate = false;
-    controls.enableDamping = false;
-    controls.enabled = false;
-    controls.target.set(HOME_CAMERA_TARGET.x, HOME_CAMERA_TARGET.y, HOME_CAMERA_TARGET.z);
+    controls.minDistance = 180;
+    controls.maxDistance = 900;
+    controls.target.set(0, 0, 0);
     controls.update();
-    camera.lookAt(HOME_CAMERA_TARGET.x, HOME_CAMERA_TARGET.y, HOME_CAMERA_TARGET.z);
-
-    function attachOrbitClipMaterial(material) {
-      material.transparent = true;
-      material.userData.orbitClipY = 0;
-      material.onBeforeCompile = function (shader) {
-        shader.uniforms.uOrbitClipY = { value: material.userData.orbitClipY || 0 };
-        material.userData.orbitClipShader = shader;
-        shader.fragmentShader = shader.fragmentShader.replace(
-          "void main() {",
-          "uniform float uOrbitClipY;\nvoid main() {"
-        );
-        shader.fragmentShader = shader.fragmentShader.replace(
-          "#include <dithering_fragment>",
-          "if (gl_FragCoord.y < uOrbitClipY) discard;\n#include <dithering_fragment>"
-        );
-      };
-      material.customProgramCacheKey = function () {
-        return "orbitClipY";
-      };
-      orbitMaterials.push(material);
-      return material;
-    }
-
-    function syncOrbitCutoffs() {
-      var gallery = document.querySelector(".home-posts-gallery");
-      var galleryTop = gallery ? gallery.getBoundingClientRect().top : (container.clientHeight || 1);
-      var pixelRatio = renderer.getPixelRatio ? renderer.getPixelRatio() : (window.devicePixelRatio || 1);
-      var bufferHeight = renderer.getContext && renderer.getContext().drawingBufferHeight
-        ? renderer.getContext().drawingBufferHeight
-        : Math.max(1, (container.clientHeight || 1) * pixelRatio);
-      var cutoffY = Math.max(0, bufferHeight - Math.max(0, galleryTop - ORBIT_CUTOFF_MARGIN) * pixelRatio);
-
-      for (var i = 0; i < orbitMaterials.length; i += 1) {
-        var orbitMaterial = orbitMaterials[i];
-        orbitMaterial.userData.orbitClipY = cutoffY;
-        if (orbitMaterial.userData.orbitClipShader && orbitMaterial.userData.orbitClipShader.uniforms) {
-          orbitMaterial.userData.orbitClipShader.uniforms.uOrbitClipY.value = cutoffY;
-        }
-      }
-    }
+    camera.lookAt(0, 0, 0);
 
     var ambient = new THREE.AmbientLight(0xffffff, 1.18);
     scene.add(ambient);
@@ -616,7 +573,6 @@
           opacity: 0.12,
           transparent: true
         });
-        attachOrbitClipMaterial(orbitMaterial);
 
         var orbit = new THREE.Mesh(orbitGeometry, orbitMaterial);
         orbit.rotation.x = -0.5 * Math.PI;
@@ -823,7 +779,6 @@
       var fitScale = Math.min(width / 1600, height / 1000);
       solarRoot.scale.setScalar(Math.max(0.56, Math.min(0.7, 0.62 + fitScale * 0.05)));
       solarRoot.position.y = -8;
-      syncOrbitCutoffs();
     }
 
     function animate() {
@@ -837,6 +792,8 @@
 
       moon.rotateY(0.01 * SOLAR_SPEED);
       moonObj.rotateY(0.03 * SOLAR_SPEED);
+
+      controls.update();
       renderer.render(scene, camera);
     }
 
