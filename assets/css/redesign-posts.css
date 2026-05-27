@@ -15,20 +15,17 @@
   pointer-events: none;
   color: #ffffff;
   box-sizing: border-box;
-  background: transparent;
 }
 
 .home-posts-gallery__carousel {
   position: relative;
   pointer-events: none;
-  background: transparent;
 }
 
 .home-posts-gallery__viewport {
   overflow: hidden;
   width: 100%;
   pointer-events: none;
-  background: transparent;
 }
 
 .home-posts-gallery__track {
@@ -39,7 +36,6 @@
   transition: transform 0.36s ease;
   will-change: transform;
   pointer-events: none;
-  background: transparent;
 }
 
 .b-game-card {
@@ -51,11 +47,6 @@
   color: #ffffff;
   text-decoration: none;
   pointer-events: auto;
-  background: rgba(6, 4, 57, 0.18);
-  border-radius: 18px;
-  overflow: hidden;
-  backdrop-filter: blur(1px);
-  -webkit-backdrop-filter: blur(1px);
 }
 
 .b-game-card::before {
@@ -66,8 +57,8 @@
   left: 5%;
   width: 90%;
   height: 90%;
-  background: rgba(0, 0, 0, 0.26);
-  box-shadow: 0 6px 16px 8px rgba(0, 0, 0, 0.26);
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: 0 6px 12px 12px rgba(0, 0, 0, 0.4);
   will-change: opacity;
   transform-origin: top center;
   transform: skewX(0.001deg);
@@ -76,7 +67,7 @@
 
 .b-game-card:hover::before,
 .b-game-card:focus-visible::before {
-  opacity: 0.5;
+  opacity: 0.6;
   transform: rotateX(7deg) translateY(-6px) scale(1.05);
 }
 
@@ -94,8 +85,7 @@
   will-change: transform;
   transform: skewX(0.001deg);
   transition: transform 0.35s ease-in-out;
-  border-radius: inherit;
-  opacity: 0.78;
+  border-radius: 0;
 }
 
 .b-game-card__cover::after {
@@ -122,7 +112,6 @@
 .b-game-card:hover .b-game-card__cover,
 .b-game-card:focus-visible .b-game-card__cover {
   transform: rotateX(7deg) translateY(-6px);
-  opacity: 0.88;
 }
 
 .b-game-card:hover .b-game-card__cover::after,
@@ -135,13 +124,7 @@
   z-index: 3;
   inset: auto 0 0;
   padding: 0.7rem;
-  background:
-    linear-gradient(
-      180deg,
-      rgba(6, 4, 57, 0),
-      rgba(6, 4, 57, 0.54) 34%,
-      rgba(6, 4, 57, 0.78)
-    ) !important;
+  background: transparent;
   color: #ffffff;
   border-radius: 0;
 }
