@@ -15,23 +15,6 @@
   pointer-events: none;
   color: #ffffff;
   box-sizing: border-box;
-  isolation: isolate;
-}
-
-.home-posts-gallery::before {
-  content: "";
-  position: absolute;
-  inset: -2.5rem -3rem -1.5rem -3rem;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(
-      ellipse at center,
-      rgba(0, 0, 0, 0.34) 0%,
-      rgba(0, 0, 0, 0.22) 46%,
-      rgba(0, 0, 0, 0.08) 72%,
-      rgba(0, 0, 0, 0) 100%
-    );
 }
 
 .home-posts-gallery__carousel {
@@ -46,7 +29,6 @@
 }
 
 .home-posts-gallery__track {
-  position: relative;
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: calc((100% - 90px) / 4);
