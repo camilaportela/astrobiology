@@ -18,26 +18,33 @@
   isolation: isolate;
 }
 
-.home-posts-gallery::before {
-  content: "";
-  position: absolute;
-  inset: -2.5rem -3rem -1.5rem -3rem;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(
-      ellipse at center,
-      rgba(0, 0, 0, 0.30) 0%,
-      rgba(0, 0, 0, 0.20) 42%,
-      rgba(0, 0, 0, 0.08) 68%,
-      rgba(0, 0, 0, 0) 100%
-    );
-}
-
 .home-posts-gallery__carousel {
   position: relative;
+  pointer-events: none;
+}
+
+.redesign-solar-hero {
+  isolation: isolate;
+}
+
+.redesign-solar-hero::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: clamp(10rem, 25vh, 16rem);
+  bottom: 0;
   z-index: 1;
   pointer-events: none;
+  mix-blend-mode: multiply;
+  background:
+    radial-gradient(
+      ellipse at 50% 0%,
+      rgba(0, 0, 0, 0.72) 0%,
+      rgba(0, 0, 0, 0.42) 34%,
+      rgba(0, 0, 0, 0.12) 68%,
+      rgba(0, 0, 0, 0) 100%
+    );
 }
 
 .home-posts-gallery__viewport {
@@ -47,6 +54,7 @@
 }
 
 .home-posts-gallery__track {
+  position: relative;
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: calc((100% - 90px) / 4);
