@@ -33,22 +33,12 @@
     controls.enableDamping = true;
     controls.dampingFactor = 0.08;
     controls.enableZoom = true;
-    controls.enableRotate = false;
     controls.enablePan = false;
-    controls.minDistance = 190;
-    controls.maxDistance = 840;
+    controls.minDistance = 180;
+    controls.maxDistance = 900;
     controls.target.set(0, 0, 0);
     controls.update();
     camera.lookAt(0, 0, 0);
-
-    var solarRootYOffset = 2;
-    var orbitSegments = [];
-    var orbitMaterial = new THREE.LineBasicMaterial({
-      color: 0xffffff,
-      transparent: true,
-      opacity: 0.12,
-      depthWrite: false
-    });
 
     var ambient = new THREE.AmbientLight(0xffffff, 1.18);
     scene.add(ambient);
@@ -59,7 +49,7 @@
 
     var solarRoot = new THREE.Object3D();
     solarRoot.scale.setScalar(0.62);
-    solarRoot.position.y = solarRootYOffset;
+    solarRoot.position.y = -8;
     scene.add(solarRoot);
 
     var textureLoader = new THREE.TextureLoader();
@@ -576,74 +566,21 @@
       }
 
       if (position > 0) {
-        var orbitGroup = createOrbitSegments(position, 160);
-        orbitGroup.rotation.x = -0.5 * Math.PI;
-        solarRoot.add(orbitGroup);
+        var orbitGeometry = new THREE.RingGeometry(position - 0.12, position + 0.12, 128);
+        var orbitMaterial = new THREE.MeshBasicMaterial({
+          color: 0xffffff,
+          side: THREE.DoubleSide,
+          opacity: 0.12,
+          transparent: true
+        });
+
+        var orbit = new THREE.Mesh(orbitGeometry, orbitMaterial);
+        orbit.rotation.x = -0.5 * Math.PI;
+        solarRoot.add(orbit);
       }
       solarRoot.add(obj);
 
       return { mesh: planet, obj: obj };
-    }
-
-    function createOrbitSegments(radius, segmentCount) {
-      var group = new THREE.Group();
-      var count = segmentCount || 160;
-      var step = Math.PI * 2 / count;
-
-      for (var i = 0; i < count; i += 1) {
-        var angleA = i * step;
-        var angleB = (i + 1) * step;
-        var start = new THREE.Vector3(Math.cos(angleA) * radius, 0, Math.sin(angleA) * radius);
-        var end = new THREE.Vector3(Math.cos(angleB) * radius, 0, Math.sin(angleB) * radius);
-        var geometry = new THREE.BufferGeometry().setFromPoints([start, end]);
-        var segment = new THREE.Line(geometry, orbitMaterial);
-        segment.userData.midpoint = new THREE.Vector3(
-          (start.x + end.x) * 0.5,
-          0,
-          (start.z + end.z) * 0.5
-        );
-        group.add(segment);
-        orbitSegments.push(segment);
-      }
-
-      return group;
-    }
-
-    function getOrbitScreenCutoffY() {
-      var gallery = document.querySelector(".home-posts-gallery");
-      var nextButton = document.querySelector("[data-posts-next]");
-
-      if (nextButton) {
-        var buttonRect = nextButton.getBoundingClientRect();
-        return Math.max(0, buttonRect.top - 10);
-      }
-
-      if (gallery) {
-        var galleryRect = gallery.getBoundingClientRect();
-        return galleryRect.top + galleryRect.height * 0.22;
-      }
-
-      return window.innerHeight * 0.62;
-    }
-
-    function updateOrbitSegmentVisibility() {
-      if (!orbitSegments.length) {
-        return;
-      }
-
-      scene.updateMatrixWorld(true);
-      var cutoffY = getOrbitScreenCutoffY();
-      var viewportHeight = renderer.domElement.clientHeight || window.innerHeight || 1;
-
-      for (var i = 0; i < orbitSegments.length; i += 1) {
-        var segment = orbitSegments[i];
-        var midpoint = segment.userData.midpoint.clone();
-        segment.localToWorld(midpoint);
-
-        var projected = midpoint.project(camera);
-        var screenY = (-projected.y * 0.5 + 0.5) * viewportHeight;
-        segment.visible = screenY < cutoffY;
-      }
     }
 
     var sunColors = [
@@ -841,8 +778,7 @@
 
       var fitScale = Math.min(width / 1600, height / 1000);
       solarRoot.scale.setScalar(Math.max(0.56, Math.min(0.7, 0.62 + fitScale * 0.05)));
-      solarRoot.position.y = solarRootYOffset;
-      updateOrbitSegmentVisibility();
+      solarRoot.position.y = -8;
     }
 
     function animate() {
@@ -858,7 +794,6 @@
       moonObj.rotateY(0.03 * SOLAR_SPEED);
 
       controls.update();
-      updateOrbitSegmentVisibility();
       renderer.render(scene, camera);
     }
 
