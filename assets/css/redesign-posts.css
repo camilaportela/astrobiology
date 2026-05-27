@@ -15,36 +15,11 @@
   pointer-events: none;
   color: #ffffff;
   box-sizing: border-box;
-  isolation: isolate;
 }
 
 .home-posts-gallery__carousel {
   position: relative;
   pointer-events: none;
-}
-
-.redesign-solar-hero {
-  isolation: isolate;
-}
-
-.redesign-solar-hero::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: clamp(10rem, 25vh, 16rem);
-  bottom: 0;
-  z-index: 1;
-  pointer-events: none;
-  mix-blend-mode: multiply;
-  background:
-    radial-gradient(
-      ellipse at 50% 0%,
-      rgba(0, 0, 0, 0.72) 0%,
-      rgba(0, 0, 0, 0.42) 34%,
-      rgba(0, 0, 0, 0.12) 68%,
-      rgba(0, 0, 0, 0) 100%
-    );
 }
 
 .home-posts-gallery__viewport {
