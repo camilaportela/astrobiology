@@ -786,12 +786,18 @@
 
     function getOrbitCutoffY() {
       var galleryArrow = document.querySelector('.home-posts-gallery__arrow--next') || document.querySelector('.home-posts-gallery__arrow');
-      if (!galleryArrow) {
-        return null;
+      if (galleryArrow) {
+        var arrowRect = galleryArrow.getBoundingClientRect();
+        return arrowRect.bottom;
       }
 
-      var arrowRect = galleryArrow.getBoundingClientRect();
-      return arrowRect.bottom;
+      var gallery = document.querySelector('.home-posts-gallery');
+      if (gallery) {
+        var galleryRect = gallery.getBoundingClientRect();
+        return galleryRect.top + (galleryRect.height * 0.56);
+      }
+
+      return window.innerHeight * 0.62;
     }
 
     function updateOrbitVisibility() {
