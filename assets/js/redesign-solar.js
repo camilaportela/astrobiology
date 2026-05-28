@@ -12,14 +12,10 @@
 
     var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var SOLAR_SPEED = reduceMotion ? 0.035 : 0.24;
-    var HOME_CAMERA_POSITION = { x: 0, y: 128, z: 360 };
-    var HOME_CAMERA_TARGET = { x: 0, y: -18, z: 0 };
-    var ORBIT_SEGMENT_COUNT = 192;
-    var orbitSegments = [];
 
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(40, 1, 0.1, 3000);
-    camera.position.set(HOME_CAMERA_POSITION.x, HOME_CAMERA_POSITION.y, HOME_CAMERA_POSITION.z);
+    camera.position.set(0, 95, 360);
 
     var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -37,14 +33,12 @@
     controls.enableDamping = true;
     controls.dampingFactor = 0.08;
     controls.enableZoom = true;
-    controls.enableRotate = false;
     controls.enablePan = false;
-    controls.enableKeys = false;
-    controls.minDistance = 170;
-    controls.maxDistance = 820;
-    controls.target.set(HOME_CAMERA_TARGET.x, HOME_CAMERA_TARGET.y, HOME_CAMERA_TARGET.z);
+    controls.minDistance = 180;
+    controls.maxDistance = 900;
+    controls.target.set(0, 0, 0);
     controls.update();
-    camera.lookAt(HOME_CAMERA_TARGET.x, HOME_CAMERA_TARGET.y, HOME_CAMERA_TARGET.z);
+    camera.lookAt(0, 0, 0);
 
     var ambient = new THREE.AmbientLight(0xffffff, 1.18);
     scene.add(ambient);
@@ -184,76 +178,6 @@
       }
 
       uv.needsUpdate = true;
-    }
-
-    function createOrbitSegments(radius) {
-      var orbitGroup = new THREE.Object3D();
-      orbitGroup.rotation.x = -0.5 * Math.PI;
-
-      var orbitMaterial = new THREE.LineBasicMaterial({
-        color: 0xffffff,
-        transparent: true,
-        opacity: 0.12
-      });
-
-      var segmentAngle = (Math.PI * 2) / ORBIT_SEGMENT_COUNT;
-
-      for (var i = 0; i < ORBIT_SEGMENT_COUNT; i += 1) {
-        var startAngle = i * segmentAngle;
-        var endAngle = (i + 1) * segmentAngle;
-        var startPoint = new THREE.Vector3(Math.cos(startAngle) * radius, Math.sin(startAngle) * radius, 0);
-        var endPoint = new THREE.Vector3(Math.cos(endAngle) * radius, Math.sin(endAngle) * radius, 0);
-        var segmentGeometry = new THREE.BufferGeometry().setFromPoints([startPoint, endPoint]);
-        var segment = new THREE.Line(segmentGeometry, orbitMaterial);
-
-        segment.frustumCulled = false;
-        orbitGroup.add(segment);
-        orbitSegments.push({
-          object: segment,
-          parent: orbitGroup,
-          midpoint: new THREE.Vector3(
-            Math.cos(startAngle + segmentAngle * 0.5) * radius,
-            Math.sin(startAngle + segmentAngle * 0.5) * radius,
-            0
-          )
-        });
-      }
-
-      solarRoot.add(orbitGroup);
-    }
-
-    function getOrbitScreenCutoffY() {
-      var nextButton = document.querySelector("[data-posts-next]");
-      var gallery = document.querySelector(".home-posts-gallery");
-
-      if (nextButton) {
-        var nextRect = nextButton.getBoundingClientRect();
-        return nextRect.top + nextRect.height * 0.5 - 24;
-      }
-
-      if (gallery) {
-        var galleryRect = gallery.getBoundingClientRect();
-        return galleryRect.top + galleryRect.height * 0.2;
-      }
-
-      return window.innerHeight * 0.62;
-    }
-
-    function updateOrbitSegmentVisibility() {
-      var cutoffY = getOrbitScreenCutoffY();
-      var height = renderer.domElement.clientHeight || window.innerHeight || 1;
-
-      for (var i = 0; i < orbitSegments.length; i += 1) {
-        var item = orbitSegments[i];
-        var midpoint = item.midpoint.clone();
-
-        item.parent.localToWorld(midpoint);
-
-        var projected = midpoint.project(camera);
-        var screenY = (-projected.y * 0.5 + 0.5) * height;
-
-        item.object.visible = screenY < cutoffY;
-      }
     }
 
     function setTextureDefaults(texture) {
@@ -642,7 +566,17 @@
       }
 
       if (position > 0) {
-        createOrbitSegments(position);
+        var orbitGeometry = new THREE.RingGeometry(position - 0.12, position + 0.12, 128);
+        var orbitMaterial = new THREE.MeshBasicMaterial({
+          color: 0xffffff,
+          side: THREE.DoubleSide,
+          opacity: 0.12,
+          transparent: true
+        });
+
+        var orbit = new THREE.Mesh(orbitGeometry, orbitMaterial);
+        orbit.rotation.x = -0.5 * Math.PI;
+        solarRoot.add(orbit);
       }
       solarRoot.add(obj);
 
@@ -845,7 +779,6 @@
       var fitScale = Math.min(width / 1600, height / 1000);
       solarRoot.scale.setScalar(Math.max(0.56, Math.min(0.7, 0.62 + fitScale * 0.05)));
       solarRoot.position.y = -8;
-      updateOrbitSegmentVisibility();
     }
 
     function animate() {
@@ -861,7 +794,6 @@
       moonObj.rotateY(0.03 * SOLAR_SPEED);
 
       controls.update();
-      updateOrbitSegmentVisibility();
       renderer.render(scene, camera);
     }
 
