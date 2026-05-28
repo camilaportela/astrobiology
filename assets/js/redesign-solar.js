@@ -12,7 +12,7 @@
 
     var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var SOLAR_SPEED = reduceMotion ? 0.035 : 0.24;
-    var SOLAR_VERTICAL_OFFSET = 34;
+    var SOLAR_VERTICAL_OFFSET = 112;
 
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(40, 1, 0.1, 3000);
