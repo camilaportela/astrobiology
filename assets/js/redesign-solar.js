@@ -15,8 +15,6 @@
     var SOLAR_VERTICAL_OFFSET = 44;
 
     var scene = new THREE.Scene();
-    var solarClock = new THREE.Clock();
-    var decorativeDNA = null;
     var camera = new THREE.PerspectiveCamera(40, 1, 0.1, 3000);
     camera.position.set(0, 95, 360);
 
@@ -54,10 +52,6 @@
     solarRoot.scale.setScalar(0.62);
     solarRoot.position.y = SOLAR_VERTICAL_OFFSET;
     scene.add(solarRoot);
-
-    // Criar e inserir a fita de DNA decorativa (apenas uma)
-    decorativeDNA = createDecorativeDNA();
-    scene.add(decorativeDNA);
 
     var orbitMeshes = [];
 
@@ -593,111 +587,6 @@
       return { mesh: planet, obj: obj };
     }
 
-    // Decorative DNA: uma única fita integrada à cena (sem novo renderer/canvas/câmera)
-    function createDecorativeDNA() {
-      var group = new THREE.Group();
-      group.name = "decorative-dna";
-
-      var dnaColorA = 0xA9A5F3;
-      var dnaColorB = 0x6FA7CB;
-      var dnaAccent = 0xE0C58F;
-
-      var materialA = new THREE.MeshBasicMaterial({
-        color: dnaColorA,
-        transparent: true,
-        opacity: 0.42,
-        depthWrite: false
-      });
-
-      var materialB = new THREE.MeshBasicMaterial({
-        color: dnaColorB,
-        transparent: true,
-        opacity: 0.38,
-        depthWrite: false
-      });
-
-      var barMaterial = new THREE.MeshBasicMaterial({
-        color: dnaAccent,
-        transparent: true,
-        opacity: 0.34,
-        depthWrite: false
-      });
-
-      var sphereGeometry = new THREE.SphereGeometry(0.18, 16, 16);
-      var barGeometry = new THREE.CylinderGeometry(0.035, 0.035, 1.25, 10, 1, true);
-
-      var total = 58;
-      var height = 11.5;
-      var radius = 0.95;
-      var turns = 2.8;
-
-      var animatedBars = [];
-
-      for (var i = 0; i < total; i += 1) {
-        var t = i / (total - 1);
-        var angle = t * Math.PI * 2 * turns;
-
-        var y = (t - 0.5) * height;
-
-        var x1 = Math.sin(angle) * radius;
-        var z1 = Math.cos(angle) * radius;
-
-        var x2 = Math.sin(angle + Math.PI) * radius;
-        var z2 = Math.cos(angle + Math.PI) * radius;
-
-        var pointA = new THREE.Vector3(x1, y, z1);
-        var pointB = new THREE.Vector3(x2, y, z2);
-
-        var sphereA = new THREE.Mesh(sphereGeometry, materialA);
-        sphereA.position.copy(pointA);
-
-        var sphereB = new THREE.Mesh(sphereGeometry, materialB);
-        sphereB.position.copy(pointB);
-
-        var barGroup = new THREE.Group();
-        barGroup.position.set(0, y, 0);
-        barGroup.rotation.y = angle;
-        barGroup.userData.startY = angle;
-
-        var bar = new THREE.Mesh(barGeometry, barMaterial);
-        bar.rotation.z = Math.PI / 2;
-
-        barGroup.add(bar);
-
-        group.add(sphereA);
-        group.add(sphereB);
-        group.add(barGroup);
-
-        animatedBars.push(barGroup);
-      }
-
-      group.userData.animatedBars = animatedBars;
-
-      group.userData.update = function (elapsedTime) {
-        var playhead = elapsedTime * 0.65;
-
-        animatedBars.forEach(function (barGroup, index) {
-          var offset = index * 0.055;
-          barGroup.rotation.y = barGroup.userData.startY - playhead + offset;
-        });
-
-        group.rotation.y = Math.sin(elapsedTime * 0.18) * 0.08;
-        group.position.y = group.userData.baseY + Math.sin(elapsedTime * 0.25) * 0.18;
-      };
-
-      group.scale.setScalar(1.6);
-
-      // posição inicial sugerida — ajustar se necessário
-      // movida mais para a direita para ficar parcialmente fora da tela
-      group.position.set(26.5, -1.5, -8);
-      group.userData.baseY = group.position.y;
-
-      group.rotation.x = 0.10;
-      group.rotation.z = -0.10;
-
-      return group;
-    }
-
     var sunColors = [
       { stop: 0.08, color: '#fffde4' },
       { stop: 0.45, color: '#ffe764' },
@@ -894,10 +783,6 @@
       var fitScale = Math.min(width / 1600, height / 1000);
       solarRoot.scale.setScalar(Math.max(0.56, Math.min(0.7, 0.62 + fitScale * 0.05)));
       solarRoot.position.y = SOLAR_VERTICAL_OFFSET;
-      // Atualiza visibilidade da fita de DNA em responsividade
-      if (decorativeDNA) {
-        decorativeDNA.visible = window.innerWidth >= 760;
-      }
     }
 
     function updateOrbitVisibility() {
@@ -913,7 +798,6 @@
 
     function animate() {
       requestAnimationFrame(animate);
-      var elapsedTime = solarClock.getElapsedTime();
 
       for (var i = 0; i < planets.length; i += 1) {
         var p = planets[i];
@@ -926,11 +810,6 @@
 
       controls.update();
       updateOrbitVisibility();
-
-      // Atualiza animação da fita de DNA, se existir
-      if (decorativeDNA && decorativeDNA.userData && decorativeDNA.userData.update) {
-        decorativeDNA.userData.update(elapsedTime);
-      }
       renderer.render(scene, camera);
     }
 
