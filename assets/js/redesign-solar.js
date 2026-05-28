@@ -784,71 +784,12 @@
       solarRoot.position.y = -8;
     }
 
-    function getOrbitCutoffY() {
-      var galleryArrow = document.querySelector('.home-posts-gallery__arrow--next') || document.querySelector('.home-posts-gallery__arrow');
-      if (galleryArrow) {
-        var arrowRect = galleryArrow.getBoundingClientRect();
-        return arrowRect.bottom;
-      }
-
-      var gallery = document.querySelector('.home-posts-gallery');
-      if (gallery) {
-        var galleryRect = gallery.getBoundingClientRect();
-        return galleryRect.top + (galleryRect.height * 0.56);
-      }
-
-      return window.innerHeight * 0.62;
-    }
-
     function updateOrbitVisibility() {
-      var cutoffY = getOrbitCutoffY();
-      if (cutoffY === null) {
-        return;
-      }
-
-      var cameraMatrix = camera.matrixWorldInverse;
-      var projectionMatrix = camera.projectionMatrix;
-      var box = new THREE.Box3();
-      var corners = [
-        new THREE.Vector3(),
-        new THREE.Vector3(),
-        new THREE.Vector3(),
-        new THREE.Vector3(),
-        new THREE.Vector3(),
-        new THREE.Vector3(),
-        new THREE.Vector3(),
-        new THREE.Vector3()
-      ];
-
       for (var i = 0; i < orbitMeshes.length; i += 1) {
         var orbitMesh = orbitMeshes[i];
-        orbitMesh.updateMatrixWorld(true);
-        orbitMesh.geometry.computeBoundingBox();
-        box.copy(orbitMesh.geometry.boundingBox).applyMatrix4(orbitMesh.matrixWorld);
-
-        corners[0].set(box.min.x, box.min.y, box.min.z);
-        corners[1].set(box.min.x, box.min.y, box.max.z);
-        corners[2].set(box.min.x, box.max.y, box.min.z);
-        corners[3].set(box.min.x, box.max.y, box.max.z);
-        corners[4].set(box.max.x, box.min.y, box.min.z);
-        corners[5].set(box.max.x, box.min.y, box.max.z);
-        corners[6].set(box.max.x, box.max.y, box.min.z);
-        corners[7].set(box.max.x, box.max.y, box.max.z);
-
-        var maxScreenY = -Infinity;
-
-        for (var j = 0; j < corners.length; j += 1) {
-          var corner = corners[j].clone().applyMatrix4(cameraMatrix).applyMatrix4(projectionMatrix);
-          var screenY = ((1 - corner.y) * 0.5) * window.innerHeight;
-          if (screenY > maxScreenY) {
-            maxScreenY = screenY;
-          }
-        }
-
-        var shouldHide = maxScreenY >= cutoffY;
-        orbitMesh.visible = !shouldHide;
+        orbitMesh.visible = true;
         if (orbitMesh.material) {
-          orbitMesh.material.opacity = shouldHide ? 0 : 0.12;
+          orbitMesh.material.opacity = 0.12;
           orbitMesh.material.needsUpdate = true;
         }
       }
