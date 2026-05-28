@@ -791,7 +791,7 @@
       }
 
       var arrowRect = galleryArrow.getBoundingClientRect();
-      return arrowRect.top + (arrowRect.height * 1.7);
+      return arrowRect.bottom;
     }
 
     function updateOrbitVisibility() {
