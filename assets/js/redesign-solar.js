@@ -13,7 +13,8 @@
     var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var SOLAR_SPEED = reduceMotion ? 0.035 : 0.24;
     var SOLAR_VERTICAL_OFFSET = 44;
-    var dnaHelix = null;
+    var dnaStage = null;
+    var dnaRungs = [];
     var dnaStartTime = performance.now();
 
     var scene = new THREE.Scene();
@@ -775,123 +776,42 @@
       { planet: neptune, speed: 0.018, orbitalSpeed: 0.001 }
     ];
 
-    class DNAHelixCurve extends THREE.Curve {
-      constructor(radius, height, turns) {
-        super();
-        this.radius = radius;
-        this.height = height;
-        this.turns = turns;
+    dnaStage = document.querySelector("[data-dna-stage]");
+
+    function createDNAHelixStage() {
+      if (!dnaStage) {
+        return;
       }
 
-      getPoint(t, target) {
-        var angle = Math.PI * 2 * this.turns * t;
-        var point = new THREE.Vector3(
-          Math.sin(angle) * this.radius,
-          (t - 0.5) * this.height,
-          Math.cos(angle) * this.radius
-        );
-
-        if (target) {
-          target.copy(point);
-        }
-
-        return point;
-      }
-    }
-
-    function createDNAHelix() {
-      var helixColors = {
-        top: 0xb4f1ff,
-        bottom: 0x475fbd,
-        topAccent: 0xf9dbff,
-        bottomAccent: 0xc520cb
-      };
-
-      var cylinderGeo = new THREE.CylinderGeometry(0.1, 0.1, 0.825, 16, 1, true);
-      var sphereGeo = new THREE.SphereGeometry(0.3, 32, 32);
-
-      var topCylinderMaterial = new THREE.MeshBasicMaterial({ color: helixColors.top });
-      var bottomCylinderMaterial = new THREE.MeshBasicMaterial({ color: helixColors.bottom });
-      var topSphereMaterial = new THREE.MeshBasicMaterial({ color: helixColors.topAccent });
-      var bottomSphereMaterial = new THREE.MeshBasicMaterial({ color: helixColors.bottomAccent });
-
-      function createRung() {
-        var barGroup = new THREE.Group();
-
-        var topCylinder = new THREE.Mesh(cylinderGeo, topCylinderMaterial);
-        topCylinder.position.y = 0.21;
-
-        var bottomCylinder = new THREE.Mesh(cylinderGeo, bottomCylinderMaterial);
-        bottomCylinder.position.y = -0.21;
-
-        var topSphere = new THREE.Mesh(sphereGeo, topSphereMaterial);
-        topSphere.position.y = 0.41;
-
-        var bottomSphere = new THREE.Mesh(sphereGeo, bottomSphereMaterial);
-        bottomSphere.position.y = -0.41;
-
-        barGroup.add(topCylinder);
-        barGroup.add(bottomCylinder);
-        barGroup.add(topSphere);
-        barGroup.add(bottomSphere);
-
-        return barGroup;
+      var helixHost = dnaStage.querySelector("[data-dna-helix]");
+      if (!helixHost) {
+        return;
       }
 
-      class DNAHelix extends THREE.Group {
-        constructor(curve, total) {
-          super();
+      var total = 92;
+      helixHost.innerHTML = "";
+      dnaRungs = [];
 
-          total = total || 90;
+      for (var i = 0; i < total; i += 1) {
+        var rung = document.createElement("div");
+        rung.className = "redesign-dna-rung";
+        rung.innerHTML = [
+          '<div class="redesign-dna-rung__core">',
+          '  <span class="redesign-dna-rung__cylinder redesign-dna-rung__cylinder--top"></span>',
+          '  <span class="redesign-dna-rung__cylinder redesign-dna-rung__cylinder--bottom"></span>',
+          '  <span class="redesign-dna-rung__sphere redesign-dna-rung__sphere--top"></span>',
+          '  <span class="redesign-dna-rung__sphere redesign-dna-rung__sphere--bottom"></span>',
+          '</div>'
+        ].join("");
 
-          for (var i = 1; i <= total; i += 1) {
-            var rungGroup = new THREE.Group();
-            var rung = createRung();
-
-            rung.rotation.z = Math.PI * (i / 10);
-            rung.userData.startZ = rung.rotation.z;
-            rungGroup.add(rung);
-
-            curve.getPoint(i / total, rungGroup.position);
-            rungGroup.lookAt(curve.getPoint((i + 1) / total));
-
-            this.add(rungGroup);
-          }
-        }
-
-        update(playhead) {
-          this.children.forEach(function (child) {
-            if (child.isGroup) {
-              var rung = child.children[0];
-              rung.rotation.z = rung.userData.startZ - Math.PI * playhead;
-            }
-          });
-        }
+        helixHost.appendChild(rung);
+        dnaRungs.push({
+          node: rung,
+          core: rung.querySelector(".redesign-dna-rung__core"),
+          phase: i / total,
+          startRotation: Math.PI * (i / 10)
+        });
       }
-
-      var curve = new DNAHelixCurve(8, 108, 2.6);
-      var helix = new DNAHelix(curve, 92);
-      helix.scale.setScalar(2.15);
-      helix.rotation.y = -0.35;
-      helix.rotation.z = 0.03;
-
-      return helix;
-    }
-
-    dnaHelix = createDNAHelix();
-    scene.add(dnaHelix);
-
-    function layoutDNAHelix() {
-      var width = container.clientWidth || 1;
-      var height = container.clientHeight || 1;
-      var viewHeight = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov * 0.5)) * camera.position.z;
-      var viewWidth = viewHeight * (width / height);
-      var zoomScale = camera.position.z / 360;
-
-      dnaHelix.position.x = viewWidth * 0.43;
-      dnaHelix.position.y = 0;
-      dnaHelix.position.z = -34;
-      dnaHelix.scale.setScalar(2.15 * zoomScale);
     }
 
     function resizeSolar() {
@@ -904,7 +824,37 @@
       var fitScale = Math.min(width / 1600, height / 1000);
       solarRoot.scale.setScalar(Math.max(0.56, Math.min(0.7, 0.62 + fitScale * 0.05)));
       solarRoot.position.y = SOLAR_VERTICAL_OFFSET;
-      layoutDNAHelix();
+    }
+
+    function updateDNAHelixStage(playhead) {
+      if (!dnaStage || !dnaRungs.length) {
+        return;
+      }
+
+      var width = dnaStage.clientWidth || 1;
+      var height = dnaStage.clientHeight || 1;
+      var centerX = width * 0.72;
+      var centerY = height * 0.5;
+      var radiusX = Math.min(width * 0.17, 58);
+      var totalHeight = height * 0.84;
+      var totalTurns = 2.6;
+
+      for (var i = 0; i < dnaRungs.length; i += 1) {
+        var rungData = dnaRungs[i];
+        var t = rungData.phase;
+        var angle = Math.PI * 2 * totalTurns * t;
+        var x = centerX + Math.sin(angle) * radiusX;
+        var y = centerY + (t - 0.5) * totalHeight;
+        var depth = Math.cos(angle);
+        var scale = 0.75 + ((depth + 1) * 0.14);
+        var opacity = 0.6 + ((depth + 1) * 0.17);
+        var rungRotation = rungData.startRotation - Math.PI * playhead;
+
+        rungData.node.style.transform = "translate3d(" + x + "px, " + y + "px, " + (depth * 120) + "px) translate(-50%, -50%) scale(" + scale + ")";
+        rungData.node.style.opacity = opacity.toFixed(3);
+        rungData.node.style.zIndex = String(Math.round((depth + 1) * 1000));
+        rungData.core.style.transform = "rotate(" + (rungRotation * 180 / Math.PI) + "deg)";
+      }
     }
 
     function updateOrbitVisibility() {
@@ -930,10 +880,9 @@
       moon.rotateY(0.01 * SOLAR_SPEED);
       moonObj.rotateY(0.03 * SOLAR_SPEED);
 
-      if (dnaHelix) {
+      if (dnaStage) {
         var playhead = ((performance.now() - dnaStartTime) / 30000) % 1;
-        dnaHelix.update(playhead * 8);
-        layoutDNAHelix();
+        updateDNAHelixStage(playhead * 8);
       }
 
       controls.update();
@@ -942,6 +891,7 @@
     }
 
     window.addEventListener("resize", resizeSolar, { passive: true });
+    createDNAHelixStage();
     resizeSolar();
     animate();
   }
