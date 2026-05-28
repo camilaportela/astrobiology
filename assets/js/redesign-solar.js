@@ -688,7 +688,8 @@
       group.scale.setScalar(1.6);
 
       // posição inicial sugerida — ajustar se necessário
-      group.position.set(16.5, -1.5, -8);
+      // movida mais para a direita para ficar parcialmente fora da tela
+      group.position.set(26.5, -1.5, -8);
       group.userData.baseY = group.position.y;
 
       group.rotation.x = 0.10;
