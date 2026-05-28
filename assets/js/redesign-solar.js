@@ -55,9 +55,15 @@
     solarRoot.position.y = SOLAR_VERTICAL_OFFSET;
     scene.add(solarRoot);
 
-    // Criar e inserir a fita de DNA decorativa (apenas uma)
+    // Criar a fita de DNA decorativa (apenas uma)
     decorativeDNA = createDecorativeDNA();
-    scene.add(decorativeDNA);
+    // Anexar à câmera para posicionamento fixo na borda direita da viewport
+    // (não cria nova cena/câmera/canvas)
+    camera.add(decorativeDNA);
+    // Ajustes iniciais de posição/escala/rotação para ficar na lateral direita
+    decorativeDNA.position.set(6.2, -0.2, -10);
+    decorativeDNA.scale.setScalar(3.2);
+    decorativeDNA.rotation.set(0.08, 0, -0.12);
 
     var orbitMeshes = [];
 
@@ -893,9 +899,15 @@
       var fitScale = Math.min(width / 1600, height / 1000);
       solarRoot.scale.setScalar(Math.max(0.56, Math.min(0.7, 0.62 + fitScale * 0.05)));
       solarRoot.position.y = SOLAR_VERTICAL_OFFSET;
-      // Atualiza visibilidade da fita de DNA em responsividade
+      // Atualiza visibilidade e escala da fita de DNA em responsividade
       if (decorativeDNA) {
         decorativeDNA.visible = window.innerWidth >= 760;
+        // Escala baseada na escala do root solar para manter proporção visual
+        try {
+          decorativeDNA.scale.setScalar(3.2 * solarRoot.scale.x);
+        } catch (e) {
+          decorativeDNA.scale.setScalar(3.2);
+        }
       }
     }
 
