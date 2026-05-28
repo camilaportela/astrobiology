@@ -790,7 +790,8 @@
         return null;
       }
 
-      return galleryArrow.getBoundingClientRect().top - 4;
+      var arrowRect = galleryArrow.getBoundingClientRect();
+      return arrowRect.top + (arrowRect.height * 1.45);
     }
 
     function updateOrbitVisibility() {
