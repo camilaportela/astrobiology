@@ -12,6 +12,7 @@
 
     var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var SOLAR_SPEED = reduceMotion ? 0.035 : 0.24;
+    var SOLAR_VERTICAL_OFFSET = 34;
 
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(40, 1, 0.1, 3000);
@@ -49,7 +50,7 @@
 
     var solarRoot = new THREE.Object3D();
     solarRoot.scale.setScalar(0.62);
-    solarRoot.position.y = -8;
+    solarRoot.position.y = SOLAR_VERTICAL_OFFSET;
     scene.add(solarRoot);
 
     var orbitMeshes = [];
@@ -781,7 +782,7 @@
 
       var fitScale = Math.min(width / 1600, height / 1000);
       solarRoot.scale.setScalar(Math.max(0.56, Math.min(0.7, 0.62 + fitScale * 0.05)));
-      solarRoot.position.y = -8;
+      solarRoot.position.y = SOLAR_VERTICAL_OFFSET;
     }
 
     function updateOrbitVisibility() {
