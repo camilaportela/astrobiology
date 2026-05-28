@@ -800,7 +800,7 @@
     }
 
     function createDNAHelix() {
-      var strandColors = {
+      var helixColors = {
         top: 0xb4f1ff,
         bottom: 0x475fbd,
         topAccent: 0xf9dbff,
@@ -810,29 +810,30 @@
       var cylinderGeo = new THREE.CylinderGeometry(0.1, 0.1, 0.825, 16, 1, true);
       var sphereGeo = new THREE.SphereGeometry(0.3, 32, 32);
 
-      var cyanCylinder = new THREE.MeshBasicMaterial({ color: strandColors.top });
-      var blueCylinder = new THREE.MeshBasicMaterial({ color: strandColors.bottom });
-      var cyanSphere = new THREE.MeshBasicMaterial({ color: strandColors.topAccent });
-      var blueSphere = new THREE.MeshBasicMaterial({ color: strandColors.bottomAccent });
+      var topCylinderMaterial = new THREE.MeshBasicMaterial({ color: helixColors.top });
+      var bottomCylinderMaterial = new THREE.MeshBasicMaterial({ color: helixColors.bottom });
+      var topSphereMaterial = new THREE.MeshBasicMaterial({ color: helixColors.topAccent });
+      var bottomSphereMaterial = new THREE.MeshBasicMaterial({ color: helixColors.bottomAccent });
 
-      function createBarGroup() {
-        var cylinder = new THREE.Mesh(cylinderGeo, cyanCylinder);
-        cylinder.position.y = 0.21;
-
-        var cylinder2 = new THREE.Mesh(cylinderGeo, blueCylinder);
-        cylinder2.position.y = -0.21;
-
-        var sphere = new THREE.Mesh(sphereGeo, cyanSphere);
-        sphere.position.y = 0.41;
-
-        var sphere2 = new THREE.Mesh(sphereGeo, blueSphere);
-        sphere2.position.y = -0.41;
-
+      function createRung() {
         var barGroup = new THREE.Group();
-        barGroup.add(cylinder);
-        barGroup.add(cylinder2);
-        barGroup.add(sphere);
-        barGroup.add(sphere2);
+
+        var topCylinder = new THREE.Mesh(cylinderGeo, topCylinderMaterial);
+        topCylinder.position.y = 0.21;
+
+        var bottomCylinder = new THREE.Mesh(cylinderGeo, bottomCylinderMaterial);
+        bottomCylinder.position.y = -0.21;
+
+        var topSphere = new THREE.Mesh(sphereGeo, topSphereMaterial);
+        topSphere.position.y = 0.41;
+
+        var bottomSphere = new THREE.Mesh(sphereGeo, bottomSphereMaterial);
+        bottomSphere.position.y = -0.41;
+
+        barGroup.add(topCylinder);
+        barGroup.add(bottomCylinder);
+        barGroup.add(topSphere);
+        barGroup.add(bottomSphere);
 
         return barGroup;
       }
@@ -845,7 +846,7 @@
 
           for (var i = 1; i <= total; i += 1) {
             var rungGroup = new THREE.Group();
-            var rung = createBarGroup();
+            var rung = createRung();
 
             rung.rotation.z = Math.PI * (i / 10);
             rung.userData.startZ = rung.rotation.z;
@@ -870,7 +871,7 @@
 
       var curve = new DNAHelixCurve(8, 108, 2.6);
       var helix = new DNAHelix(curve, 92);
-      helix.scale.setScalar(2.2);
+      helix.scale.setScalar(2.15);
       helix.rotation.y = -0.35;
       helix.rotation.z = 0.03;
 
@@ -885,10 +886,12 @@
       var height = container.clientHeight || 1;
       var viewHeight = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov * 0.5)) * camera.position.z;
       var viewWidth = viewHeight * (width / height);
+      var zoomScale = camera.position.z / 360;
 
-      dnaHelix.position.x = viewWidth * 0.5 - Math.min(width * 0.08, 72);
+      dnaHelix.position.x = viewWidth * 0.43;
       dnaHelix.position.y = 0;
       dnaHelix.position.z = -34;
+      dnaHelix.scale.setScalar(2.15 * zoomScale);
     }
 
     function resizeSolar() {
@@ -930,6 +933,7 @@
       if (dnaHelix) {
         var playhead = ((performance.now() - dnaStartTime) / 30000) % 1;
         dnaHelix.update(playhead * 8);
+        layoutDNAHelix();
       }
 
       controls.update();
