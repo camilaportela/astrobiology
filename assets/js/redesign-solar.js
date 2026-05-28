@@ -15,7 +15,7 @@
 
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(40, 1, 0.1, 3000);
-    camera.position.set(0, 95, 360);
+    camera.position.set(0, 128, 350);
 
     var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -36,9 +36,9 @@
     controls.enablePan = false;
     controls.minDistance = 180;
     controls.maxDistance = 900;
-    controls.target.set(0, 0, 0);
+    controls.target.set(0, -18, 0);
     controls.update();
-    camera.lookAt(0, 0, 0);
+    camera.lookAt(0, -18, 0);
 
     var ambient = new THREE.AmbientLight(0xffffff, 1.18);
     scene.add(ambient);
