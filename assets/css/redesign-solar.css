@@ -15,8 +15,8 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  /* Travar a posição exata do sistema solar na abertura do site */
-  transform: translateY(-190px);
+  /* Sem deslocamento de container para evitar "vazio" no rodapé do viewport */
+  transform: translateY(0);
 }
 
 .redesign-solar-system canvas {
