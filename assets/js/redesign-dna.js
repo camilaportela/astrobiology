@@ -146,9 +146,9 @@
 
     var curve1 = new SinCurve1(4.5);
     var dna = new DNA(curve1, 95);
-    dna.position.set(0, 0, 0);
-    dna.rotation.y = -0.35;
-    dna.scale.setScalar(0.82);
+    dna.position.set(1, -21, 13);
+    dna.rotation.y = -0.25;
+    dna.scale.setScalar(1);
     scene.add(dna);
 
     var start = performance.now();
@@ -159,6 +159,9 @@
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height, false);
+
+      dna.position.x = 1;
+      dna.position.y = -21;
     }
 
     function animate() {
