@@ -156,8 +156,8 @@
 
     var curve1 = new SinCurve1(CURVE_SCALE);
     var dna = new DNA(curve1, TOTAL_RUNGS);
-    // posiciona na esquerda sem empurrar demais para fora da coluna
-    dna.position.set(0, DNA_POS_Y, 16);
+    // posiciona na direita sem empurrar demais para fora da coluna
+    dna.position.set(8, DNA_POS_Y, 16);
     dna.rotation.y = -0.25;
     dna.scale.setScalar(DNA_SCALE);
     scene.add(dna);
@@ -171,7 +171,7 @@
       camera.updateProjectionMatrix();
       renderer.setSize(width, height, false);
 
-      dna.position.x = 0;
+      dna.position.x = 8;
       dna.position.y = DNA_POS_Y;
     }
 
