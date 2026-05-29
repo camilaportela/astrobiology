@@ -70,7 +70,7 @@
     // Tunable parameters for final visual refinement
     var TOTAL_RUNGS = 110; // number of rung groups along the helix
     var CURVE_SCALE = 4.2; // overall size of the helix curve (reduced to shorten vertical extent)
-    var DNA_SCALE = 0.24; // final scale applied to the DNA group (smaller for the right rail)
+    var DNA_SCALE = 0.38; // final scale applied to the DNA group (small, but visible on the right rail)
     var DNA_POS_Y = -12; // vertical position to keep the helix within the right corridor
     var CYL_HEIGHT = 0.75; // height of the small cylinders (rung halves)
     var SPHERE_OFFSET = 0.25; // offset of the end spheres from the rung center
@@ -157,7 +157,7 @@
     var curve1 = new SinCurve1(CURVE_SCALE);
     var dna = new DNA(curve1, TOTAL_RUNGS);
     // posiciona no corredor direito sem encostar no limite externo
-    dna.position.set(3, DNA_POS_Y, 16);
+    dna.position.set(0, DNA_POS_Y, 16);
     dna.rotation.y = -0.25;
     dna.scale.setScalar(DNA_SCALE);
     scene.add(dna);
@@ -171,7 +171,7 @@
       camera.updateProjectionMatrix();
       renderer.setSize(width, height, false);
 
-      dna.position.x = 3;
+      dna.position.x = 0;
       dna.position.y = DNA_POS_Y;
     }
 

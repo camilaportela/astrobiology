@@ -20,7 +20,7 @@
   height: min(72vh, 640px);
   overflow: visible;
   pointer-events: none;
-  z-index: 2;
+  z-index: 13;
 }
 
 .redesign-dna-stage__helix {
