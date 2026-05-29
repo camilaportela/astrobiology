@@ -156,7 +156,8 @@
 
     var curve1 = new SinCurve1(CURVE_SCALE);
     var dna = new DNA(curve1, TOTAL_RUNGS);
-    dna.position.set(1, DNA_POS_Y, 13);
+    // recentraliza e afasta levemente em z para evitar cortes laterais
+    dna.position.set(0, DNA_POS_Y, 16);
     dna.rotation.y = -0.25;
     dna.scale.setScalar(DNA_SCALE);
     scene.add(dna);
