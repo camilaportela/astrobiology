@@ -69,9 +69,9 @@
 
     // Tunable parameters for final visual refinement
     var TOTAL_RUNGS = 110; // number of rung groups along the helix
-    var CURVE_SCALE = 4.2; // overall size of the helix curve (reduced to shorten vertical extent)
+    var CURVE_SCALE = 4.0; // overall size of the helix curve (slightly shorter to avoid bottom clipping)
     var DNA_SCALE = 0.38; // final scale applied to the DNA group (small, but visible on the right rail)
-    var DNA_POS_Y = -12; // vertical position to keep the helix within the right corridor
+    var DNA_POS_Y = -8; // vertical position to keep the helix within the right corridor
     var CYL_HEIGHT = 0.75; // height of the small cylinders (rung halves)
     var SPHERE_OFFSET = 0.25; // offset of the end spheres from the rung center
     var PLAYHEAD_PERIOD_MS = 26000; // base period for one full playhead cycle
