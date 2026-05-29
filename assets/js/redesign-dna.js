@@ -56,13 +56,13 @@
       return;
     }
 
-    var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    renderer.setClearColor(0x0d1528, 1);
+    renderer.setClearColor(0x000000, 0);
     host.appendChild(renderer.domElement);
 
     var scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0d1528);
+    scene.background = null;
 
     var camera = new THREE.PerspectiveCamera(60, 1, 0.01, 1000);
     camera.position.set(0, 0, 25);
