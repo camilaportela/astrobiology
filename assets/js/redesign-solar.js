@@ -821,7 +821,6 @@
     }
 
     window.addEventListener("resize", resizeSolar, { passive: true });
-    // createDNAHelixStage removed
     resizeSolar();
     animate();
   }

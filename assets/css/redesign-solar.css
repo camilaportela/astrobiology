@@ -14,7 +14,7 @@
   top: clamp(1rem, 2.5vh, 1.75rem);
   right: clamp(0.75rem, 1.8vw, 1.5rem);
   bottom: clamp(1rem, 2.5vh, 1.75rem);
-  width: min(18vw, 250px);
+  width: min(28vw, 360px);
   pointer-events: none;
   z-index: 2;
 }

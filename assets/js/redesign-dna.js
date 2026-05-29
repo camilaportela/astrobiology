@@ -1,144 +1,170 @@
 (function () {
   'use strict';
 
-  function initDNA() {
-    var stage = document.querySelector('[data-dna-stage]');
-    if (!stage || !window.THREE) return;
-
-    var host = stage.querySelector('[data-dna-helix]');
-    if (!host) return;
-
-    var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    renderer.setClearColor(0x000000, 0);
-    host.appendChild(renderer.domElement);
-
-    var scene = new THREE.Scene();
-
-    var camera = new THREE.PerspectiveCamera(40, 1, 0.1, 2000);
-    camera.position.set(0, 0, 120);
-
-    // Fresnel shader material (edge blend)
-    var fresnelMat = new THREE.ShaderMaterial({
+  function createFresnelMaterial(colorEdge, colorBase) {
+    return new THREE.ShaderMaterial({
       uniforms: {
-        color1: { value: new THREE.Color(0xb4f1ff) },
-        color2: { value: new THREE.Color(0x475fbd) },
-        alpha: { value: 0.95 },
+        color1: { value: new THREE.Color(colorEdge) },
+        color2: { value: new THREE.Color(colorBase) },
+        alpha: { value: 0.75 },
         fresnelBias: { value: 0.1 },
         fresnelScale: { value: 1.0 },
         fresnelPower: { value: 1.3 }
       },
-      vertexShader: `
-        uniform float fresnelBias;
-        uniform float fresnelScale;
-        uniform float fresnelPower;
-        varying float vReflectionFactor;
-        void main() {
-          vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-          vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
-          vec3 worldNormal = normalize( mat3( modelMatrix[0].xyz, modelMatrix[1].xyz, modelMatrix[2].xyz ) * normal );
-          vec3 I = worldPosition.xyz - cameraPosition;
-          vReflectionFactor = fresnelBias + fresnelScale * pow( 1.0 + dot( normalize( I ), worldNormal ), fresnelPower );
-          gl_Position = projectionMatrix * mvPosition;
-        }
-      `,
-      fragmentShader: `
-        uniform vec3 color1;
-        uniform vec3 color2;
-        uniform float alpha;
-        varying float vReflectionFactor;
-        void main() {
-          gl_FragColor = vec4(mix(color2, color1, vec3(clamp( vReflectionFactor, 0.0, 1.0 ))), alpha);
-        }
-      `,
+      vertexShader: [
+        'uniform float fresnelBias;',
+        'uniform float fresnelScale;',
+        'uniform float fresnelPower;',
+        '',
+        'varying float vReflectionFactor;',
+        '',
+        'void main() {',
+        '  vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );',
+        '  vec4 worldPosition = modelMatrix * vec4( position, 1.0 );',
+        '',
+        '  vec3 worldNormal = normalize( mat3( modelMatrix[0].xyz, modelMatrix[1].xyz, modelMatrix[2].xyz ) * normal );',
+        '  vec3 I = worldPosition.xyz - cameraPosition;',
+        '',
+        '  vReflectionFactor = fresnelBias + fresnelScale * pow( 1.0 + dot( normalize( I ), worldNormal ), fresnelPower );',
+        '',
+        '  gl_Position = projectionMatrix * mvPosition;',
+        '}'
+      ].join('\n'),
+      fragmentShader: [
+        'uniform vec3 color1;',
+        'uniform vec3 color2;',
+        'uniform float alpha;',
+        '',
+        'varying float vReflectionFactor;',
+        '',
+        'void main() {',
+        '  gl_FragColor = vec4(mix(color2, color1, vec3(clamp( vReflectionFactor, 0.0, 1.0 ))), alpha);',
+        '}'
+      ].join('\n'),
       transparent: true
     });
+  }
 
-    var fresnelMat2 = fresnelMat.clone();
-    fresnelMat2.uniforms = JSON.parse(JSON.stringify(fresnelMat.uniforms));
-    fresnelMat2.uniforms.color1 = { value: new THREE.Color(0xf9dbff) };
-    fresnelMat2.uniforms.color2 = { value: new THREE.Color(0xc520cb) };
-
-    // Curve class
-    function SinCurve(scale, freq, height) {
-      THREE.Curve.call(this);
-      this.scale = scale || 1;
-      this.freq = freq || 2.5;
-      this.height = height || 100;
+  function initDNA() {
+    var stage = document.querySelector('[data-dna-stage]');
+    if (!stage || !window.THREE) {
+      return;
     }
-    SinCurve.prototype = Object.create(THREE.Curve.prototype);
-    SinCurve.prototype.constructor = SinCurve;
-    SinCurve.prototype.getPoint = function (t, optionalTarget) {
-      var ty = (t - 0.5) * this.height;
-      var tx = Math.sin(this.freq * Math.PI * 2 * t) * this.scale;
-      var tz = Math.cos(this.freq * Math.PI * 2 * t) * this.scale;
-      var point = new THREE.Vector3(tx, ty, tz);
-      if (optionalTarget) optionalTarget.copy(point);
-      return point;
-    };
 
-    // Geometries
-    var cylGeo = new THREE.CylinderGeometry(0.8, 0.8, 8, 16, 1, true);
-    var sphGeo = new THREE.SphereGeometry(1.5, 16, 16);
+    var host = stage.querySelector('[data-dna-helix]');
+    if (!host) {
+      return;
+    }
 
-    function createDNA(total, curve) {
-      var group = new THREE.Group();
-      for (var i = 0; i < total; i++) {
-        var rungGroup = new THREE.Group();
+    var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setClearColor(0x0d1528, 1);
+    host.appendChild(renderer.domElement);
 
-        var topMat = fresnelMat;
-        var botMat = fresnelMat2;
+    var scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0d1528);
 
-        var topCyl = new THREE.Mesh(cylGeo, topMat);
-        topCyl.position.y = 2.5;
-        var botCyl = new THREE.Mesh(cylGeo, botMat);
-        botCyl.position.y = -2.5;
+    var camera = new THREE.PerspectiveCamera(60, 1, 0.01, 1000);
+    camera.position.set(0, 0, 25);
 
-        var topSph = new THREE.Mesh(sphGeo, topMat);
-        topSph.position.y = 4.5;
-        var botSph = new THREE.Mesh(sphGeo, botMat);
-        botSph.position.y = -4.5;
+    var fresnelMat = createFresnelMaterial(0xb4f1ff, 0x475fbd);
+    var fresnelMat2 = createFresnelMaterial(0xf9dbff, 0xc520cb);
 
-        var bar = new THREE.Group();
-        bar.add(topCyl, botCyl, topSph, botSph);
-        bar.rotation.z = Math.PI * (i / 10);
-        bar.userData = { startZ: bar.rotation.z };
+    var cylGeo = new THREE.CylinderGeometry(0.1, 0.1, 0.825, 16, 1, true);
+    var sphGeo = new THREE.SphereGeometry(0.3, 32, 32);
 
-        rungGroup.add(bar);
-
-        curve.getPoint(i / total, rungGroup.position);
-        var nextPoint = curve.getPoint((i + 1) / total);
-        rungGroup.lookAt(nextPoint);
-
-        group.add(rungGroup);
+    class SinCurve1 extends THREE.Curve {
+      constructor(scale) {
+        super();
+        this.scale = scale === undefined ? 1 : scale;
       }
-      return group;
+
+      getPoint(t, target) {
+        var ty = t * 10;
+        var tx = Math.sin(2.5 * Math.PI * t);
+        var tz = Math.cos(2.5 * Math.PI * t);
+        var point = new THREE.Vector3(tx, ty, tz).multiplyScalar(this.scale);
+        if (target) {
+          target.copy(point);
+        }
+        return point;
+      }
     }
 
-    var curve = new SinCurve(8, 2.6, 160);
-    var dna = createDNA(92, curve);
-    dna.scale.setScalar(0.85);
+    function createRung() {
+      var cylinder = new THREE.Mesh(cylGeo, fresnelMat);
+      cylinder.position.y = cylGeo.parameters.height / 4;
+
+      var cylinder2 = new THREE.Mesh(cylGeo, fresnelMat2);
+      cylinder2.position.y = -cylGeo.parameters.height / 4;
+
+      var sphere = new THREE.Mesh(sphGeo, fresnelMat);
+      sphere.position.y = cylGeo.parameters.height / 2 + 0.25;
+
+      var sphere2 = new THREE.Mesh(sphGeo, fresnelMat2);
+      sphere2.position.y = -cylGeo.parameters.height / 2 - 0.25;
+
+      var barGroup = new THREE.Group();
+      barGroup.add(cylinder);
+      barGroup.add(cylinder2);
+      barGroup.add(sphere);
+      barGroup.add(sphere2);
+      return barGroup;
+    }
+
+    class DNA extends THREE.Group {
+      constructor(curve, total) {
+        super();
+
+        total = total || 95;
+
+        for (var i = 1; i <= total; i += 1) {
+          var bGroup = new THREE.Group();
+          var bar = createRung();
+
+          bar.rotation.z = Math.PI * (i / 10);
+          bar.userData.startZ = bar.rotation.z;
+          bGroup.add(bar);
+
+          curve.getPoint(i / total, bGroup.position);
+          var nextPoint = curve.getPoint((i + 1) / total);
+          bGroup.lookAt(nextPoint);
+
+          this.add(bGroup);
+        }
+      }
+
+      update(playhead) {
+        this.children.forEach(function (obj) {
+          if (obj.isGroup) {
+            var bar = obj.children[0];
+            bar.rotation.z = bar.userData.startZ - Math.PI * playhead;
+          }
+        });
+      }
+    }
+
+    var curve1 = new SinCurve1(4.5);
+    var dna = new DNA(curve1, 95);
+    dna.position.set(0, 0, 0);
     dna.rotation.y = -0.35;
-    dna.position.x = 0;
+    dna.scale.setScalar(0.82);
     scene.add(dna);
 
     var start = performance.now();
 
     function resize() {
-      var w = host.clientWidth || 1;
-      var h = host.clientHeight || 1;
-      camera.aspect = w / h;
+      var width = host.clientWidth || 1;
+      var height = host.clientHeight || 1;
+      camera.aspect = width / height;
       camera.updateProjectionMatrix();
-      renderer.setSize(w, h, false);
+      renderer.setSize(width, height, false);
     }
 
     function animate() {
       requestAnimationFrame(animate);
       var playhead = ((performance.now() - start) / 30000) % 1;
-      dna.children.forEach(function (obj, idx) {
-        var bar = obj.children[0];
-        bar.rotation.z = bar.userData.startZ - Math.PI * (playhead * 8);
-      });
+      dna.update(playhead * 8);
       renderer.render(scene, camera);
     }
 
