@@ -70,7 +70,7 @@
     // Tunable parameters for final visual refinement
     var TOTAL_RUNGS = 110; // number of rung groups along the helix
     var CURVE_SCALE = 4.2; // overall size of the helix curve (reduced to shorten vertical extent)
-    var DNA_SCALE = 0.7; // final scale applied to the DNA group (reduced to avoid visual dominance)
+    var DNA_SCALE = 0.55; // final scale applied to the DNA group (reduced to avoid visual dominance)
     var DNA_POS_Y = -16; // vertical position to avoid clipping at top
     var CYL_HEIGHT = 0.75; // height of the small cylinders (rung halves)
     var SPHERE_OFFSET = 0.25; // offset of the end spheres from the rung center
@@ -156,8 +156,8 @@
 
     var curve1 = new SinCurve1(CURVE_SCALE);
     var dna = new DNA(curve1, TOTAL_RUNGS);
-    // recentraliza e afasta levemente em z para evitar cortes laterais
-    dna.position.set(0, DNA_POS_Y, 16);
+    // posiciona à direita e afasta levemente em z para evitar cortes laterais
+    dna.position.set(6, DNA_POS_Y, 16);
     dna.rotation.y = -0.25;
     dna.scale.setScalar(DNA_SCALE);
     scene.add(dna);
