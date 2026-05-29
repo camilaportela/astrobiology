@@ -16,8 +16,8 @@
   left: auto;
   right: 0;
   bottom: auto;
-  width: min(16vw, 140px);
-  height: min(62vh, 560px);
+  width: min(20vw, 220px);
+  height: min(72vh, 640px);
   overflow: visible;
   pointer-events: none;
   z-index: 2;
