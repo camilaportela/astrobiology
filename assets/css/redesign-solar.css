@@ -11,10 +11,13 @@
 
 .redesign-dna-stage {
   position: absolute;
-  top: clamp(1rem, 2.5vh, 1.75rem);
+  /* ocupar toda a altura para evitar corte superior/inferior */
+  top: 0;
   right: clamp(0.75rem, 1.8vw, 1.5rem);
-  bottom: clamp(1rem, 2.5vh, 1.75rem);
-  width: min(38vw, 480px);
+  bottom: 0;
+  height: 100vh;
+  /* sem largura fixa: deixa o conteúdo fluir e evita cortes laterais */
+  width: auto;
   overflow: visible;
   pointer-events: none;
   z-index: 2;
