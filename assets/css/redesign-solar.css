@@ -11,13 +11,13 @@
 
 .redesign-dna-stage {
   position: absolute;
-  /* ocupar toda a altura para evitar corte superior/inferior */
+  /* prender na lateral esquerda e limitar a altura acima dos cards */
   top: 0;
-  right: clamp(0.75rem, 1.8vw, 1.5rem);
-  bottom: 0;
-  height: 100vh;
-  /* sem largura fixa: deixa o conteúdo fluir e evita cortes laterais */
-  width: auto;
+  left: 0;
+  right: auto;
+  bottom: auto;
+  width: min(16vw, 140px);
+  height: min(62vh, 560px);
   overflow: visible;
   pointer-events: none;
   z-index: 2;
