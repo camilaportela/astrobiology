@@ -70,7 +70,8 @@
     // Tunable parameters for final visual refinement
     var TOTAL_RUNGS = 110; // number of rung groups along the helix
     var CURVE_SCALE = 4.8; // overall size of the helix curve
-    var DNA_SCALE = 0.92; // final scale applied to the DNA group
+    var DNA_SCALE = 0.7; // final scale applied to the DNA group (reduced to avoid visual dominance)
+    var DNA_POS_Y = -12; // vertical position to avoid clipping at top
     var CYL_HEIGHT = 0.75; // height of the small cylinders (rung halves)
     var SPHERE_OFFSET = 0.25; // offset of the end spheres from the rung center
     var PLAYHEAD_PERIOD_MS = 26000; // base period for one full playhead cycle
@@ -155,7 +156,7 @@
 
     var curve1 = new SinCurve1(CURVE_SCALE);
     var dna = new DNA(curve1, TOTAL_RUNGS);
-    dna.position.set(1, -21, 13);
+    dna.position.set(1, DNA_POS_Y, 13);
     dna.rotation.y = -0.25;
     dna.scale.setScalar(DNA_SCALE);
     scene.add(dna);
@@ -170,7 +171,7 @@
       renderer.setSize(width, height, false);
 
       dna.position.x = 1;
-      dna.position.y = -21;
+      dna.position.y = DNA_POS_Y;
     }
 
     function animate() {
