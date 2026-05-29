@@ -753,8 +753,9 @@
     });
 
     var moonGeometry = new THREE.SphereGeometry(1.5, 30, 30);
+    var moonTexture = loadPlanetTexture("2k_lua.jpg", "Lua", createSolidTexture("#b7bcc6"));
     var moonMaterial = new THREE.MeshBasicMaterial({
-      map: createSolidTexture("#b7bcc6")
+      map: moonTexture
     });
     var moon = new THREE.Mesh(moonGeometry, moonMaterial);
     var moonObj = new THREE.Object3D();
