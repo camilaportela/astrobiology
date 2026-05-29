@@ -28,6 +28,12 @@
   transform-style: preserve-3d;
 }
 
+.redesign-dna-stage__helix canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
 .redesign-dna-rung {
   position: absolute;
   left: 0;

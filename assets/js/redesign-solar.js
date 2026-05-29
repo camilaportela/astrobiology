@@ -13,9 +13,7 @@
     var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var SOLAR_SPEED = reduceMotion ? 0.035 : 0.24;
     var SOLAR_VERTICAL_OFFSET = 44;
-    var dnaStage = null;
-    var dnaRungs = [];
-    var dnaStartTime = performance.now();
+    // DNA helix is now handled by a separate module `redesign-dna.js`
 
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(40, 1, 0.1, 3000);
@@ -776,43 +774,7 @@
       { planet: neptune, speed: 0.018, orbitalSpeed: 0.001 }
     ];
 
-    dnaStage = document.querySelector("[data-dna-stage]");
-
-    function createDNAHelixStage() {
-      if (!dnaStage) {
-        return;
-      }
-
-      var helixHost = dnaStage.querySelector("[data-dna-helix]");
-      if (!helixHost) {
-        return;
-      }
-
-      var total = 92;
-      helixHost.innerHTML = "";
-      dnaRungs = [];
-
-      for (var i = 0; i < total; i += 1) {
-        var rung = document.createElement("div");
-        rung.className = "redesign-dna-rung";
-        rung.innerHTML = [
-          '<div class="redesign-dna-rung__core">',
-          '  <span class="redesign-dna-rung__cylinder redesign-dna-rung__cylinder--top"></span>',
-          '  <span class="redesign-dna-rung__cylinder redesign-dna-rung__cylinder--bottom"></span>',
-          '  <span class="redesign-dna-rung__sphere redesign-dna-rung__sphere--top"></span>',
-          '  <span class="redesign-dna-rung__sphere redesign-dna-rung__sphere--bottom"></span>',
-          '</div>'
-        ].join("");
-
-        helixHost.appendChild(rung);
-        dnaRungs.push({
-          node: rung,
-          core: rung.querySelector(".redesign-dna-rung__core"),
-          phase: i / total,
-          startRotation: Math.PI * (i / 10)
-        });
-      }
-    }
+    // DOM-based DNA helix removed; see assets/js/redesign-dna.js for canvas-based helix
 
     function resizeSolar() {
       var width = container.clientWidth || 1;
@@ -826,36 +788,7 @@
       solarRoot.position.y = SOLAR_VERTICAL_OFFSET;
     }
 
-    function updateDNAHelixStage(playhead) {
-      if (!dnaStage || !dnaRungs.length) {
-        return;
-      }
-
-      var width = dnaStage.clientWidth || 1;
-      var height = dnaStage.clientHeight || 1;
-      var centerX = width * 0.72;
-      var centerY = height * 0.5;
-      var radiusX = Math.min(width * 0.17, 58);
-      var totalHeight = height * 0.84;
-      var totalTurns = 2.6;
-
-      for (var i = 0; i < dnaRungs.length; i += 1) {
-        var rungData = dnaRungs[i];
-        var t = rungData.phase;
-        var angle = Math.PI * 2 * totalTurns * t;
-        var x = centerX + Math.sin(angle) * radiusX;
-        var y = centerY + (t - 0.5) * totalHeight;
-        var depth = Math.cos(angle);
-        var scale = 0.75 + ((depth + 1) * 0.14);
-        var opacity = 0.6 + ((depth + 1) * 0.17);
-        var rungRotation = rungData.startRotation - Math.PI * playhead;
-
-        rungData.node.style.transform = "translate3d(" + x + "px, " + y + "px, " + (depth * 120) + "px) translate(-50%, -50%) scale(" + scale + ")";
-        rungData.node.style.opacity = opacity.toFixed(3);
-        rungData.node.style.zIndex = String(Math.round((depth + 1) * 1000));
-        rungData.core.style.transform = "rotate(" + (rungRotation * 180 / Math.PI) + "deg)";
-      }
-    }
+    // DOM-based DNA helix removed; rendering handled in assets/js/redesign-dna.js
 
     function updateOrbitVisibility() {
       for (var i = 0; i < orbitMeshes.length; i += 1) {
@@ -880,10 +813,7 @@
       moon.rotateY(0.01 * SOLAR_SPEED);
       moonObj.rotateY(0.03 * SOLAR_SPEED);
 
-      if (dnaStage) {
-        var playhead = ((performance.now() - dnaStartTime) / 30000) % 1;
-        updateDNAHelixStage(playhead * 8);
-      }
+      // DNA helix handled by separate canvas module
 
       controls.update();
       updateOrbitVisibility();
@@ -891,7 +821,7 @@
     }
 
     window.addEventListener("resize", resizeSolar, { passive: true });
-    createDNAHelixStage();
+    // createDNAHelixStage removed
     resizeSolar();
     animate();
   }
