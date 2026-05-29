@@ -67,10 +67,19 @@
     var camera = new THREE.PerspectiveCamera(60, 1, 0.01, 1000);
     camera.position.set(0, 0, 25);
 
+    // Tunable parameters for final visual refinement
+    var TOTAL_RUNGS = 110; // number of rung groups along the helix
+    var CURVE_SCALE = 4.8; // overall size of the helix curve
+    var DNA_SCALE = 0.92; // final scale applied to the DNA group
+    var CYL_HEIGHT = 0.75; // height of the small cylinders (rung halves)
+    var SPHERE_OFFSET = 0.25; // offset of the end spheres from the rung center
+    var PLAYHEAD_PERIOD_MS = 26000; // base period for one full playhead cycle
+    var PLAYHEAD_MULTIPLIER = 8; // playhead multiplier to match rotation rhythm
+
     var fresnelMat = createFresnelMaterial(0xb4f1ff, 0x475fbd);
     var fresnelMat2 = createFresnelMaterial(0xf9dbff, 0xc520cb);
 
-    var cylGeo = new THREE.CylinderGeometry(0.1, 0.1, 0.825, 16, 1, true);
+    var cylGeo = new THREE.CylinderGeometry(0.1, 0.1, CYL_HEIGHT, 16, 1, true);
     var sphGeo = new THREE.SphereGeometry(0.3, 32, 32);
 
     class SinCurve1 extends THREE.Curve {
@@ -99,10 +108,10 @@
       cylinder2.position.y = -cylGeo.parameters.height / 4;
 
       var sphere = new THREE.Mesh(sphGeo, fresnelMat);
-      sphere.position.y = cylGeo.parameters.height / 2 + 0.25;
+      sphere.position.y = cylGeo.parameters.height / 2 + SPHERE_OFFSET;
 
       var sphere2 = new THREE.Mesh(sphGeo, fresnelMat2);
-      sphere2.position.y = -cylGeo.parameters.height / 2 - 0.25;
+      sphere2.position.y = -cylGeo.parameters.height / 2 - SPHERE_OFFSET;
 
       var barGroup = new THREE.Group();
       barGroup.add(cylinder);
@@ -116,7 +125,7 @@
       constructor(curve, total) {
         super();
 
-        total = total || 95;
+        total = total || TOTAL_RUNGS;
 
         for (var i = 1; i <= total; i += 1) {
           var bGroup = new THREE.Group();
@@ -144,11 +153,11 @@
       }
     }
 
-    var curve1 = new SinCurve1(4.5);
-    var dna = new DNA(curve1, 95);
+    var curve1 = new SinCurve1(CURVE_SCALE);
+    var dna = new DNA(curve1, TOTAL_RUNGS);
     dna.position.set(1, -21, 13);
     dna.rotation.y = -0.25;
-    dna.scale.setScalar(1);
+    dna.scale.setScalar(DNA_SCALE);
     scene.add(dna);
 
     var start = performance.now();
@@ -166,8 +175,8 @@
 
     function animate() {
       requestAnimationFrame(animate);
-      var playhead = ((performance.now() - start) / 30000) % 1;
-      dna.update(playhead * 8);
+      var playhead = ((performance.now() - start) / PLAYHEAD_PERIOD_MS) % 1;
+      dna.update(playhead * PLAYHEAD_MULTIPLIER);
       renderer.render(scene, camera);
     }
 
