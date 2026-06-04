@@ -6,10 +6,10 @@
       uniforms: {
         color1: { value: new THREE.Color(colorEdge) },
         color2: { value: new THREE.Color(colorBase) },
-        alpha: { value: 0.75 },
-        fresnelBias: { value: 0.1 },
-        fresnelScale: { value: 1.0 },
-        fresnelPower: { value: 1.3 }
+        alpha: { value: 0.62 },
+        fresnelBias: { value: 0.08 },
+        fresnelScale: { value: 1.2 },
+        fresnelPower: { value: 1.45 }
       },
       vertexShader: [
         'uniform float fresnelBias;',
@@ -69,8 +69,8 @@
 
     var target = new THREE.Vector3();
 
-    var fresnelMat = createFresnelMaterial(0xb4f1ff, 0x475fbd);
-    var fresnelMat2 = createFresnelMaterial(0xf9dbff, 0xc520cb);
+    var fresnelMat = createFresnelMaterial(0xffffff, 0x707883);
+    var fresnelMat2 = createFresnelMaterial(0xf5f7fa, 0x3f4650);
 
     class SinCurve1 extends THREE.Curve {
       constructor(scale) {
