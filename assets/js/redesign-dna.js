@@ -148,6 +148,7 @@
     var dna1 = new DNA(curve1, 95);
     scene.add(dna1);
     dna1.position.set(1, -21, 13);
+    dna1.scale.setScalar(0.9);
 
     var start = performance.now();
 
