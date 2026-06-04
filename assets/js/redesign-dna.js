@@ -62,7 +62,7 @@
     host.appendChild(renderer.domElement);
 
     var scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0d1528);
+    scene.background = null;
 
     var camera = new THREE.PerspectiveCamera(60, 1, 0.01, 1000);
     camera.position.set(0, 0, 25);
@@ -71,10 +71,6 @@
 
     var fresnelMat = createFresnelMaterial(0xb4f1ff, 0x475fbd);
     var fresnelMat2 = createFresnelMaterial(0xf9dbff, 0xc520cb);
-
-    var colors = {
-      particleColor: 0xffffff
-    };
 
     class SinCurve1 extends THREE.Curve {
       constructor(scale) {
@@ -94,45 +90,7 @@
       }
     }
 
-    class SinCurve2 extends THREE.Curve {
-      constructor(scale) {
-        super();
-        this.scale = scale === undefined ? 1 : scale;
-      }
-
-      getPoint(t, targetPoint) {
-        var ty = t * 10;
-        var tx = Math.sin(2 * Math.PI * t);
-        var tz = Math.cos(2 * Math.PI * t);
-        var point = new THREE.Vector3(tx, ty, tz).multiplyScalar(this.scale);
-        if (targetPoint) {
-          targetPoint.copy(point);
-        }
-        return point;
-      }
-    }
-
-    class SinCurve3 extends THREE.Curve {
-      constructor(scale) {
-        super();
-        this.scale = scale === undefined ? 1 : scale;
-      }
-
-      getPoint(t, targetPoint) {
-        var ty = t * 15;
-        var tx = -Math.sin(2.8 * Math.PI * t);
-        var tz = -Math.cos(2.8 * Math.PI * t);
-        var point = new THREE.Vector3(tx, ty, tz).multiplyScalar(this.scale);
-        if (targetPoint) {
-          targetPoint.copy(point);
-        }
-        return point;
-      }
-    }
-
     var curve1 = new SinCurve1(4.5);
-    var curve2 = new SinCurve2(6);
-    var curve3 = new SinCurve3(4);
 
     var cylLength = 1.65;
     var cylGeo = new THREE.CylinderGeometry(0.1, 0.1, cylLength / 2, 16, 1, true);
@@ -187,123 +145,15 @@
       }
     }
 
-    var ParticleShader = {
-      uniforms: {
-        color: { type: 'v3', value: new THREE.Color(colors.particleColor) },
-        texture: { type: 't', value: null },
-        time: { type: 'f', value: 0 },
-        size: { type: 'f', value: 50.0 }
-      },
-      vertexShader: [
-        'uniform float time;',
-        'uniform float size;',
-        'attribute float alphaOffset;',
-        'varying float vAlpha;',
-        'uniform vec4 origin;',
-        '',
-        'void main() {',
-        '',
-        '  vAlpha = 0.5 * ( 1.0 + sin( alphaOffset + time ) );',
-        '',
-        '  vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );',
-        '  float cameraDist = distance( mvPosition, origin );',
-        '  gl_PointSize = size / cameraDist;',
-        '  gl_Position = projectionMatrix * mvPosition;',
-        '',
-        '}'
-      ].join('\n'),
-      fragmentShader: [
-        'uniform float time;',
-        'uniform vec3 color;',
-        '',
-        'varying float vAlpha;',
-        '',
-        'void main() {',
-        '  vec2 center = gl_PointCoord - 0.5;',
-        '  float dist = length(center);',
-        '  float alpha = smoothstep(0.5, 0.1, dist) * vAlpha;',
-        '  gl_FragColor = vec4( color, alpha );',
-        '}'
-      ].join('\n')
-    };
-
-    class Particles extends THREE.Group {
-      constructor(options) {
-        options = options || {};
-
-        var size = options.size === undefined ? 0.4 : options.size;
-        var pointCount = options.pointCount === undefined ? 40 : options.pointCount;
-        var range = options.range || new THREE.Vector3(2, 2, 2);
-
-        super();
-
-        ParticleShader.uniforms.size.value = size;
-
-        var pointsMat = new THREE.ShaderMaterial({
-          uniforms: ParticleShader.uniforms,
-          vertexShader: ParticleShader.vertexShader,
-          fragmentShader: ParticleShader.fragmentShader,
-          blending: THREE.AdditiveBlending,
-          depthWrite: false,
-          transparent: true
-        });
-
-        var pointsGeo = new THREE.BufferGeometry();
-        var positions = new Float32Array(pointCount * 3);
-        var alphas = new Float32Array(pointCount);
-
-        for (var i = 0; i < pointCount; i += 1) {
-          positions[i * 3 + 0] = THREE.MathUtils.randFloatSpread(range.x);
-          positions[i * 3 + 1] = THREE.MathUtils.randFloatSpread(range.y);
-          positions[i * 3 + 2] = THREE.MathUtils.randFloatSpread(range.z);
-          alphas[i] = i;
-        }
-
-        pointsGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        pointsGeo.setAttribute('alphaOffset', new THREE.BufferAttribute(alphas, 1));
-
-        var points = this.points = new THREE.Points(pointsGeo, pointsMat);
-        points.sortParticles = true;
-        points.renderOrder = 1;
-
-        this.add(points);
-      }
-    }
-
-    function getParticleSize() {
-      var size = 400 * (window.innerHeight / 900);
-      return Math.max(size, 150);
-    }
-
     var dna1 = new DNA(curve1, 95);
     scene.add(dna1);
     dna1.position.set(1, -21, 13);
-
-    var dna2 = new DNA(curve2, 100);
-    scene.add(dna2);
-    dna2.position.set(10, -30, -4);
-
-    var dna3 = new DNA(curve3, 100);
-    scene.add(dna3);
-    dna3.position.set(-10, -28, -4);
-
-    var particles = new Particles({
-      range: new THREE.Vector3(50, 50, 50),
-      pointCount: 200,
-      size: getParticleSize()
-    });
-    scene.add(particles);
-
-    var timeline = {
-      playhead: 0
-    };
 
     var start = performance.now();
 
     function resize() {
       var width = host.clientWidth || 1;
       var height = host.clientHeight || 1;
-      particles.points.material.uniforms.size.value = getParticleSize();
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height, false);
@@ -311,11 +161,8 @@
 
     function loop() {
       var playhead = ((performance.now() - start) / 30000) % 1;
-      timeline.playhead = playhead;
 
       dna1.update(playhead * 8);
-      dna2.update(playhead * 8);
-      dna3.update(playhead * 8);
 
       camera.position.x = -Math.sin(2 * Math.PI * playhead) * 25;
       camera.position.z = Math.cos(2 * Math.PI * playhead) * 25;
