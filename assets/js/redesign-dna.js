@@ -62,26 +62,19 @@
     host.appendChild(renderer.domElement);
 
     var scene = new THREE.Scene();
-    scene.background = null;
+    scene.background = new THREE.Color(0x0d1528);
 
     var camera = new THREE.PerspectiveCamera(60, 1, 0.01, 1000);
-    camera.position.set(0, 0, 28);
+    camera.position.set(0, 0, 25);
 
-    // Tunable parameters for final visual refinement
-    var TOTAL_RUNGS = 110; // number of rung groups along the helix
-    var CURVE_SCALE = 4.0; // overall size of the helix curve (slightly shorter to avoid bottom clipping)
-    var DNA_TARGET_POSITION = new THREE.Vector3(8.0, -1.5, 16); // keep the helix on the right side of the frame
-    var FIT_PADDING = 0.72; // preserve a safe margin so the helix never clips
-    var CYL_HEIGHT = 0.75; // height of the small cylinders (rung halves)
-    var SPHERE_OFFSET = 0.25; // offset of the end spheres from the rung center
-    var PLAYHEAD_PERIOD_MS = 26000; // base period for one full playhead cycle
-    var PLAYHEAD_MULTIPLIER = 8; // playhead multiplier to match rotation rhythm
+    var target = new THREE.Vector3();
 
     var fresnelMat = createFresnelMaterial(0xb4f1ff, 0x475fbd);
     var fresnelMat2 = createFresnelMaterial(0xf9dbff, 0xc520cb);
 
-    var cylGeo = new THREE.CylinderGeometry(0.1, 0.1, CYL_HEIGHT, 16, 1, true);
-    var sphGeo = new THREE.SphereGeometry(0.3, 32, 32);
+    var colors = {
+      particleColor: 0xffffff
+    };
 
     class SinCurve1 extends THREE.Curve {
       constructor(scale) {
@@ -89,49 +82,89 @@
         this.scale = scale === undefined ? 1 : scale;
       }
 
-      getPoint(t, target) {
+      getPoint(t, targetPoint) {
         var ty = t * 10;
         var tx = Math.sin(2.5 * Math.PI * t);
         var tz = Math.cos(2.5 * Math.PI * t);
         var point = new THREE.Vector3(tx, ty, tz).multiplyScalar(this.scale);
-        if (target) {
-          target.copy(point);
+        if (targetPoint) {
+          targetPoint.copy(point);
         }
         return point;
       }
     }
 
-    function createRung() {
-      var cylinder = new THREE.Mesh(cylGeo, fresnelMat);
-      cylinder.position.y = cylGeo.parameters.height / 4;
+    class SinCurve2 extends THREE.Curve {
+      constructor(scale) {
+        super();
+        this.scale = scale === undefined ? 1 : scale;
+      }
 
-      var cylinder2 = new THREE.Mesh(cylGeo, fresnelMat2);
-      cylinder2.position.y = -cylGeo.parameters.height / 4;
-
-      var sphere = new THREE.Mesh(sphGeo, fresnelMat);
-      sphere.position.y = cylGeo.parameters.height / 2 + SPHERE_OFFSET;
-
-      var sphere2 = new THREE.Mesh(sphGeo, fresnelMat2);
-      sphere2.position.y = -cylGeo.parameters.height / 2 - SPHERE_OFFSET;
-
-      var barGroup = new THREE.Group();
-      barGroup.add(cylinder);
-      barGroup.add(cylinder2);
-      barGroup.add(sphere);
-      barGroup.add(sphere2);
-      return barGroup;
+      getPoint(t, targetPoint) {
+        var ty = t * 10;
+        var tx = Math.sin(2 * Math.PI * t);
+        var tz = Math.cos(2 * Math.PI * t);
+        var point = new THREE.Vector3(tx, ty, tz).multiplyScalar(this.scale);
+        if (targetPoint) {
+          targetPoint.copy(point);
+        }
+        return point;
+      }
     }
+
+    class SinCurve3 extends THREE.Curve {
+      constructor(scale) {
+        super();
+        this.scale = scale === undefined ? 1 : scale;
+      }
+
+      getPoint(t, targetPoint) {
+        var ty = t * 15;
+        var tx = -Math.sin(2.8 * Math.PI * t);
+        var tz = -Math.cos(2.8 * Math.PI * t);
+        var point = new THREE.Vector3(tx, ty, tz).multiplyScalar(this.scale);
+        if (targetPoint) {
+          targetPoint.copy(point);
+        }
+        return point;
+      }
+    }
+
+    var curve1 = new SinCurve1(4.5);
+    var curve2 = new SinCurve2(6);
+    var curve3 = new SinCurve3(4);
+
+    var cylLength = 1.65;
+    var cylGeo = new THREE.CylinderGeometry(0.1, 0.1, cylLength / 2, 16, 1, true);
+    var sphereGeo = new THREE.SphereGeometry(0.3, 32, 32);
 
     class DNA extends THREE.Group {
       constructor(curve, total) {
         super();
 
-        total = total || TOTAL_RUNGS;
+        var cylinder = new THREE.Mesh(cylGeo, fresnelMat);
+        cylinder.position.y = cylLength / 4;
+
+        var cylinder2 = new THREE.Mesh(cylGeo, fresnelMat2);
+        cylinder2.position.y = -cylLength / 4;
+
+        var sphere = new THREE.Mesh(sphereGeo, fresnelMat);
+        sphere.position.y = cylLength / 2 + 0.25;
+
+        var sphere2 = new THREE.Mesh(sphereGeo, fresnelMat2);
+        sphere2.position.y = -cylLength / 2 - 0.25;
+
+        var barGroup = new THREE.Group();
+        barGroup.add(cylinder);
+        barGroup.add(cylinder2);
+        barGroup.add(sphere);
+        barGroup.add(sphere2);
+
+        total = total || 80;
 
         for (var i = 1; i <= total; i += 1) {
           var bGroup = new THREE.Group();
-          var bar = createRung();
-
+          var bar = barGroup.clone();
           bar.rotation.z = Math.PI * (i / 10);
           bar.userData.startZ = bar.rotation.z;
           bGroup.add(bar);
@@ -154,57 +187,151 @@
       }
     }
 
-    var curve1 = new SinCurve1(CURVE_SCALE);
-    var dna = new DNA(curve1, TOTAL_RUNGS);
-    dna.position.copy(DNA_TARGET_POSITION);
-    dna.rotation.y = -0.25;
-    scene.add(dna);
+    var ParticleShader = {
+      uniforms: {
+        color: { type: 'v3', value: new THREE.Color(colors.particleColor) },
+        texture: { type: 't', value: null },
+        time: { type: 'f', value: 0 },
+        size: { type: 'f', value: 50.0 }
+      },
+      vertexShader: [
+        'uniform float time;',
+        'uniform float size;',
+        'attribute float alphaOffset;',
+        'varying float vAlpha;',
+        'uniform vec4 origin;',
+        '',
+        'void main() {',
+        '',
+        '  vAlpha = 0.5 * ( 1.0 + sin( alphaOffset + time ) );',
+        '',
+        '  vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );',
+        '  float cameraDist = distance( mvPosition, origin );',
+        '  gl_PointSize = size / cameraDist;',
+        '  gl_Position = projectionMatrix * mvPosition;',
+        '',
+        '}'
+      ].join('\n'),
+      fragmentShader: [
+        'uniform float time;',
+        'uniform vec3 color;',
+        '',
+        'varying float vAlpha;',
+        '',
+        'void main() {',
+        '  vec2 center = gl_PointCoord - 0.5;',
+        '  float dist = length(center);',
+        '  float alpha = smoothstep(0.5, 0.1, dist) * vAlpha;',
+        '  gl_FragColor = vec4( color, alpha );',
+        '}'
+      ].join('\n')
+    };
+
+    class Particles extends THREE.Group {
+      constructor(options) {
+        options = options || {};
+
+        var size = options.size === undefined ? 0.4 : options.size;
+        var pointCount = options.pointCount === undefined ? 40 : options.pointCount;
+        var range = options.range || new THREE.Vector3(2, 2, 2);
+
+        super();
+
+        ParticleShader.uniforms.size.value = size;
+
+        var pointsMat = new THREE.ShaderMaterial({
+          uniforms: ParticleShader.uniforms,
+          vertexShader: ParticleShader.vertexShader,
+          fragmentShader: ParticleShader.fragmentShader,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+          transparent: true
+        });
+
+        var pointsGeo = new THREE.BufferGeometry();
+        var positions = new Float32Array(pointCount * 3);
+        var alphas = new Float32Array(pointCount);
+
+        for (var i = 0; i < pointCount; i += 1) {
+          positions[i * 3 + 0] = THREE.MathUtils.randFloatSpread(range.x);
+          positions[i * 3 + 1] = THREE.MathUtils.randFloatSpread(range.y);
+          positions[i * 3 + 2] = THREE.MathUtils.randFloatSpread(range.z);
+          alphas[i] = i;
+        }
+
+        pointsGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        pointsGeo.setAttribute('alphaOffset', new THREE.BufferAttribute(alphas, 1));
+
+        var points = this.points = new THREE.Points(pointsGeo, pointsMat);
+        points.sortParticles = true;
+        points.renderOrder = 1;
+
+        this.add(points);
+      }
+    }
+
+    function getParticleSize() {
+      var size = 400 * (window.innerHeight / 900);
+      return Math.max(size, 150);
+    }
+
+    var dna1 = new DNA(curve1, 95);
+    scene.add(dna1);
+    dna1.position.set(1, -21, 13);
+
+    var dna2 = new DNA(curve2, 100);
+    scene.add(dna2);
+    dna2.position.set(10, -30, -4);
+
+    var dna3 = new DNA(curve3, 100);
+    scene.add(dna3);
+    dna3.position.set(-10, -28, -4);
+
+    var particles = new Particles({
+      range: new THREE.Vector3(50, 50, 50),
+      pointCount: 200,
+      size: getParticleSize()
+    });
+    scene.add(particles);
+
+    var timeline = {
+      playhead: 0
+    };
 
     var start = performance.now();
-
-    function fitDNA() {
-      var visibleHeight = 2 * Math.tan((camera.fov * Math.PI / 180) / 2) * (camera.position.z - DNA_TARGET_POSITION.z);
-      var visibleWidth = visibleHeight * camera.aspect;
-
-      dna.scale.setScalar(1);
-      dna.position.copy(DNA_TARGET_POSITION);
-      scene.updateMatrixWorld(true);
-
-      var unscaledBox = new THREE.Box3().setFromObject(dna);
-      var unscaledSize = unscaledBox.getSize(new THREE.Vector3());
-      var fitScale = Math.min(
-        (visibleHeight * FIT_PADDING) / unscaledSize.y,
-        (visibleWidth * FIT_PADDING) / unscaledSize.x
-      );
-
-      dna.scale.setScalar(fitScale);
-      scene.updateMatrixWorld(true);
-
-      var fittedBox = new THREE.Box3().setFromObject(dna);
-      var fittedCenter = fittedBox.getCenter(new THREE.Vector3());
-      dna.position.add(DNA_TARGET_POSITION.clone().sub(fittedCenter));
-    }
 
     function resize() {
       var width = host.clientWidth || 1;
       var height = host.clientHeight || 1;
+      particles.points.material.uniforms.size.value = getParticleSize();
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height, false);
-
-      fitDNA();
     }
 
-    function animate() {
-      requestAnimationFrame(animate);
-      var playhead = ((performance.now() - start) / PLAYHEAD_PERIOD_MS) % 1;
-      dna.update(playhead * PLAYHEAD_MULTIPLIER);
+    function loop() {
+      var playhead = ((performance.now() - start) / 30000) % 1;
+      timeline.playhead = playhead;
+
+      dna1.update(playhead * 8);
+      dna2.update(playhead * 8);
+      dna3.update(playhead * 8);
+
+      camera.position.x = -Math.sin(2 * Math.PI * playhead) * 25;
+      camera.position.z = Math.cos(2 * Math.PI * playhead) * 25;
+      camera.position.y = Math.sin(4 * Math.PI * playhead) * 5;
+
+      target.x = -Math.sin(2 * Math.PI * playhead) * 10;
+      target.z = Math.cos(2 * Math.PI * playhead) * 10;
+      camera.lookAt(target);
+
       renderer.render(scene, camera);
+      requestAnimationFrame(loop);
     }
 
     window.addEventListener('resize', resize, { passive: true });
     resize();
-    animate();
+    loop();
   }
 
   if (document.readyState === 'loading') {
