@@ -65,13 +65,13 @@
     scene.background = null;
 
     var camera = new THREE.PerspectiveCamera(60, 1, 0.01, 1000);
-    camera.position.set(0, 0, 25);
+    camera.position.set(0, 0, 28);
 
     // Tunable parameters for final visual refinement
     var TOTAL_RUNGS = 110; // number of rung groups along the helix
     var CURVE_SCALE = 4.0; // overall size of the helix curve (slightly shorter to avoid bottom clipping)
-    var DNA_SCALE = 0.38; // final scale applied to the DNA group (small, but visible on the right rail)
-    var DNA_POS_Y = -8; // vertical position to keep the helix within the right corridor
+    var DNA_TARGET_POSITION = new THREE.Vector3(8.0, -1.5, 16); // keep the helix on the right side of the frame
+    var FIT_PADDING = 0.72; // preserve a safe margin so the helix never clips
     var CYL_HEIGHT = 0.75; // height of the small cylinders (rung halves)
     var SPHERE_OFFSET = 0.25; // offset of the end spheres from the rung center
     var PLAYHEAD_PERIOD_MS = 26000; // base period for one full playhead cycle
@@ -156,13 +156,34 @@
 
     var curve1 = new SinCurve1(CURVE_SCALE);
     var dna = new DNA(curve1, TOTAL_RUNGS);
-    // posiciona no corredor direito sem encostar no limite externo
-    dna.position.set(-3, DNA_POS_Y, 16);
+    dna.position.copy(DNA_TARGET_POSITION);
     dna.rotation.y = -0.25;
-    dna.scale.setScalar(DNA_SCALE);
     scene.add(dna);
 
     var start = performance.now();
+
+    function fitDNA() {
+      var visibleHeight = 2 * Math.tan((camera.fov * Math.PI / 180) / 2) * (camera.position.z - DNA_TARGET_POSITION.z);
+      var visibleWidth = visibleHeight * camera.aspect;
+
+      dna.scale.setScalar(1);
+      dna.position.copy(DNA_TARGET_POSITION);
+      scene.updateMatrixWorld(true);
+
+      var unscaledBox = new THREE.Box3().setFromObject(dna);
+      var unscaledSize = unscaledBox.getSize(new THREE.Vector3());
+      var fitScale = Math.min(
+        (visibleHeight * FIT_PADDING) / unscaledSize.y,
+        (visibleWidth * FIT_PADDING) / unscaledSize.x
+      );
+
+      dna.scale.setScalar(fitScale);
+      scene.updateMatrixWorld(true);
+
+      var fittedBox = new THREE.Box3().setFromObject(dna);
+      var fittedCenter = fittedBox.getCenter(new THREE.Vector3());
+      dna.position.add(DNA_TARGET_POSITION.clone().sub(fittedCenter));
+    }
 
     function resize() {
       var width = host.clientWidth || 1;
@@ -171,8 +192,7 @@
       camera.updateProjectionMatrix();
       renderer.setSize(width, height, false);
 
-      dna.position.x = -3;
-      dna.position.y = DNA_POS_Y;
+      fitDNA();
     }
 
     function animate() {

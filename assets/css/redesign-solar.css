@@ -10,17 +10,16 @@
 }
 
 .redesign-dna-stage {
-  position: absolute;
-  /* prender na lateral direita e limitar a altura acima dos cards */
+  position: fixed;
   top: 0;
-  left: auto;
   right: 0;
-  bottom: auto;
-  width: min(30vw, 360px);
-  height: min(72vh, 640px);
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   overflow: visible;
   pointer-events: none;
-  z-index: 13;
+  z-index: 2;
 }
 
 .redesign-dna-stage__helix {
