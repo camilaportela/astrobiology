@@ -6,10 +6,10 @@
       uniforms: {
         color1: { value: new THREE.Color(colorEdge) },
         color2: { value: new THREE.Color(colorBase) },
-        alpha: { value: 0.75 },
+        alpha: { value: 0.34 },
         fresnelBias: { value: 0.1 },
-        fresnelScale: { value: 1.0 },
-        fresnelPower: { value: 1.3 }
+        fresnelScale: { value: 1.35 },
+        fresnelPower: { value: 1.8 }
       },
       vertexShader: [
         'uniform float fresnelBias;',
@@ -41,7 +41,8 @@
         '  gl_FragColor = vec4(mix(color2, color1, vec3(clamp( vReflectionFactor, 0.0, 1.0 ))), alpha);',
         '}'
       ].join('\n'),
-      transparent: true
+      transparent: true,
+      depthWrite: false
     });
   }
 
